@@ -46,6 +46,9 @@ in earlier drafts to get mistaken for decisions, so the split is now explicit.
 - The falsification-condition discipline in §5.
 - The ten-term dictionary in §7.
 - The four trial-run counts in §9.
+- The rung-2-is-the-test-runner rule in §5, and the live-code-loading test for which rung a language
+  sits on. Nathan's observation, my reasoning, neither tried. The "do not install a REPL" rule comes
+  from him having used the C# and Rust ones.
 
 **Already cut. Do not re-propose.**
 
@@ -199,26 +202,74 @@ format, or a naming convention.
 Prefer the highest rung the project supports. Drop to the next one only when the rung above does
 not work.
 
-**Rung 1. A real REPL, loaded with the project.** If the language has a REPL, use it. Load the
-project into it so the agent calls the actual functions. `lein repl` inside the project, `iex -S mix`,
-`python` with the package importable, `rails console`, `node` with the module required. A bare REPL
-is a calculator. A REPL with the project loaded is an instrument.
+**Rung 1. A real REPL, loaded with the project.** Load the project into it so the agent calls the
+actual functions. `lein repl` inside the project, `iex -S mix`, `python` with the package importable,
+`rails console`, `cabal repl`, `node` with the module required. A bare REPL is a calculator. A REPL
+with the project loaded is an instrument.
 
-**Rung 2. Language-native scratch execution, run and re-run.** For a compiled language with no
-REPL. A scratch `main`, a throwaway table test, `go run`, `cargo run` on a scratch bin. The agent
-edits and re-runs until the answer appears.
+**Rung 2. The project's test runner, driven as a scratch pad.** For every language where rung 1 is
+not real. `cargo test`, `go test -run`, `dotnet test`, JUnit, pytest when the import graph fights a
+bare interpreter. The agent writes a throwaway test, runs it, edits, re-runs. A scratch `main` or
+`go run` is the same rung and is fine when it is genuinely simpler, but the test runner is the better
+default. See below.
 
 **Rung 3. Shell scripts against the running system.** The final escape hatch. Bash or PowerShell
 that curls the webapp. Use this when the behavior only appears in a running service, or when the
 language offers neither of the rungs above.
+
+### Which rung a language is actually on
+
+Not "does a REPL exist for this language". The question is whether the runtime can load and redefine
+code in a live process.
+
+Where it can, rung 1 is real and nearly free: Lisps, Smalltalk, Erlang and Elixir, Python, Ruby,
+Node, Julia, R. The image is already a running program and the REPL is the front door to it.
+
+Where it cannot, the thing marketed as a REPL is a snippet compiler that restarts per expression. It
+holds no state, so it delivers none of rung 1's benefit while charging an install and a per-snippet
+compile. C# Interactive and `dotnet-script`, `evcxr` for Rust, and the various C++ interpreters are
+all rung 2 wearing a rung 1 costume. Java's `jshell` is the honest edge case, since the JDK ships it
+and it works, but pointing it at a real Gradle or Maven classpath is enough friction that the test
+runner usually wins anyway.
+
+**Do not install a REPL to satisfy this ladder.** If the toolchain did not already ship one and the
+project does not already use one, that absence is the signal that the language is on rung 2. Take
+the signal. An agent that spends twenty minutes installing a third-party interpreter has converted a
+cheap question into an expensive one, which inverts the entire point of §5.
+
+### Why the test runner is the right rung 2
+
+Two reasons, and the second is the load-bearing one.
+
+It is the blessed scripting layer. Rigid compiled languages tend to grow one place where you are
+allowed to write loose exploratory code against real objects, and it is the test target. The
+maintainers built it, the community standardized on it, and it is already wired into the build
+graph, the dependency resolution, and the toolchain. A scratch binary re-derives all of that badly.
+
+It reaches internals a scratch `main` cannot. A scratch `main` links against your public API and
+sees exactly what an outside consumer sees. An in-package Go test reads unexported identifiers, a
+Rust `#[cfg(test)]` module sees private items, and .NET test projects reach `internal` through
+`InternalsVisibleTo`. Most factual questions worth a REPL session are about internal behavior, so
+the harness that cannot see internals cannot answer them.
+
+**The scratch test is not a test.** This is where the polarity in §5 can collapse, so it gets a rule.
+A test written to answer a question is throwaway and gets deleted when the question is answered. It
+is never committed, never counted toward a CUJ's test table, and never allowed near the red gate.
+What survives is the finding, in the `Informed by` column. A scratch test that quietly graduates into
+the suite is a green test nobody designed, which is precisely the theater §4 exists to prevent.
 
 ### Why the ladder is ordered this way
 
 Cost per iteration, not taste.
 
 A REPL holds state between expressions. The agent builds understanding incrementally and never
-re-runs setup. A scratch script starts from zero every time, so every question pays the full startup
-cost again. A curl script starts from zero and also needs the service running and seeded first.
+re-runs setup. A test run starts from zero every time, so every question pays the full build and
+startup cost again. A curl script starts from zero and also needs the service running and seeded
+first.
+
+That is why rung 2 is one rung down and not a tie. The test runner is the cheapest harness available
+to a language that cannot hold state, and it is still more expensive per question than a language
+that can.
 
 Each rung down multiplies the cost of answering one question. That is the whole reason to prefer the
 top of the ladder. It is also why "just write a script" is a worse default than it looks.
