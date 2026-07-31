@@ -257,16 +257,34 @@ than one that fails with a clear message.
 
 Each failed probe prints the remediation command. That is the whole doctor.
 
-### Blocking fact to establish before writing the beads skill
+### The import contract
 
-The exact `bd import` JSONL schema. Field names, which are required, how dependency edges are
-expressed, how labels are expressed, how hierarchical IDs are formed, and what upsert keys on.
+Settled. Read from `gastownhall/beads` at `9fddc56`, against released 1.1.2, and written up in
+[`skills/beads/beads.schema.md`](skills/beads/beads.schema.md). The beads skill references that file
+rather than restating it.
 
-I could not read it here because the local `bd` is broken. Get it from `gastownhall/beads` source
-rather than from README examples, per the read-source-over-docs rule. It goes in
-`skills/beads/beads.schema.md` and the skill references it. A wrong schema means `bd import` rejects
-the file and step 3 produces nothing, with no fallback path to soften it, so this is the one item
-that must be nailed before the beads skill is written.
+Four findings change what the skill has to say.
+
+**The `updated_at` guard.** A row only overwrites an existing bead when its `updated_at` is strictly
+newer. Equal timestamps keep local state, and `updated_at` has second granularity. Regenerating the
+JSONL after a CUJ document revision and re-importing is therefore a silent no-op for every bead whose
+timestamp did not advance. The skill stamps a fresh `updated_at` on regeneration and reads the import
+output instead of assuming it applied. This behavior landed in 1.0.5, so it is live in every version
+anyone will install.
+
+**`priority` has no import default.** An omitted priority reads as 0, which is P0. The generator
+always writes it.
+
+**File order is free.** The importer topologically sorts rows itself and commits each bead with its
+blocking edges in one transaction, so the skill does not have to emit in dependency order. Removes a
+constraint an earlier draft assumed.
+
+**`--dry-run` exists.** The §4 graph validation gets a real pre-flight, and since one malformed record
+aborts the entire import, running it first is free insurance rather than ceremony.
+
+**Version floor: 1.1.0.** First stable of the current line, npm and Homebrew both serve 1.1.2, and
+everything the method uses is present. Hierarchical IDs and labels are old and set no floor of their
+own. This is the doctor's version check, and it is a real number rather than a placeholder.
 
 ## 6. Update and idempotency
 
@@ -302,8 +320,7 @@ running them out of order fails loudly instead of producing a CUJ doc from no sp
 
 ## 8. Build order
 
-1. Establish the beads JSONL schema from source. Blocks the beads skill and nothing else, so it
-   happens first and in parallel with step 2 if convenient.
+1. ~~Establish the beads JSONL schema from source.~~ Done. `skills/beads/beads.schema.md`.
 2. Write the three SKILL.md files and two templates. This is the actual product. Nothing else in this
    document matters if these are weak.
 3. Run the §9 trial run of the method document using those files, installed by hand with `cp`. No
@@ -328,6 +345,7 @@ this about error detection generally.
 3. Should `--global` install skills or install a Claude Code plugin? The method document said plugin.
    Skills are simpler and work for cursor and copilot too, and a plugin is Claude-only. I would ship
    skills first and add a plugin channel later if a coworker asks for it.
-4. Is there a minimum `bd` version the method depends on? §4 leans on hierarchical IDs and label
-   support. If those landed in a specific release, the doctor's version floor is a real check rather
-   than a placeholder. Answered while reading the source for the schema.
+Two questions that were listed here are gone. Both were factual, both named a version or a schema,
+and neither was ever allowed to reach a human under §5 of the method document. They were answered by
+reading `gastownhall/beads` and the answers are in §5 above. Recording the failure because it is the
+exact behavior the spec skill exists to prevent, and the plan for the tool should not model it.
