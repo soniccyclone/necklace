@@ -26,6 +26,17 @@ Same discipline as the method document. Validated facts are separated from propo
 - `necklace doctor` as a separate command from `necklace init --show`.
 - The manifest-based update strategy in §6.
 - The `--skip-beads-check` escape hatch in §5.
+- The working log in §9, and its framing as a write-ahead record rather than a summary. The need is
+  Nathan's, from losing session state that had not reached the documents yet. The shape is mine.
+- The per-ecosystem build-isolation table in §9. Python is verified on this machine. Go, .NET, Rust,
+  JVM, and Node are reasoned from how their build tools scope a directory and are not verified.
+
+**From Nathan's working practice.**
+
+- One checked-in planning directory per workflow run, holding both documents. Including the reason:
+  the documents answer "why was this decided" long after the conversation is gone.
+- Retaining REPL work in that directory rather than deleting it. He currently builds a venv per
+  planning directory.
 
 **Already cut. Do not re-propose.**
 
@@ -318,6 +329,11 @@ The method document's §6 layout stands. Three additions, all in `skills/beads/S
 One addition across all three: each skill states which artifact it consumes and which it produces, so
 running them out of order fails loudly instead of producing a CUJ doc from no spec doc.
 
+`skills/spec/SKILL.md` owns the planning directory from §9. It creates the directory, opens `log.md`
+before drafting anything, and performs the build-isolation move on the first run in a repo. All three
+skills append to the log as they go. The npm CLI is not involved: the directory is per workflow run,
+so it is created by the skill at use time, not by `necklace init` at install time.
+
 ## 8. Build order
 
 1. ~~Establish the beads JSONL schema from source.~~ Done. `skills/beads/beads.schema.md`.
@@ -337,7 +353,89 @@ entirely in steps 1 through 3. Ordering the trial run before the packaging is th
 cheapest place to find out the method needs revision, and §8 of the method document argues exactly
 this about error detection generally.
 
-## 9. Open
+## 9. The planning directory
+
+One directory per workflow run, checked into the repo.
+
+```
+docs/planning/
+└── 2026-07-31-restore-from-snapshot/
+    ├── spec.md            # the §2 document
+    ├── cuj.md             # the §3 document
+    ├── log.md             # the working log, see below
+    ├── beads.jsonl        # what was imported, kept as the record of the graph
+    └── repl/              # REPL work, retained
+        ├── requirements.txt
+        └── snapshot_ordering.py
+```
+
+Date prefix plus ticket slug. Sortable, and it matches how someone looks one up a year later.
+
+These are checked in on purpose. When an exec or a client asks why a decision was made, the spec doc
+is the answer, and an answer that lives in a chat transcript is not an answer. This is the artifact's
+second job and it costs nothing, since the documents were being written anyway.
+
+### The working log
+
+BMAD keeps a full transcript of its workflow conversation. Worth copying, with one change to what it
+is for.
+
+The log is a **write-ahead record, not a summary.** It is appended to as decisions land, during the
+work, not composed at the end. That distinction is the whole feature. A log written at the end of the
+workflow is worthless against the failure it exists to prevent, which is losing session state that
+had not yet reached spec.md or cuj.md. Reasoning that only exists in the context window is one
+compaction away from gone.
+
+What goes in: decisions and their reasons, rejected alternatives, judgment questions and the answers
+given, REPL findings as they arrive. What does not: a turn-by-turn transcript. There is no rule
+forcing it to record everything asked, because a log that must be complete becomes a log nobody
+writes.
+
+It is not a ledger in the accounting sense and §7 of the method document should get a term for it
+rather than letting "ledger" drift in, since that section exists precisely to catch this.
+
+### Keeping the planning directory out of the build
+
+This is the real engineering problem in the structure, and it has a different answer per ecosystem.
+Getting it wrong means the project's test suite silently adopts scratch tests, which is the §5
+polarity collapse arriving by accident rather than by carelessness.
+
+**Verified here.** A bare `pytest` at repo root collects `test_*.py` out of a planning directory. I
+built the layout above and it collected the scratch test alongside the real one. Adding
+`norecursedirs = docs/planning` to `pytest.ini` excludes it from the suite while leaving it directly
+runnable by path, which is exactly the property the method wants. A venv is already safe by accident,
+because pytest skips dot-directories and has `venv` in its default `norecursedirs`.
+
+**Reasoned, not verified.** No Go, .NET, Rust, or JVM toolchain on this machine. Each of these needs
+confirming on a box that has one, and each is a one-line fact that will take about a minute to check.
+
+| Ecosystem | The risk | The move |
+| --- | --- | --- |
+| Go | A root `go.mod` makes every subdirectory part of the module, so `go test ./...` walks in | Any of three blessed outs: a nested `go.mod` (the go tool excludes subdirectories that own one), a `testdata/` directory (ignored outright), or a directory whose name starts with `_` or `.`. Go is better at this than it looks. |
+| .NET | SDK-style projects glob `**/*.cs`, so a planning directory nested inside a project directory gets compiled into it, and a nested `.csproj` produces duplicate-compile errors rather than isolation | Put `docs/planning/` at repo root, outside any project directory. A solution only builds projects it lists, so a scratch `.csproj` there is invisible. Watch for a root `Directory.Build.props`, which chains down and can impose analyzers on scratch code. |
+| Rust | A nested crate inside a workspace directory makes cargo error about a package that believes it is in a workspace | One line. Either `exclude = ["docs/planning"]` in the root `[workspace]`, or an empty `[workspace]` table in the scratch crate's own `Cargo.toml` to declare it a separate root. |
+| JVM | The opposite problem. Maven modules and `settings.gradle` includes are explicit, so an undeclared directory is already ignored. The friction is running the scratch code at all, since it needs a build file and the parent's classpath | JBang is the right tool: single-file Java with dependencies declared in comments and no build file. Otherwise declare a standalone build file depending on the built artifact. |
+| Node and TypeScript | A root `tsconfig.json` `include`, and workspace globs in `package.json` or `pnpm-workspace.yaml` | Add the directory to `exclude`, and keep workspace globs specific rather than `packages/*`-style catch-alls. |
+
+The skill instructs the agent to make this move once, at the start of the first run in a repo, and to
+say what it did. It is a change to the project's build configuration, so it gets stated rather than
+slipped in.
+
+### Do not check in the virtual environment
+
+Your current practice commits the whole venv. I would stop at the scripts plus `requirements.txt`
+and gitignore the venv itself.
+
+The venv I built above is 27MB across 1802 files, and `pyvenv.cfg` records `home = /usr/bin` with the
+absolute creation path baked in. Console-script shebangs carry absolute paths too. A coworker who
+clones the repo gets 1802 files that point at directories on your machine and do not run. The
+scripts and a `requirements.txt` reproduce the environment in one command and survive being moved,
+which is what checking something in is supposed to buy.
+
+Same logic per ecosystem: check in the source and the manifest, never the resolved artifact
+directory. `node_modules`, `target/`, `bin/`, `obj/` all get the same treatment.
+
+## 10. Open
 
 1. npm handle or org to publish the scoped name under. Blocks step 8 only.
 2. Does opencode have a skill or command directory worth targeting? `rtk init --opencode` exists, so

@@ -252,11 +252,15 @@ Rust `#[cfg(test)]` module sees private items, and .NET test projects reach `int
 `InternalsVisibleTo`. Most factual questions worth a REPL session are about internal behavior, so
 the harness that cannot see internals cannot answer them.
 
-**The scratch test is not a test.** This is where the polarity in §5 can collapse, so it gets a rule.
-A test written to answer a question is throwaway and gets deleted when the question is answered. It
-is never committed, never counted toward a CUJ's test table, and never allowed near the red gate.
-What survives is the finding, in the `Informed by` column. A scratch test that quietly graduates into
-the suite is a green test nobody designed, which is precisely the theater §4 exists to prevent.
+**The scratch test is not a test.** This is where the polarity below can collapse, so it gets a rule.
+A scratch test is never counted toward a CUJ's test table and never allowed near the red gate. A
+scratch test that quietly graduates into the suite is a green test nobody designed, which is
+precisely the theater §4 exists to prevent.
+
+Enforce that by location, not by discipline. Scratch work lives in the planning directory and the
+planning directory is excluded from the project's test discovery, so the suite cannot pick it up
+even when someone forgets. A rule that depends on remembering is a rule that fails on the day
+everyone is tired.
 
 ### Why the ladder is ordered this way
 
@@ -300,9 +304,14 @@ must state why neither reading nor running settles it.
 The loop is what converts a generic design into a specific one. A distracted human running it by
 hand degrades the output silently, which is the argument for making it a skill.
 
-**What survives into the documents.** The finding, not the script. A REPL session is throwaway work
-by design. When a finding informs a test, record it in the `Informed by` column. When it informs a
-claim, cite it inline. Neither requires keeping the script.
+**What survives into the documents.** The finding, not the script. When a finding informs a test,
+record it in the `Informed by` column. When it informs a claim, cite it inline.
+
+**What survives on disk.** The script, in the planning directory, checked in. That is a change from
+an earlier draft which called REPL work throwaway and deleted it. Throwaway describes its role in the
+documents, where only the finding belongs. It does not describe its value six months later, when
+someone asks why a decision was made and the session that settled it is the answer. Keeping it costs
+a few kilobytes and the build-isolation work in §9 of the tool plan.
 
 **One optional discipline.** A REPL script that cannot fail proves nothing. Stating what result
 would contradict the claim costs one line, and it stops the agent from writing something that
