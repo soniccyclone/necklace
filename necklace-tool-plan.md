@@ -36,7 +36,9 @@ Same discipline as the method document. Validated facts are separated from propo
   projects document and are not verified.
 - The per-ecosystem build-isolation table in §9. Python is verified. Go, .NET, Rust, JVM, and Node
   are reasoned from how their build tools scope a directory and are not verified.
-- `necklace/` visible rather than `.necklace/` hidden.
+- The two-track approach to scanner pollution in §9, and the markings table. Reasoned from what each
+  scanner documents; none are installed here.
+- The §0 first-principles section in the method document, and deriving the language guidance from it.
 
 **From Nathan's working practice.**
 
@@ -365,8 +367,8 @@ this about error detection generally.
 One directory per workflow run, checked into the repo.
 
 ```
-necklace/
-├── .manifest.json                        # tool state, see §6
+.necklace/
+├── manifest.json                         # tool state, see §6
 └── 2026-07-31-restore-from-snapshot/
     ├── spec.md                           # the §2 document
     ├── cuj.md                            # the §3 document
@@ -379,13 +381,21 @@ necklace/
 Date prefix plus ticket slug on the run directory. Sortable, and it matches how someone looks one up
 a year later.
 
-**`necklace/`, not `.necklace/`.** Scoped, as with `openspec/` and spec-kit's `specs/`, but visible.
-The tools that hide their directory hide *tool state*, and spec-kit is the useful precedent because
-it splits the two: `.specify/` for templates and scripts, `specs/` for the documents a human reads.
-Our documents exist so an exec or a client can find out why a decision was made, and burying the
-exec-facing artifact in a dotfile defeats the only reason we check it in. One top-level directory
-total, with the manifest hidden inside it as `.manifest.json`, since two directories differing by a
-leading dot is a trap.
+**`.necklace/`, hidden.** An earlier draft argued for a visible `necklace/` on the grounds that these
+documents are meant to be found. That was wrong, for two reasons.
+
+The first is §0. A visible top-level directory claims peer status with `src/`, and that is precisely
+the claim the other frameworks make and this one rejects. The spec is provenance about the codebase,
+not a definition it answers to, so it goes where provenance goes. The dot says "tool directory" and
+that is exactly what it is.
+
+The second is mundane and would have bitten someone. A visible top-level `necklace/` collides with
+the module namespace in most ecosystems. In a Python repo it reads as an importable package, and Go,
+Node, and the JVM build tools all treat top-level directories as meaningful. Injecting a plausible
+looking source directory into someone's repo is the same pollution this section is otherwise about.
+
+Findability survives the dot. `.github/` is a hidden directory full of things humans read, and nobody
+browses a repo to find a decision record anyway. They get sent a link.
 
 These are checked in on purpose. When someone asks why a decision was made, the spec doc is the
 answer, and an answer that lives in a chat transcript is not an answer.
@@ -450,14 +460,29 @@ request against a dependency nobody ships. SBOM and license scanners read the sa
 analyzes what it finds. Pre-commit hooks lint every staged file. Coverage tools count what they
 import. GitHub's linguist will happily decide the repo is 40% Python because of a scratch directory.
 
-The instinct is an exclusion list per scanner. That is enumerate-the-bad, and it loses, because the
-set of tools that walk a repo grows and each one needs its own syntax in its own config file. Someone
-adds a scanner in eighteen months and the planning directory silently rejoins the surface area.
+There are two ways out and both are legitimate. Prefer the first where the ecosystem and the user's
+toolchain both support it. Expect to need the second.
 
-**Enumerate the good instead: never write a filename these tools look for.** A scratch script that
-declares its dependencies inside itself has nothing for a manifest scanner to find. No
-`requirements.txt`, no `package.json`, no lockfile, so there is no rule to write and no config to
-maintain, and a scanner invented next year finds nothing either.
+**Track 1, emit nothing they look for.** A scratch script that declares its dependencies inside
+itself gives a manifest scanner nothing to find. No `requirements.txt`, no `package.json`, no
+lockfile, so there is no config to maintain and a scanner invented next year also finds nothing.
+This is the better outcome when it is available.
+
+It is not always available. `uv` is not universal, most ecosystems have no single-file format at all,
+and a person running plain `python -m venv` and `pip install -r requirements.txt` is doing something
+completely reasonable. Track 1 is a preference, not a prerequisite.
+
+**Track 2, commit the manifest and mark the directory ignorable.** This is the realistic default. It
+means writing `.necklace/` into the exclusion config of each tool that would otherwise act on it,
+which is enumerate-the-bad and does carry the maintenance cost that implies. The mitigation is that
+the list is short, stable, and written once by `necklace init` rather than rediscovered per run.
+
+**Deriving this for a language not listed below.** Search the ecosystem for how it runs a single
+script with dependencies and no project. The terms that find it are "single-file script",
+"inline dependencies", or "script metadata". If one exists it is the answer, because §0 says prefer
+what the toolchain blesses. If none exists, you are in the manifest-plus-exclusions fallback, and the
+question becomes the one in the next subsection. Do not invent a convention, and do not install a
+third-party script runner to create one.
 
 Every ecosystem is growing this, because a throwaway script that needs a dependency is a universal
 problem:
@@ -473,9 +498,29 @@ problem:
 `uv run`, resolved and executed and left nothing behind but the script. One file in the planning
 directory, zero manifests, nothing for Dependabot to find.
 
-Where no single-file mechanism exists, which today means Rust and Go and Node, a manifest is
-unavoidable and it gets explicit exclusions. That is the fallback, not the default, and it is the
-case that needs the table below.
+### The markings
+
+Track 2's checklist. `necklace init` writes these once, prompting first and reporting what it
+changed, on the same rule as the beads setup in §5: it is a change to someone's repository
+configuration and it gets a yes before it happens. `necklace doctor` re-checks that they are still
+present, since a config file gets rewritten by other people.
+
+| Tool | Where | What |
+| --- | --- | --- |
+| git | `.gitignore` | `.necklace/**/.venv/`, `node_modules`, and the rest of the resolved-artifact list |
+| Renovate | `renovate.json` `ignorePaths` | `.necklace/**`. Required, because Renovate auto-discovers manifests repo-wide by default. This is the one that actually bites. |
+| Dependabot | `.github/dependabot.yml` | Nothing, normally. Dependabot is opt-in per directory, so an unlisted `.necklace/` is already invisible. Check for a `directories:` glob such as `**/*`, which re-includes it. |
+| GitHub linguist | `.gitattributes` | `.necklace/** linguist-documentation=true`, so scratch code stops skewing the repo's language stats. Keeps diffs readable, unlike `linguist-generated`. |
+| CodeQL | `.github/codeql/codeql-config.yml` `paths-ignore` | `.necklace` |
+| pre-commit | `.pre-commit-config.yaml` top-level `exclude` | `^\.necklace/`, so hooks stop failing on scratch code that was never meant to lint |
+| Coverage | tool config `omit` or equivalent | `.necklace/*`, so scratch files do not move the number |
+| Test discovery | per ecosystem | See the next subsection. Different problem, same directory. |
+
+Only add a marking for a tool the repo actually uses. Writing a `renovate.json` into a repo that has
+never heard of Renovate is its own kind of pollution.
+
+**Reasoned, not verified.** None of these scanners are installed here. The syntax above comes from
+what each project documents, and each is worth confirming the first time it is used for real.
 
 ### Keeping the planning directory out of the build
 
@@ -485,9 +530,22 @@ the §5 polarity collapse arriving by accident rather than by carelessness.
 
 **Verified here.** A bare `pytest` at repo root collects `test_*.py` out of a planning directory. I
 built the layout above and it collected the scratch test alongside the real one. Adding
-`norecursedirs = necklace` to `pytest.ini` excludes it from the suite while leaving it directly
+`norecursedirs = .necklace` to `pytest.ini` excludes it from the suite while leaving it directly
 runnable by path, which is exactly the property the method wants. A venv is already safe by accident,
 because pytest skips dot-directories and has `venv` in its default `norecursedirs`.
+
+**Deriving this for a language not listed below.** The axis from §0 is whether the build tool
+*discovers* directories or is *told* about them.
+
+Discovery-based tools walk from a root and adopt whatever matches a pattern, so they need an
+exclusion: Go with a root `go.mod`, Cargo workspaces, pytest, tsc, Gradle's file-tree conventions.
+Find the tool's exclusion mechanism, which every one of them has, and use it. Manifest-based tools
+build only what a file lists, so an undeclared directory is already invisible and there is nothing to
+do: Maven modules, `settings.gradle` includes, .NET solutions.
+
+Then verify rather than assume. Run the project's full test command and confirm the scratch test does
+not appear in the output. That check takes seconds and it is the same discipline §4 applies to the
+red gate.
 
 **Reasoned, not verified.** No Go, .NET, Rust, or JVM toolchain on this machine. Each of these needs
 confirming on a box that has one, and each is a one-line fact that will take about a minute to check.
@@ -495,8 +553,8 @@ confirming on a box that has one, and each is a one-line fact that will take abo
 | Ecosystem | The risk | The move |
 | --- | --- | --- |
 | Go | A root `go.mod` makes every subdirectory part of the module, so `go test ./...` walks in | Any of three blessed outs: a nested `go.mod` (the go tool excludes subdirectories that own one), a `testdata/` directory (ignored outright), or a directory whose name starts with `_` or `.`. Go is better at this than it looks. |
-| .NET | SDK-style projects glob `**/*.cs`, so a planning directory nested inside a project directory gets compiled into it, and a nested `.csproj` produces duplicate-compile errors rather than isolation | Put `necklace/` at repo root, outside any project directory. A solution only builds projects it lists, so a scratch `.csproj` there is invisible. Watch for a root `Directory.Build.props`, which chains down and can impose analyzers on scratch code. |
-| Rust | A nested crate inside a workspace directory makes cargo error about a package that believes it is in a workspace | One line. Either `exclude = ["necklace"]` in the root `[workspace]`, or an empty `[workspace]` table in the scratch crate's own `Cargo.toml` to declare it a separate root. |
+| .NET | SDK-style projects glob `**/*.cs`, so a planning directory nested inside a project directory gets compiled into it, and a nested `.csproj` produces duplicate-compile errors rather than isolation | Put `.necklace/` at repo root, outside any project directory. A solution only builds projects it lists, so a scratch `.csproj` there is invisible. Watch for a root `Directory.Build.props`, which chains down and can impose analyzers on scratch code. |
+| Rust | A nested crate inside a workspace directory makes cargo error about a package that believes it is in a workspace | One line. Either `exclude = [".necklace"]` in the root `[workspace]`, or an empty `[workspace]` table in the scratch crate's own `Cargo.toml` to declare it a separate root. |
 | JVM | The opposite problem. Maven modules and `settings.gradle` includes are explicit, so an undeclared directory is already ignored. The friction is running the scratch code at all, since it needs a build file and the parent's classpath | JBang is the right tool: single-file Java with dependencies declared in comments and no build file. Otherwise declare a standalone build file depending on the built artifact. |
 | Node and TypeScript | A root `tsconfig.json` `include`, and workspace globs in `package.json` or `pnpm-workspace.yaml` | Add the directory to `exclude`, and keep workspace globs specific rather than `packages/*`-style catch-alls. |
 
@@ -504,20 +562,38 @@ The skill instructs the agent to make this move once, at the start of the first 
 say what it did. It is a change to the project's build configuration, so it gets stated rather than
 slipped in.
 
-### What never gets committed
+### On disk versus committed
 
-Resolved artifact directories, for the obvious reason. `.venv`, `node_modules`, `target/`, `bin/`,
-`obj/`. A venv is 27MB across 1802 files with `home = /usr/bin` and the absolute creation path baked
-into `pyvenv.cfg`, so it does not survive being cloned by anyone else anyway.
+Two different questions, and conflating them produces bad advice in both directions. §0 has the
+principle. This is what it means here.
 
-**Lockfiles, for the less obvious reason.** A lockfile is not just noise, it is an active input to
-Dependabot and Renovate, which will open pull requests against a transitive dependency of a scratch
-script that ships nowhere. The planning directory has no security surface and no release, so every
-alert it generates is false, and false alerts train people to ignore the real ones. Under the
-single-file rule above the question mostly does not arise, since there is no lockfile to leave.
+**On disk is free.** A gitignored `.venv` inside the planning directory is fine, and often better
+than the alternative, because re-resolving dependencies on every run is slow and simply fails in a
+network-restricted environment. Nothing that walks a repo reads gitignored files. Build the
+environment where it is convenient, keep it warm, gitignore it, and stop thinking about it.
 
-The general form, which is the rule the skill actually carries: **a planning directory may contain
-source and prose. It may not contain anything a machine is configured to act on.**
+That holds regardless of which track above the repo is on. `python -m venv .venv` inside the planning
+directory with a committed `requirements.txt` is a perfectly good setup, and it needs the §9 markings
+rather than a different environment strategy.
+
+On `uv` specifically, since it changes what is even on disk: **verified here**, `uv sync --script`
+builds a persistent environment for a PEP 723 script in `~/.cache/uv/environments-v2/` rather than in
+the repo, and `uv run --offline` then executes against it with no network. Inline dependencies and a
+warm reusable environment are not in tension. This is a nice property for people who already use
+`uv`, and not a reason to make anyone adopt it.
+
+**Committed is where the rules live.** Never commit a resolved artifact directory: `.venv`,
+`node_modules`, `target/`, `bin/`, `obj/`. A venv is 27MB across 1802 files with the absolute
+creation path baked into `pyvenv.cfg`, so it would not work for anyone who cloned it regardless.
+
+Never commit a lockfile, for the less obvious reason. A lockfile is an active input to Dependabot and
+Renovate, which will open pull requests against a transitive dependency of a scratch script that
+ships nowhere. The planning directory has no release and no security surface, so every alert it
+raises is false, and false alerts train people to ignore the real ones.
+
+The rule the skill carries: **a committed planning directory may contain source and prose, and
+nothing another machine is configured to act on. What it holds on disk and ignores is its own
+business.**
 
 ## 10. Open
 

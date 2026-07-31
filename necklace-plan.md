@@ -4,6 +4,79 @@ Two documents thread through a task. Beads hang off the second one.
 
 The methodology is Agentic REPL-Driven Development. The tool is distribution.
 
+## 0. First principles
+
+Everything downstream is derived from these, including all of the language-specific guidance. The
+guidance is worked examples, not the rule. A language not named anywhere in this document is handled
+by applying the principle directly, and an agent that understands why a rule exists will get an
+unlisted language right where an agent pattern-matching a table will not.
+
+### The code is the source of truth. The spec is not.
+
+This is the load-bearing disagreement with every popular framework in this space, so it goes first.
+
+Spec-driven frameworks treat the spec as source and the code as generated output, on the compiler
+model: edit the `.proto`, regenerate, never touch the generated file. That model requires the
+generator to be deterministic and faithful. An LLM is neither. Regenerating from the same spec
+produces different code, the code diverges the moment anyone edits it, and editing it is the normal
+case rather than the exceptional one.
+
+So the spec is not a definition the code must conform to. It is **provenance**: a record of what was
+intended, by whom, and why, at a point in time. It is worth keeping for exactly that, and it is worth
+nothing as an authority.
+
+What this generates, throughout:
+
+- Tests close a CUJ, not spec conformance. §3 and §4.
+- There is no artifact validator. §6 cut `necklace verify` for a shallow reason, that the agent can
+  read test output itself. The real reason is here: a binary that checks code against a spec has
+  encoded the belief that the spec outranks the code. It does not.
+- The planning directory is a tool directory and is named like one. Provenance about the codebase is
+  not a peer of `src/`.
+- A stale spec is not a defect. Nobody reconciles it. The tests are the thing kept true.
+
+### Committed surface is what pollutes. On-disk is free.
+
+A repo is walked by tools that read *committed* files: Dependabot, Renovate, SBOM and license
+scanners, code scanning, linguist. None of them read what git ignores.
+
+So the two questions are separate and only one of them is interesting. Whether an artifact may exist
+on disk is a question about speed and offline capability, and the answer is usually yes. Whether it
+may be committed is a question about what other machines will act on, and the answer is no for
+anything a tool is configured to consume.
+
+A gitignored environment directory is fine and often preferable, because re-resolving dependencies on
+every run is slow and fails outright in a network-restricted environment.
+
+### Enforce by location, not by discipline.
+
+A rule that depends on someone remembering it fails on the day everyone is tired. Where a property
+can be made structural, make it structural. This is why scratch tests live somewhere the suite does
+not scan rather than relying on an instruction to delete them.
+
+### Prefer what the toolchain already blesses.
+
+Where a language has an official or community-standard way to do a thing, that way is wired into the
+build graph, the dependency resolution, and the toolchain, and it is maintained by people who ship
+the language. A bespoke alternative re-derives all of that badly. This is why rung 2 is the test
+runner and not a scratch binary, and why the answer to scratch dependencies is whatever single-file
+mechanism the ecosystem has grown rather than a hand-rolled convention.
+
+Corollary: **do not install a tool to satisfy a rule here.** If the toolchain did not ship it and the
+project does not already use it, that absence is information about which rung you are on.
+
+### Get the axis right, then the language answers itself.
+
+Most language-specific questions in this method reduce to one property of the language, and naming
+the property is more useful than listing the languages.
+
+- Which REPL rung a language is on reduces to whether its runtime can load and redefine code in a
+  live process. §5.
+- Whether a planning directory pollutes a build reduces to whether the build tool discovers
+  directories or is told about them explicitly.
+- Whether scratch dependencies need a manifest reduces to whether the ecosystem has a single-file
+  script format.
+
 ## 1. What the method requires
 
 Three steps are mandatory. Everything else is optional tooling.
