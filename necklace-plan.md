@@ -418,7 +418,7 @@ behavior she found becomes the expected output. See https://howistart.org/posts/
 
 ## 6. Scope of the tool
 
-**Three skill files. No binary, no runtime, no code.**
+**Skill files. No binary, no runtime, no code.**
 
 ```
 skills/
@@ -428,9 +428,22 @@ skills/
 ├── cuj/
 │   ├── SKILL.md          # spec doc -> CUJ doc. Carries §3 and the mandatory test table.
 │   └── cuj.md            # the template
-└── beads/
-    └── SKILL.md          # CUJ doc -> JSONL -> one bd import, then the red gate in §4
+├── beads/
+│   └── SKILL.md          # CUJ doc -> JSONL -> one bd import, then the red gate in §4
+└── lint/
+    └── SKILL.md          # hygiene, not a pipeline stage. See §9 of the tool plan.
 ```
+
+**Three of those are the pipeline.** Spec, CUJ, beads, in that order, matching the three mandatory
+steps in §1. `lint` is not a fourth step and must never be invoked as one. It checks whether
+necklace's own artifacts are polluting the repo that hosts them, which is a maintenance concern that
+happens to be best expressed as a prompt.
+
+It earns its place by the §0 argument. The set of static analysis tools that walk a repo grows, and a
+list written today expires. An agent reading a description of the *problem* will recognize a scanner
+that shipped after this document was written, so the capability grows on its own. Encoding that same
+knowledge as a table in a binary would guarantee it goes stale, which is the general test §1 of the
+tool plan applies to every proposed feature.
 
 That is the MVP and possibly the whole thing. BMAD is markdown agent definitions with no binary.
 OpenSpec's CLI only scaffolds and updates its own files. Neither validates user artifacts with

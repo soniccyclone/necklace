@@ -40,6 +40,10 @@ Same discipline as the method document. Validated facts are separated from propo
   scanner documents; none are installed here.
 - The §0 first-principles section in the method document, and deriving the language guidance from it.
 
+- The lint skill in §9. Nathan's proposal, including the reasoning that newer agents know newer
+  scanners so the capability grows on its own. The detect-from-the-repo constraint and the
+  demonstrate-do-not-assert rule are mine, and they are what stop it hallucinating config.
+
 **From Nathan's working practice.**
 
 - One checked-in planning directory per workflow run, holding both documents. Including the reason:
@@ -93,9 +97,11 @@ necklace/
 │   ├── cuj/
 │   │   ├── SKILL.md
 │   │   └── cuj.md
-│   └── beads/
-│       ├── SKILL.md
-│       └── beads.schema.md   # the bd JSONL contract, see §5
+│   ├── beads/
+│   │   ├── SKILL.md
+│   │   └── beads.schema.md   # the bd JSONL contract, see §5
+│   └── lint/
+│       └── SKILL.md          # repo pollution check, see §9. Not a pipeline stage.
 └── stubs/
     ├── cursor/               # .cursor/commands/*.md pointing at the skills
     └── copilot/              # .github/prompts/*.md
@@ -339,9 +345,15 @@ One addition across all three: each skill states which artifact it consumes and 
 running them out of order fails loudly instead of producing a CUJ doc from no spec doc.
 
 `skills/spec/SKILL.md` owns the planning directory from §9. It creates the directory, opens `log.md`
-before drafting anything, and performs the build-isolation move on the first run in a repo. All three
-skills append to the log as they go. The npm CLI is not involved: the directory is per workflow run,
-so it is created by the skill at use time, not by `necklace init` at install time.
+before drafting anything, and invokes the lint skill on the first run in a repo rather than carrying
+the build-isolation logic itself. All three pipeline skills append to the log as they go. The npm CLI
+is not involved: the directory is per workflow run, so it is created by the skill at use time, not by
+`necklace init` at install time.
+
+`skills/lint/SKILL.md` is the fourth file and the only one outside the pipeline. Its contract is in
+§9. The thing to preserve when editing it is the detect-from-the-repo rule, because that single
+constraint is what separates a check that improves with better models from one that invents config
+keys with more confidence every year.
 
 ## 8. Build order
 
@@ -521,6 +533,58 @@ never heard of Renovate is its own kind of pollution.
 
 **Reasoned, not verified.** None of these scanners are installed here. The syntax above comes from
 what each project documents, and each is worth confirming the first time it is used for real.
+
+### The lint skill
+
+The table above has an expiry date. That is the objection to any enumerate-the-bad list: a scanner
+ships in eighteen months, nobody updates the table, and the planning directory quietly rejoins the
+surface area.
+
+A fourth skill fixes it, and it fixes it in the direction the rest of this design already runs. Hand
+the agent the *problem*, not the list. A model whose training data postdates this document knows
+about scanners this document has never heard of, so the capability grows without anyone maintaining
+anything. That is the same argument as §0's "get the axis right and the language answers itself,"
+applied to tooling instead of languages.
+
+```
+skills/lint/SKILL.md
+```
+
+**What it does.** Walk the repo for evidence of tools that read committed files. Determine whether
+any of them would act on `.necklace/`. Report what it finds, propose the fix, and change nothing
+without a yes.
+
+**The rule that keeps it honest: detect from the repo, never from memory.** The agent's knowledge is
+for *interpreting* what it finds, not for *enumerating* what might exist. Seeing
+`.github/workflows/codeql.yml` and recognizing that CodeQL will scan the planning directory is the
+job. Proposing CodeQL markings for a repo with no CodeQL is not, and neither is inventing a config
+key that sounds plausible. A config file that is not in the repo generates no finding.
+
+That inversion is what makes the growth safe. Newer agents recognize newer tools *that are actually
+present*, which is the capability Nathan is after, without the hallucinated-config failure that a
+"list every scanner you know" prompt would produce.
+
+**Demonstrate, do not assert.** Where the tool is installed, run it and show it picking up the
+planning directory. `pytest --collect-only` listing a scratch test is a finding. "Renovate may scan
+this" is not. This is §4's red gate discipline pointed at a different problem: the output is the
+evidence, and an agent that asserts instead of running is the failure mode both places.
+
+Warning fatigue is the thing that kills a linter. Reporting three real findings with output attached
+gets fixed. Reporting twelve theoretical ones gets the skill uninstalled.
+
+**Bounded on purpose.** It checks whether necklace's own artifacts are polluting the repo. It is not
+a general-purpose repo linter, and growing it into one would be building a worse competitor to tools
+that already exist.
+
+**When it runs.** `necklace init` invokes it once, since that is when markings get written anyway.
+The spec skill invokes it on the first run in a repo, absorbing the build-isolation step §7 assigns
+there rather than duplicating it. It is available on demand after that. It does not run on every
+workflow invocation, because a check that fires constantly is a check nobody reads.
+
+**How it relates to `necklace doctor`.** Clean split, and it is the same split as §1's. Doctor is a
+fixed probe list in the binary: is `bd` working, are the skills installed, do the hashes match. Lint
+is open-ended judgment about an evolving set of third-party tools, which is exactly the thing that
+belongs in a prompt rather than in code. Anything doctor can check with a fixed list stays in doctor.
 
 ### Keeping the planning directory out of the build
 
