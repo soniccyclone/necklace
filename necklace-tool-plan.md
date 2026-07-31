@@ -39,7 +39,6 @@ Same discipline as the method document. Validated facts are separated from propo
 - The two-track approach to scanner pollution in §9, and the markings table. Reasoned from what each
   scanner documents; none are installed here.
 - The §0 first-principles section in the method document, and deriving the language guidance from it.
-
 - The lint skill in §9. Nathan's proposal, including the reasoning that newer agents know newer
   scanners so the capability grows on its own. The detect-from-the-repo constraint and the
   demonstrate-do-not-assert rule are mine, and they are what stop it hallucinating config.
@@ -67,7 +66,7 @@ Same discipline as the method document. Validated facts are separated from propo
 
 An installer, not a runtime.
 
-The method document says "three skill files, no binary, no runtime, no code" and that stands. The npm
+The method document says skill files and no binary, no runtime, no code, and that stands. The npm
 package exists to solve one problem: a coworker runs one command and gets the skills in the right
 directory for whichever agent they use. After `necklace init` returns, the package is inert. Nothing
 in the workflow shells out to `necklace`. The agent reads markdown and runs `bd`.
@@ -142,7 +141,7 @@ necklace doctor
 necklace update
 ```
 
-**`init`** copies the three skills to the target directory. Default is project-local, and
+**`init`** copies the four skills to the target directory. Default is project-local, and
 `--global` writes to the user config directory instead. `--agent` defaults to `claude`. It writes a
 manifest, then prints what it wrote and what it found in the environment. Nothing is silent.
 
