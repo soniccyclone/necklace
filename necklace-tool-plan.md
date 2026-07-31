@@ -23,23 +23,21 @@ Same discipline as the method document. Validated facts are separated from propo
 
 **Proposals in this document. Cut freely.**
 
-- `necklace doctor` as a separate command from `necklace init --show`.
-- The manifest-based update strategy in §6.
 - The `--skip-beads-check` escape hatch in §5.
 - The working log in §9, and its framing as a write-ahead record rather than a summary. The need is
   Nathan's, from losing session state that had not reached the documents yet. The shape is mine.
 - Moving rejected alternatives and answered judgment questions out of the spec doc and into the log,
   and the resulting edit to §2 of the method document. Nathan's call. The "open stays, settled moves"
   rule is mine.
-- The single-file-script rule and the four-ecosystem table in §9. Python is verified on this machine
+- The single-file-script rule and the four-ecosystem table in §8. Python is verified on this machine
   with `uv run`. JBang, .NET file-based apps, and `cargo -Zscript` are reasoned from what those
   projects document and are not verified.
-- The per-ecosystem build-isolation table in §9. Python is verified. Go, .NET, Rust, JVM, and Node
+- The per-ecosystem build-isolation table in §8. Python is verified. Go, .NET, Rust, JVM, and Node
   are reasoned from how their build tools scope a directory and are not verified.
-- The two-track approach to scanner pollution in §9, and the markings table. Reasoned from what each
+- The two-track approach to scanner pollution in §8, and the markings table. Reasoned from what each
   scanner documents; none are installed here.
 - The §0 first-principles section in the method document, and deriving the language guidance from it.
-- The lint skill in §9. Nathan's proposal, including the reasoning that newer agents know newer
+- The lint skill in §8. Nathan's proposal, including the reasoning that newer agents know newer
   scanners so the capability grows on its own. The detect-from-the-repo constraint and the
   demonstrate-do-not-assert rule are mine, and they are what stop it hallucinating config.
 
@@ -51,6 +49,11 @@ Same discipline as the method document. Validated facts are separated from propo
   planning directory.
 
 **Already cut. Do not re-propose.**
+
+- **Every CLI command except `init`.** `doctor`, `update`, `init --show`, and the content-hashed
+  manifest that supported them were invented in this document, not asked for, and cut in §3. The
+  checks `doctor` would have run belong to the lint skill. Adding a command to this tool now requires
+  showing that an agent reading a SKILL.md cannot do the job.
 
 - **Any fallback for a missing `bd`.** Beads is a hard requirement. See §5. No degraded mode, no
   file-mode output, no `.necklace/beads.jsonl` written for later import, no mirroring into a session
@@ -87,8 +90,7 @@ necklace/
 │   └── necklace.js           # entry, ~200 lines, no dependencies
 ├── src/
 │   ├── targets.js            # agent -> install path table
-│   ├── install.js            # copy, manifest, idempotent update
-│   └── doctor.js             # environment probes
+│   └── install.js            # copy files, refuse to clobber
 ├── skills/                   # the payload, verbatim from the method doc §6
 │   ├── spec/
 │   │   ├── SKILL.md
@@ -100,13 +102,13 @@ necklace/
 │   │   ├── SKILL.md
 │   │   └── beads.schema.md   # the bd JSONL contract, see §5
 │   └── lint/
-│       └── SKILL.md          # repo pollution check, see §9. Not a pipeline stage.
+│       └── SKILL.md          # repo pollution check, see §8. Not a pipeline stage.
 └── stubs/
     ├── cursor/               # .cursor/commands/*.md pointing at the skills
     └── copilot/              # .github/prompts/*.md
 ```
 
-**Zero runtime dependencies.** The whole program copies markdown files and writes one JSON manifest.
+**Zero runtime dependencies.** The whole program copies markdown files and runs one subprocess.
 Node has had `util.parseArgs` in stdlib since 18.3 and `fs.cp` since 16.7. Pulling in commander,
 chalk, and ora to do that is the exact landing-page-driven packaging the method document is written
 against. A dependency-free package also cannot break the way `@beads/bd` just broke, because there is
@@ -132,34 +134,40 @@ or org he wants to publish under, and it blocks nothing else in this plan.
 
 ## 3. CLI surface
 
-Four commands. Anything beyond this is scope creep until proven otherwise.
+**One command.**
 
 ```
 necklace init [--global] [--agent <name>] [--force]
-necklace init --show
-necklace doctor
-necklace update
 ```
 
-**`init`** copies the four skills to the target directory. Default is project-local, and
-`--global` writes to the user config directory instead. `--agent` defaults to `claude`. It writes a
-manifest, then prints what it wrote and what it found in the environment. Nothing is silent.
+It copies the skills to the target directory and checks that `bd` works. That is the entire binary.
 
-**`init --show`** prints the resolved install paths and current manifest state without writing.
-Matching `rtk init --show` so the flag means the same thing in both tools.
+`--force` overwrites an existing file instead of skipping it. Without it, init refuses to clobber and
+says which file it left alone.
 
-**`doctor`** is the environment probe. Separate from `--show` because they answer different
-questions: `--show` is "what did necklace install", `doctor` is "will the method work here". Doctor
-checks are in §5.
+An earlier draft of this document had four commands: `init`, `init --show`, `doctor`, and `update`,
+plus a content-hashed manifest to support them. All of it was invented here. None of it was asked
+for, and the sentence introducing it read "four commands, anything beyond this is scope creep," which
+is the tell.
 
-**`update`** re-copies skills when the package version is newer than the manifest, and reports files
-the user edited so they are not clobbered. See §6.
+`init/doctor/update` is the shape every devtool CLI has, which is why I reached for it, which is
+exactly the cargo-culted-best-practices reflex §0 of the method document is written against. `rtk`
+was cited as the model and `rtk` has `init`. It does not have the other two.
 
-**`--force`** overwrites user-modified files. Without it, a modified file is reported and skipped.
+What replaces them:
 
-Explicitly not included: no `necklace spec`, no `necklace cuj`, no `necklace beads`. Those are skill
-invocations inside the agent. A CLI command that prints "now ask your agent to run the spec skill" is
-a worse README.
+- **`doctor`** is the lint skill. Checking whether `bd` runs, whether the skills are installed, and
+  whether the pollution markings are present is reading and reporting, which is what a prompt is for.
+  A second binary command that duplicates it existed only because I invented it before the skill.
+- **`update`** is `npm update -g` followed by `necklace init`. Init is idempotent, so there is
+  nothing to add.
+- **`init --show`** is `ls`.
+- **The manifest** existed to let `update` tell a user edit from a new release. With no `update`
+  there is nothing to tell apart, so it goes too, and with it the hashing.
+
+Still explicitly not included: no `necklace spec`, no `necklace cuj`, no `necklace beads`. Those are
+skill invocations inside the agent. A CLI command that prints "now ask your agent to run the spec
+skill" is a worse README.
 
 ## 4. Install targets
 
@@ -270,17 +278,18 @@ Non-interactive invocation, meaning no TTY or a `--yes` flag, skips the prompts.
 no-TTY declines and exits nonzero, because a CI run that silently installs a global binary is worse
 than one that fails with a clear message.
 
-`necklace doctor` reports:
+The lint skill reports:
 
 | Probe | Method |
 | --- | --- |
 | beads installed | `bd --version` exits 0 |
-| beads version | parsed from that output, compared against a known-good floor |
+| beads version | parsed from that output, compared against the 1.1.0 floor |
 | repo initialized | beads database directory present |
-| skills installed | manifest present, files match their recorded hashes |
-| agent targets found | which of `.claude/`, `.cursor/`, `.github/prompts/` exist |
+| skills installed | the four SKILL.md files are where the target expects them |
 
-Each failed probe prints the remediation command. That is the whole doctor.
+Each failed probe prints the remediation command. `init` runs the first two itself, because it
+refuses to install without a working `bd`. The rest is reading and reporting, which is why it lives
+in a prompt.
 
 ### The import contract
 
@@ -309,26 +318,9 @@ aborts the entire import, running it first is free insurance rather than ceremon
 
 **Version floor: 1.1.0.** First stable of the current line, npm and Homebrew both serve 1.1.2, and
 everything the method uses is present. Hierarchical IDs and labels are old and set no floor of their
-own. This is the doctor's version check, and it is a real number rather than a placeholder.
+own. This is the lint skill's version check, and it is a real number rather than a placeholder.
 
-## 6. Update and idempotency
-
-`necklace init` writes `.necklace/manifest.json` (or the global equivalent) recording the package
-version, each installed file, and a hash of the content as shipped.
-
-`necklace update` compares three things per file: shipped content, recorded hash, on-disk content.
-
-- On-disk matches recorded hash: safe to overwrite, do it.
-- On-disk differs from recorded hash: user edited it. Report and skip, unless `--force`.
-- File absent: reinstall.
-
-This is the minimum that lets someone customize a template without `update` silently eating the
-change. It is also the minimum that lets `update` do anything at all, since without a hash you
-cannot tell an edit from a stale copy.
-
-The manifest is the only state the tool keeps. No config file, no settings, no cached probe results.
-
-## 7. What this changes in the skills themselves
+## 6. What this changes in the skills themselves
 
 The method document's §6 layout stands. Three additions, all in `skills/beads/SKILL.md`:
 
@@ -343,18 +335,18 @@ The method document's §6 layout stands. Three additions, all in `skills/beads/S
 One addition across all three: each skill states which artifact it consumes and which it produces, so
 running them out of order fails loudly instead of producing a CUJ doc from no spec doc.
 
-`skills/spec/SKILL.md` owns the planning directory from §9. It creates the directory, opens `log.md`
+`skills/spec/SKILL.md` owns the planning directory from §8. It creates the directory, opens `log.md`
 before drafting anything, and invokes the lint skill on the first run in a repo rather than carrying
 the build-isolation logic itself. All three pipeline skills append to the log as they go. The npm CLI
 is not involved: the directory is per workflow run, so it is created by the skill at use time, not by
 `necklace init` at install time.
 
 `skills/lint/SKILL.md` is the fourth file and the only one outside the pipeline. Its contract is in
-§9. The thing to preserve when editing it is the detect-from-the-repo rule, because that single
+§8. The thing to preserve when editing it is the detect-from-the-repo rule, because that single
 constraint is what separates a check that improves with better models from one that invents config
 keys with more confidence every year.
 
-## 8. Build order
+## 7. Build order
 
 1. ~~Establish the beads JSONL schema from source.~~ Done. `skills/beads/beads.schema.md`.
 2. Write the three SKILL.md files and two templates. This is the actual product. Nothing else in this
@@ -362,24 +354,21 @@ keys with more confidence every year.
 3. Run the §9 trial run of the method document using those files, installed by hand with `cp`. No
    npm package, no CLI. If the trial run says the method needs changing, changing markdown is free
    and changing a published package is not.
-4. Write `bin/necklace.js` with `init` and `init --show`, claude target only.
-5. Add `doctor`.
-6. Add `update` and the manifest.
-7. Add cursor and copilot stub generation.
-8. Publish under the scoped name.
+4. Write `bin/necklace.js` with `init`, claude target only.
+5. Add cursor and copilot stub generation.
+6. Publish under the scoped name.
 
-Steps 4 through 7 are perhaps a day of work combined, because the program copies files. The cost is
+Steps 4 and 5 are perhaps an afternoon, because the program copies files. The cost is
 entirely in steps 1 through 3. Ordering the trial run before the packaging is the point: it is the
 cheapest place to find out the method needs revision, and §8 of the method document argues exactly
 this about error detection generally.
 
-## 9. The planning directory
+## 8. The planning directory
 
 One directory per workflow run, checked into the repo.
 
 ```
 .necklace/
-├── manifest.json                         # tool state, see §6
 └── 2026-07-31-restore-from-snapshot/
     ├── spec.md                           # the §2 document
     ├── cuj.md                            # the §3 document
@@ -513,7 +502,7 @@ directory, zero manifests, nothing for Dependabot to find.
 
 Track 2's checklist. `necklace init` writes these once, prompting first and reporting what it
 changed, on the same rule as the beads setup in §5: it is a change to someone's repository
-configuration and it gets a yes before it happens. `necklace doctor` re-checks that they are still
+configuration and it gets a yes before it happens. The lint skill re-checks that they are still
 present, since a config file gets rewritten by other people.
 
 | Tool | Where | What |
@@ -580,10 +569,9 @@ The spec skill invokes it on the first run in a repo, absorbing the build-isolat
 there rather than duplicating it. It is available on demand after that. It does not run on every
 workflow invocation, because a check that fires constantly is a check nobody reads.
 
-**How it relates to `necklace doctor`.** Clean split, and it is the same split as §1's. Doctor is a
-fixed probe list in the binary: is `bd` working, are the skills installed, do the hashes match. Lint
-is open-ended judgment about an evolving set of third-party tools, which is exactly the thing that
-belongs in a prompt rather than in code. Anything doctor can check with a fixed list stays in doctor.
+**It absorbs what `doctor` would have been.** §3 cut that command. Everything it was going to probe,
+listed in §5, is reading and reporting, so it belongs here. `init` still checks `bd` itself, because
+it refuses to install without one.
 
 ### Keeping the planning directory out of the build
 
@@ -636,7 +624,7 @@ network-restricted environment. Nothing that walks a repo reads gitignored files
 environment where it is convenient, keep it warm, gitignore it, and stop thinking about it.
 
 That holds regardless of which track above the repo is on. `python -m venv .venv` inside the planning
-directory with a committed `requirements.txt` is a perfectly good setup, and it needs the §9 markings
+directory with a committed `requirements.txt` is a perfectly good setup, and it needs the §8 markings
 rather than a different environment strategy.
 
 On `uv` specifically, since it changes what is even on disk: **verified here**, `uv sync --script`
@@ -658,7 +646,7 @@ The rule the skill carries: **a committed planning directory may contain source 
 nothing another machine is configured to act on. What it holds on disk and ignores is its own
 business.**
 
-## 10. Open
+## 9. Open
 
 1. npm handle or org to publish the scoped name under. Blocks step 8 only.
 2. Does opencode have a skill or command directory worth targeting? `rtk init --opencode` exists, so
