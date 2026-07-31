@@ -28,8 +28,15 @@ Same discipline as the method document. Validated facts are separated from propo
 - The `--skip-beads-check` escape hatch in §5.
 - The working log in §9, and its framing as a write-ahead record rather than a summary. The need is
   Nathan's, from losing session state that had not reached the documents yet. The shape is mine.
-- The per-ecosystem build-isolation table in §9. Python is verified on this machine. Go, .NET, Rust,
-  JVM, and Node are reasoned from how their build tools scope a directory and are not verified.
+- Moving rejected alternatives and answered judgment questions out of the spec doc and into the log,
+  and the resulting edit to §2 of the method document. Nathan's call. The "open stays, settled moves"
+  rule is mine.
+- The single-file-script rule and the four-ecosystem table in §9. Python is verified on this machine
+  with `uv run`. JBang, .NET file-based apps, and `cargo -Zscript` are reasoned from what those
+  projects document and are not verified.
+- The per-ecosystem build-isolation table in §9. Python is verified. Go, .NET, Rust, JVM, and Node
+  are reasoned from how their build tools scope a directory and are not verified.
+- `necklace/` visible rather than `.necklace/` hidden.
 
 **From Nathan's working practice.**
 
@@ -358,22 +365,30 @@ this about error detection generally.
 One directory per workflow run, checked into the repo.
 
 ```
-docs/planning/
+necklace/
+├── .manifest.json                        # tool state, see §6
 └── 2026-07-31-restore-from-snapshot/
-    ├── spec.md            # the §2 document
-    ├── cuj.md             # the §3 document
-    ├── log.md             # the working log, see below
-    ├── beads.jsonl        # what was imported, kept as the record of the graph
-    └── repl/              # REPL work, retained
-        ├── requirements.txt
-        └── snapshot_ordering.py
+    ├── spec.md                           # the §2 document
+    ├── cuj.md                            # the §3 document
+    ├── log.md                            # the working log, see below
+    ├── beads.jsonl                       # what was imported, kept as the record of the graph
+    └── repl/
+        └── snapshot_ordering.py          # one file, deps inline, see below
 ```
 
-Date prefix plus ticket slug. Sortable, and it matches how someone looks one up a year later.
+Date prefix plus ticket slug on the run directory. Sortable, and it matches how someone looks one up
+a year later.
 
-These are checked in on purpose. When an exec or a client asks why a decision was made, the spec doc
-is the answer, and an answer that lives in a chat transcript is not an answer. This is the artifact's
-second job and it costs nothing, since the documents were being written anyway.
+**`necklace/`, not `.necklace/`.** Scoped, as with `openspec/` and spec-kit's `specs/`, but visible.
+The tools that hide their directory hide *tool state*, and spec-kit is the useful precedent because
+it splits the two: `.specify/` for templates and scripts, `specs/` for the documents a human reads.
+Our documents exist so an exec or a client can find out why a decision was made, and burying the
+exec-facing artifact in a dotfile defeats the only reason we check it in. One top-level directory
+total, with the manifest hidden inside it as `.manifest.json`, since two directories differing by a
+leading dot is a trap.
+
+These are checked in on purpose. When someone asks why a decision was made, the spec doc is the
+answer, and an answer that lives in a chat transcript is not an answer.
 
 ### The working log
 
@@ -394,15 +409,83 @@ writes.
 It is not a ledger in the accounting sense and §7 of the method document should get a term for it
 rather than letting "ledger" drift in, since that section exists precisely to catch this.
 
+### The log makes both documents lighter
+
+This is the log's second effect and it is worth more than the first.
+
+Design docs balloon because they are asked to hold two different things: what we are going to do, and
+the record of how we got there. The second is what grows without bound. Rejected alternatives,
+judgment calls and who made them, the reasoning behind a constraint, the question someone asked in
+week one that turned out to matter. All of it is worth keeping and none of it helps a reader who
+opened the document to find out what is being built.
+
+The log absorbs the second job, so the documents can be cut back to the first.
+
+**Moves to the log.** Rejected alternatives and why. Judgment questions that have been answered,
+with the answer and who gave it. REPL findings, except where one informs a specific test and earns
+its `Informed by` cell. The reasoning behind a constraint, as opposed to the constraint.
+
+**Stays in the spec doc.** The problem and its evidence, the actors, the actor-outcome pairs, the
+constraints themselves, the chosen approach named at strategy level, and any judgment question still
+open. The last one is the exception that matters: an unresolved judgment question is a blocking
+handoff to a human, so it stays where the human is looking. Once answered it moves to the log with
+its answer. The rule is clean, and it is that the document carries what is still open while the log
+carries what is settled.
+
+Naming the alternatives you rejected still happens. It happens in the log. The requirement that the
+work was done survives the requirement that it appear in the deliverable, and §2 of the method
+document is edited accordingly.
+
+That should also pull the spec doc back toward its two-page guide without anyone having to trim
+prose, because the sections that were making it long are the ones that left.
+
+### Do not emit files that other tools recognize
+
+This is the real engineering problem in the structure, and the test suite is only the first tool that
+gets confused.
+
+A repo is walked by more than its build. Dependabot and Renovate hunt manifests and lockfiles.
+Renovate auto-discovers by default, so a `requirements.txt` in a planning directory becomes a pull
+request against a dependency nobody ships. SBOM and license scanners read the same files. CodeQL
+analyzes what it finds. Pre-commit hooks lint every staged file. Coverage tools count what they
+import. GitHub's linguist will happily decide the repo is 40% Python because of a scratch directory.
+
+The instinct is an exclusion list per scanner. That is enumerate-the-bad, and it loses, because the
+set of tools that walk a repo grows and each one needs its own syntax in its own config file. Someone
+adds a scanner in eighteen months and the planning directory silently rejoins the surface area.
+
+**Enumerate the good instead: never write a filename these tools look for.** A scratch script that
+declares its dependencies inside itself has nothing for a manifest scanner to find. No
+`requirements.txt`, no `package.json`, no lockfile, so there is no rule to write and no config to
+maintain, and a scanner invented next year finds nothing either.
+
+Every ecosystem is growing this, because a throwaway script that needs a dependency is a universal
+problem:
+
+| Ecosystem | Single-file mechanism | Status |
+| --- | --- | --- |
+| Python | PEP 723 `# /// script` header, run with `uv run` | Accepted standard, verified below |
+| Java | JBang `//DEPS` comments | Mature, the reason JBang exists |
+| .NET | File-based apps, `#:package` directives, `dotnet run file.cs` | .NET 10, recent |
+| Rust | `cargo -Zscript` single-file packages | Nightly, not stable, assume unavailable |
+
+**Verified here.** A `.py` file carrying a PEP 723 header with a real dependency, run through
+`uv run`, resolved and executed and left nothing behind but the script. One file in the planning
+directory, zero manifests, nothing for Dependabot to find.
+
+Where no single-file mechanism exists, which today means Rust and Go and Node, a manifest is
+unavoidable and it gets explicit exclusions. That is the fallback, not the default, and it is the
+case that needs the table below.
+
 ### Keeping the planning directory out of the build
 
-This is the real engineering problem in the structure, and it has a different answer per ecosystem.
-Getting it wrong means the project's test suite silently adopts scratch tests, which is the §5
-polarity collapse arriving by accident rather than by carelessness.
+Test discovery is still its own problem, since scratch tests are recognized by their filename and not
+by a manifest. Getting this wrong means the project's suite silently adopts a scratch test, which is
+the §5 polarity collapse arriving by accident rather than by carelessness.
 
 **Verified here.** A bare `pytest` at repo root collects `test_*.py` out of a planning directory. I
 built the layout above and it collected the scratch test alongside the real one. Adding
-`norecursedirs = docs/planning` to `pytest.ini` excludes it from the suite while leaving it directly
+`norecursedirs = necklace` to `pytest.ini` excludes it from the suite while leaving it directly
 runnable by path, which is exactly the property the method wants. A venv is already safe by accident,
 because pytest skips dot-directories and has `venv` in its default `norecursedirs`.
 
@@ -412,8 +495,8 @@ confirming on a box that has one, and each is a one-line fact that will take abo
 | Ecosystem | The risk | The move |
 | --- | --- | --- |
 | Go | A root `go.mod` makes every subdirectory part of the module, so `go test ./...` walks in | Any of three blessed outs: a nested `go.mod` (the go tool excludes subdirectories that own one), a `testdata/` directory (ignored outright), or a directory whose name starts with `_` or `.`. Go is better at this than it looks. |
-| .NET | SDK-style projects glob `**/*.cs`, so a planning directory nested inside a project directory gets compiled into it, and a nested `.csproj` produces duplicate-compile errors rather than isolation | Put `docs/planning/` at repo root, outside any project directory. A solution only builds projects it lists, so a scratch `.csproj` there is invisible. Watch for a root `Directory.Build.props`, which chains down and can impose analyzers on scratch code. |
-| Rust | A nested crate inside a workspace directory makes cargo error about a package that believes it is in a workspace | One line. Either `exclude = ["docs/planning"]` in the root `[workspace]`, or an empty `[workspace]` table in the scratch crate's own `Cargo.toml` to declare it a separate root. |
+| .NET | SDK-style projects glob `**/*.cs`, so a planning directory nested inside a project directory gets compiled into it, and a nested `.csproj` produces duplicate-compile errors rather than isolation | Put `necklace/` at repo root, outside any project directory. A solution only builds projects it lists, so a scratch `.csproj` there is invisible. Watch for a root `Directory.Build.props`, which chains down and can impose analyzers on scratch code. |
+| Rust | A nested crate inside a workspace directory makes cargo error about a package that believes it is in a workspace | One line. Either `exclude = ["necklace"]` in the root `[workspace]`, or an empty `[workspace]` table in the scratch crate's own `Cargo.toml` to declare it a separate root. |
 | JVM | The opposite problem. Maven modules and `settings.gradle` includes are explicit, so an undeclared directory is already ignored. The friction is running the scratch code at all, since it needs a build file and the parent's classpath | JBang is the right tool: single-file Java with dependencies declared in comments and no build file. Otherwise declare a standalone build file depending on the built artifact. |
 | Node and TypeScript | A root `tsconfig.json` `include`, and workspace globs in `package.json` or `pnpm-workspace.yaml` | Add the directory to `exclude`, and keep workspace globs specific rather than `packages/*`-style catch-alls. |
 
@@ -421,19 +504,20 @@ The skill instructs the agent to make this move once, at the start of the first 
 say what it did. It is a change to the project's build configuration, so it gets stated rather than
 slipped in.
 
-### Do not check in the virtual environment
+### What never gets committed
 
-Your current practice commits the whole venv. I would stop at the scripts plus `requirements.txt`
-and gitignore the venv itself.
+Resolved artifact directories, for the obvious reason. `.venv`, `node_modules`, `target/`, `bin/`,
+`obj/`. A venv is 27MB across 1802 files with `home = /usr/bin` and the absolute creation path baked
+into `pyvenv.cfg`, so it does not survive being cloned by anyone else anyway.
 
-The venv I built above is 27MB across 1802 files, and `pyvenv.cfg` records `home = /usr/bin` with the
-absolute creation path baked in. Console-script shebangs carry absolute paths too. A coworker who
-clones the repo gets 1802 files that point at directories on your machine and do not run. The
-scripts and a `requirements.txt` reproduce the environment in one command and survive being moved,
-which is what checking something in is supposed to buy.
+**Lockfiles, for the less obvious reason.** A lockfile is not just noise, it is an active input to
+Dependabot and Renovate, which will open pull requests against a transitive dependency of a scratch
+script that ships nowhere. The planning directory has no security surface and no release, so every
+alert it generates is false, and false alerts train people to ignore the real ones. Under the
+single-file rule above the question mostly does not arise, since there is no lockfile to leave.
 
-Same logic per ecosystem: check in the source and the manifest, never the resolved artifact
-directory. `node_modules`, `target/`, `bin/`, `obj/` all get the same treatment.
+The general form, which is the rule the skill actually carries: **a planning directory may contain
+source and prose. It may not contain anything a machine is configured to act on.**
 
 ## 10. Open
 

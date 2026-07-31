@@ -87,12 +87,18 @@ Both questions take one read to answer. An agent can apply them to its own draft
 - **Actor-outcome pairs.** For each actor, what that actor must be able to observe after the
   change. This is the load-bearing section. See below.
 - **Real constraints.** Existing systems, data volumes, compatibility requirements, deadlines. A
-  constraint you cannot cite is a preference, so file it under approach instead.
-- **The chosen approach, at strategy level.** Name the strategy. Name the alternatives you rejected
-  and why.
-- **Open questions, classified.** Mark each one factual or judgment. Factual means answerable by
-  reading or by running something. Judgment means preference, priority, or risk appetite. Only
-  judgment questions may reach the user.
+  constraint you cannot cite is a preference, so file it under approach instead. State the
+  constraint. The reasoning behind it goes in the log.
+- **The chosen approach, at strategy level.** Name the strategy. The alternatives you rejected go in
+  the log, with why. Rejecting them is still required. Printing them here is not.
+- **Open judgment questions, and only the open ones.** Factual questions are illegal here and always
+  were. An answered judgment question moves to the log along with its answer and who gave it. What
+  remains is a blocking handoff to a human, which is why it stays in the document the human opens.
+
+The last three carry a single rule: **the document holds what is still open, the log holds what is
+settled.** These documents balloon because they are asked to be both the plan and the record of how
+the plan was reached, and it is the second job that grows without bound. The log takes that job. See
+§9 of the tool plan.
 
 ### What the document must not contain
 
