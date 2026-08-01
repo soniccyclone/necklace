@@ -258,7 +258,7 @@ whether or not its directory exists yet.
 
 | Target | Skills | First-class surface to use |
 | --- | --- | --- |
-| Claude Code | `.claude/skills/necklace-*/SKILL.md` | Skill invocation tool, so the orchestrator in §6 can call and return natively. Subagent execution is available for skills that should not consume the main context. |
+| Claude Code | `.claude/skills/necklace-*/SKILL.md` | Skill invocation tool, so the orchestrator in §6 can call and return natively. Subagent execution for `necklace-lint` only, per §6. |
 | Cursor | `.cursor/skills/necklace-*/SKILL.md` | `.cursor/commands/necklace-*.md` for the slash catalog. `disable-model-invocation: true` on any skill that should be explicit-only. |
 | Copilot | `.github/skills/necklace-*/SKILL.md` | `.github/agents/necklace-*.agent.md` for the Custom Agents picker, which is Copilot's own surface and invisible from a `.claude/` install. |
 | opencode | `.opencode/skills/necklace-*/SKILL.md` | `.opencode/commands/` for slash commands. `metadata.opencode/autoinvoke` and `slash` to control routing per skill. |
@@ -460,33 +460,44 @@ The gate between stages is the artifact, not a return value. `necklace-cuj` does
 enforce-by-location principle from §0, and it means a stage recovers from a lost session by looking
 at the planning directory rather than by trusting a claim.
 
-### Subagent execution, and when it backfires
+### Subagent execution: lint only, never the pipeline
 
-Last turn this document suggested running `necklace-cuj` and `necklace-beads` in a forked subagent
-so their heavy reading would not consume the orchestrator's context. Spec Kit tried that and reverted
-it, and their comment in `integrations/claude/__init__.py` is the reason:
+**No pipeline stage forks.** This is settled by argument, not by measurement.
 
-> `analyze` was previously forked on the assumption that its heavy reads collapse to a short summary,
-> but in practice `/speckit-analyze` returns a 300-500 line report that is injected back into the
-> main conversation. In long sessions each subsequent fork inherits that growing context, compounding
-> overhead until the chat freezes.
+Two turns of this document got it wrong in two different ways, so both are recorded.
 
-Their `FORK_CONTEXT_COMMANDS` map is deliberately empty, with the injection mechanism left in place
-for a command that eventually qualifies.
+**The output argument, from Spec Kit.** They forked `/speckit-analyze` on the theory that its heavy
+reads collapse to a short summary. In practice it returned a 300-500 line report that was injected
+back into the parent conversation, and in long sessions each later fork inherited that accumulated
+context until the chat froze. Their `FORK_CONTEXT_COMMANDS` map is now deliberately empty. So a fork
+must return a receipt, never a report.
 
-**The rule: fork only what returns a receipt, never what returns a report.** A fork saves nothing
-when its output comes back into the parent conversation, and it costs extra because every later fork
-inherits the accumulated result.
+This document then argued necklace satisfies that, because every stage writes its artifact to disk
+and the next stage gates on the file, so a forked `necklace-cuj` could return one line. The
+reasoning is correct and it is beside the point.
 
-necklace is unusually well placed to satisfy that, and by accident rather than design. Every pipeline
-stage already writes its artifact to disk, and §6 already gates the next stage on the file rather
-than on a return value. So a forked `necklace-cuj` can write `cuj.md` and return one line naming the
-file and the CUJ count. The document never enters the orchestrator's context at all, because nothing
-downstream needs it there. That is the exact condition Spec Kit is waiting for.
+**The input argument, which decides it.** A subagent starts cold. `necklace-cuj` does not consume
+`spec.md`, it consumes `spec.md` *plus everything that happened while `spec.md` was being written*:
+the self-answer loop from §5, the judgment calls the user made and why, the REPL findings that
+informed a claim without earning a row in a table. That accumulated understanding is the thing the
+method exists to build, and it lives in the main agent's conversation.
 
-This still needs proving on a real run before it goes in the skills. The failure mode is silent: it
-looks like it works and degrades over a long session, which is how it got into Spec Kit in the first
-place. Ship the pipeline unforked, measure, then fork the stages whose returns are genuinely one line.
+Forking throws it away and hands the replacement agent a two-page document. The stage would then
+re-derive from disk what the parent already knew, which is both more expensive and worse. Spawning a
+subagent to write one file, when the file's whole quality depends on context the parent is already
+holding, is a loss on both sides of the ledger.
+
+`log.md` does not rescue this. It is a write-ahead record of decisions, not a transcript, and §8 is
+explicit that it has no completeness requirement. If a summary were sufficient to reconstruct the
+context, the parent would not need the context either.
+
+**The two-sided test for any future fork:** the task must return a receipt *and* be startable cold.
+Pipeline stages pass the first and fail the second, structurally and by design, so no measurement
+will change the answer.
+
+`necklace-lint` passes both. It walks the repo for scanner configuration and needs nothing from the
+conversation, and it returns a short findings list. It is the only skill here that should ever fork,
+and on Claude Code it should.
 
 ### What each pipeline skill adds
 
