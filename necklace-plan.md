@@ -390,7 +390,7 @@ skills/
 ├── beads/
 │   └── SKILL.md          # CUJ doc -> JSONL -> one bd import, then the red gate in §4
 └── lint/
-    └── SKILL.md          # hygiene, not a pipeline stage. See §9 of the tool plan.
+    └── SKILL.md          # hygiene, not a pipeline stage. See §8 of the tool plan.
 ```
 
 **Three of those are the pipeline.** Spec, CUJ, beads, in that order, matching the three mandatory
