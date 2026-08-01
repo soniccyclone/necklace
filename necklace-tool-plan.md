@@ -237,9 +237,13 @@ a patch to a switch statement.
 
 Three details in their implementation are worth taking as-is:
 
-- **Detection drives the menu.** `getAvailableTools()` scans the project for each tool's config
-  directory and offers only what is actually present. The user picks from tools they demonstrably
-  use, rather than scrolling a list of forty.
+- **Detection ranks the menu, it does not gate it.** This is the part worth copying exactly.
+  `getAvailableTools()` scans for each tool's config directory, but the prompt is a *searchable
+  multi-select over every supported tool*, sorted configured first, then detected, then the rest.
+  Detected tools are pre-selected on first-time setup. So the common case is one keypress and the
+  out-of-order case, where someone installs necklace before the IDE, is a search away instead of
+  being impossible. Gating the list on detection would have been the obvious implementation and it
+  is the wrong one.
 - **Detection paths are a list, not a directory.** Copilot is detected by any of
   `.github/copilot-instructions.md`, `.github/instructions`, `.github/prompts`, `.github/agents`,
   `.github/skills`, and more, because `.github/` alone means nothing.
@@ -249,7 +253,8 @@ Three details in their implementation are worth taking as-is:
 
 ### The four committed targets
 
-Selectable, multiple at once, detected first and confirmed by the user.
+Multi-select, searchable, pre-selected from detection. Every supported target stays reachable
+whether or not its directory exists yet.
 
 | Target | Skills | First-class surface to use |
 | --- | --- | --- |
@@ -454,6 +459,34 @@ The gate between stages is the artifact, not a return value. `necklace-cuj` does
 `necklace-spec` said it finished. It starts because `spec.md` is on disk. That is the same
 enforce-by-location principle from §0, and it means a stage recovers from a lost session by looking
 at the planning directory rather than by trusting a claim.
+
+### Subagent execution, and when it backfires
+
+Last turn this document suggested running `necklace-cuj` and `necklace-beads` in a forked subagent
+so their heavy reading would not consume the orchestrator's context. Spec Kit tried that and reverted
+it, and their comment in `integrations/claude/__init__.py` is the reason:
+
+> `analyze` was previously forked on the assumption that its heavy reads collapse to a short summary,
+> but in practice `/speckit-analyze` returns a 300-500 line report that is injected back into the
+> main conversation. In long sessions each subsequent fork inherits that growing context, compounding
+> overhead until the chat freezes.
+
+Their `FORK_CONTEXT_COMMANDS` map is deliberately empty, with the injection mechanism left in place
+for a command that eventually qualifies.
+
+**The rule: fork only what returns a receipt, never what returns a report.** A fork saves nothing
+when its output comes back into the parent conversation, and it costs extra because every later fork
+inherits the accumulated result.
+
+necklace is unusually well placed to satisfy that, and by accident rather than design. Every pipeline
+stage already writes its artifact to disk, and §6 already gates the next stage on the file rather
+than on a return value. So a forked `necklace-cuj` can write `cuj.md` and return one line naming the
+file and the CUJ count. The document never enters the orchestrator's context at all, because nothing
+downstream needs it there. That is the exact condition Spec Kit is waiting for.
+
+This still needs proving on a real run before it goes in the skills. The failure mode is silent: it
+looks like it works and degrades over a long session, which is how it got into Spec Kit in the first
+place. Ship the pipeline unforked, measure, then fork the stages whose returns are genuinely one line.
 
 ### What each pipeline skill adds
 
