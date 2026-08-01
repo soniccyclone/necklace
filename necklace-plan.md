@@ -498,8 +498,9 @@ properly for anyone who needs 20-30 agents.
 
 ## 7. Controlled vocabulary for the artifacts
 
-The templates and skill prompts are procedures, and agents parse them. That makes ASD-STE100
-directly applicable to the artifacts, but not to design-doc prose. Apply it below the line.
+The templates and skill prompts are procedures, and agents parse them. One term per concept, used
+the same way every time, so a reader and an agent resolve it identically. This applies to the
+artifacts and not to design-doc prose.
 
 Ten terms, one meaning each. The templates use nothing else for these concepts:
 

@@ -12,7 +12,7 @@ Same discipline as the method document. Validated facts are separated from propo
 - `rtk init` takes `--global`, `--agent <claude|cursor|windsurf|cline|kilocode|antigravity|kimi|pi|hermes|droid>`,
   `--show`, `--hook-only`. That is the CLI shape being copied.
 - Claude Code reads skills from `~/.claude/skills/<name>/SKILL.md` and the project-local
-  `.claude/skills/<name>/SKILL.md`. Confirmed against the installed `ste-writing` skill.
+  `.claude/skills/<name>/SKILL.md`. Confirmed against a skill installed on this machine.
 - `@beads/bd` on npm is version 1.1.2. It is a JS bin shim plus a `postinstall` that downloads a
   platform binary. Repo is `gastownhall/beads`, subdirectory `npm-package`.
 - **That postinstall can fail and leave `bd` on PATH but non-functional.** It has failed on this
@@ -21,9 +21,21 @@ Same discipline as the method document. Validated facts are separated from propo
 - `necklace` is already published on npm as v1.0.0 with an empty description. The bare name is
   unavailable.
 
+**Verified from vendor documentation on 2026-08-01.** All four committed targets read `SKILL.md`
+with the same required frontmatter, `name` and `description`.
+
+- Cursor reads `.cursor/skills/` and `.agents/skills/`.
+- Copilot reads `.github/skills/`, `.claude/skills/`, and `.agents/skills/`. `SKILL.md` support
+  landed April 2026.
+- opencode reads `.opencode/skills/`, `.claude/skills/`, and `.agents/skills/`.
+- No vendor documents skill-to-skill invocation either way, except Claude Code, which has an
+  explicit invocation tool. §6 designs around the absence rather than depending on it.
+
 **Proposals in this document. Cut freely.**
 
 - The `--skip-beads-check` escape hatch in §5.
+- Prose sequencing in the orchestrator rather than a vendor composition API. Forced by three of four
+  vendors documenting nothing either way, so it is the portable choice rather than the proven one.
 - The working log in §9, and its framing as a write-ahead record rather than a summary. The need is
   Nathan's, from losing session state that had not reached the documents yet. The shape is mine.
 - Moving rejected alternatives and answered judgment questions out of the spec doc and into the log,
@@ -41,6 +53,13 @@ Same discipline as the method document. Validated facts are separated from propo
   scanners so the capability grows on its own. The detect-from-the-repo constraint and the
   demonstrate-do-not-assert rule are mine, and they are what stop it hallucinating config.
 
+**Decided. Not open for re-litigation.**
+
+- The five skill names in §6.
+- The four install targets in §4: Claude Code, Copilot, opencode, Cursor. Nathan uses them and his
+  coworkers are heavy Cursor users. Everything else waits for a request.
+- The orchestrator returning control between stages rather than absorbing the pipeline.
+
 **From Nathan's working practice.**
 
 - One checked-in planning directory per workflow run, holding both documents. Including the reason:
@@ -50,6 +69,9 @@ Same discipline as the method document. Validated facts are separated from propo
 
 **Already cut. Do not re-propose.**
 
+- **The stub generator**, which inlined each SKILL.md into `.cursor/commands/` and
+  `.github/prompts/`. Every target now reads SKILL.md directly, so installing is a directory copy.
+  See §4.
 - **Every CLI command except `init`.** `doctor`, `update`, `init --show`, and the content-hashed
   manifest that supported them were invented in this document, not asked for, and cut in §3. The
   checks `doctor` would have run belong to the lint skill. Adding a command to this tool now requires
@@ -91,21 +113,20 @@ necklace/
 ├── src/
 │   ├── targets.js            # agent -> install path table
 │   └── install.js            # copy files, refuse to clobber
-├── skills/                   # the payload, verbatim from the method doc §6
-│   ├── spec/
-│   │   ├── SKILL.md
-│   │   └── spec.md
-│   ├── cuj/
-│   │   ├── SKILL.md
-│   │   └── cuj.md
-│   ├── beads/
-│   │   ├── SKILL.md
-│   │   └── beads.schema.md   # the bd JSONL contract, see §5
-│   └── lint/
-│       └── SKILL.md          # repo pollution check, see §8. Not a pipeline stage.
-└── stubs/
-    ├── cursor/               # .cursor/commands/*.md pointing at the skills
-    └── copilot/              # .github/prompts/*.md
+└── skills/                   # the payload, verbatim from the method doc §6
+    ├── necklace/
+    │   └── SKILL.md          # the orchestrator. Sequences the three below.
+    ├── spec/
+    │   ├── SKILL.md
+    │   └── spec.md
+    ├── cuj/
+    │   ├── SKILL.md
+    │   └── cuj.md
+    ├── beads/
+    │   ├── SKILL.md
+    │   └── beads.schema.md   # the bd JSONL contract, see §5
+    └── lint/
+        └── SKILL.md          # repo pollution check, see §8. Not a pipeline stage.
 ```
 
 **Zero runtime dependencies.** The whole program copies markdown files and runs one subprocess.
@@ -117,8 +138,7 @@ no postinstall step and no downloaded artifact.
 **Node 18+ engines field, ESM.** No build step, no TypeScript compile, no bundler. The published
 tarball is the source. Anyone can read what they installed.
 
-**`files` in package.json is explicit.** `bin`, `src`, `skills`, `stubs`, `README.md`. Nothing else
-ships.
+**`files` in package.json is explicit.** `bin`, `src`, `skills`, `README.md`. Nothing else ships.
 
 ### The name
 
@@ -171,27 +191,61 @@ skill" is a worse README.
 
 ## 4. Install targets
 
-One table drives everything. Adding an agent is one row, not a code path.
+Every target reads `SKILL.md` with the same two required frontmatter fields, `name` and
+`description`, in a directory whose name matches `name`. That was not true when this document was
+drafted and it is the single largest simplification in it.
 
-| Agent | Project-local | Global |
+**Verified from vendor documentation, 2026-08-01.**
+
+| Tool | Project paths it reads | Personal |
 | --- | --- | --- |
-| `claude` | `.claude/skills/necklace-{spec,cuj,beads}/` | `~/.claude/skills/necklace-*/` |
-| `cursor` | `.cursor/commands/necklace-*.md` | not supported, print why |
-| `copilot` | `.github/prompts/necklace-*.prompt.md` | not supported, print why |
-| `opencode` | to be confirmed | to be confirmed |
+| Claude Code | `.claude/skills/` | `~/.claude/skills/` |
+| Cursor | `.cursor/skills/`, `.agents/skills/` | `~/.cursor/skills/`, `~/.agents/skills/` |
+| Copilot | `.github/skills/`, `.claude/skills/`, `.agents/skills/` | `~/.copilot/skills/`, `~/.agents/skills/` |
+| opencode | `.opencode/skills/`, `.claude/skills/`, `.agents/skills/` | `~/.config/opencode/skills/`, `~/.claude/skills/`, `~/.agents/skills/` |
 
-The `necklace-` prefix on skill directory names is deliberate. Skills share a flat namespace with
-whatever else the user installed, and `spec` is a name someone else will want.
+Read the overlap. **Two directories cover all four tools**, because Copilot and opencode both accept
+`.claude/skills/` as a compatibility source:
 
-For Cursor and Copilot the installed file is a stub that carries the full instruction inline. Those
-platforms have no skill-loading mechanism to point at, so "stub that references the skill file" is
-wishful. The stub generator reads `skills/*/SKILL.md` at install time and inlines it. That means one
-source of truth in the repo and duplicated content on disk, which is the correct tradeoff: the
-duplication is machine-generated and refreshed by `necklace update`.
+```
+.claude/skills/necklace-*/     # Claude Code, Copilot, opencode
+.cursor/skills/necklace-*/     # Cursor
+```
 
-Agent detection: if `--agent` is omitted, look for `.claude/`, `.cursor/`, `.github/prompts/` in the
-project and install to every one found. Print the list. If none are found, default to `claude` and
-say so.
+`.agents/skills/` is the emerging vendor-neutral path and Cursor, Copilot, and opencode all read it.
+Claude Code does not, so it saves nothing today. It is the better long-term bet and worth revisiting
+if Claude Code adds it, since `.agents/` plus `.claude/` would also be two directories but would
+signal that this is not a Claude-specific tool.
+
+**The stub generator is cut.** An earlier draft had necklace inlining each `SKILL.md` into
+`.cursor/commands/*.md` and `.github/prompts/*.prompt.md`, on the belief that those platforms had no
+skill mechanism to point at. Cursor shipped skills, and Copilot added `SKILL.md` support in April
+2026. Installing is now a directory copy to two paths. The `stubs/` directory leaves the package.
+
+That was not a judgment error, it was a stale-knowledge error, and it is the second time in this
+document that checking took two minutes and would have prevented a design. The rule it earns:
+**verify a platform's current file convention before designing around its absence.**
+
+### Beyond the four
+
+The four above are committed because Nathan uses them and his coworkers are heavy Cursor users.
+Everything else is a stretch goal, added when a person asks for it and verified on a machine that
+runs it.
+
+The prior art for the long tail: `rtk init --agent` ships ten. Spec Kit claims 30+ integrations.
+OpenSpec's tool list is the longest of the three and includes `amazon-q`, `antigravity`, `auggie`,
+`cline`, `codex`, `continue`, `crush`, `devin`, `factory`, `gemini`, `hermes`, `junie`, `kilocode`,
+`kimi`, `kiro`, `qwen`, `roocode`, `trae`, and `zcode`. BMAD does not publish a comparable list.
+
+Rank by whether the tool reads a path we already write. Anything accepting `.agents/skills/` or
+`.claude/skills/` is free and needs only a documentation line. Anything with its own format costs a
+target row and a verification pass, and waits for a request.
+
+**Kiro is the one to think about rather than schedule.** It is spec-driven by design, generating
+`requirements.md`, `design.md`, and `tasks.md` of its own. Installing necklace beside that produces
+two spec pipelines with opposite theories of what a spec is for, since §0 holds that the code is the
+source of truth and Kiro's model is the one §0 rejects. That is a philosophical collision, not an
+integration task, and adding a path row would paper over it.
 
 ## 5. Beads is a hard requirement
 
@@ -320,31 +374,83 @@ aborts the entire import, running it first is free insurance rather than ceremon
 everything the method uses is present. Hierarchical IDs and labels are old and set no floor of their
 own. This is the lint skill's version check, and it is a real number rather than a placeholder.
 
-## 6. What this changes in the skills themselves
+## 6. The skills
 
-The method document's §6 layout stands. Three additions, all in `skills/beads/SKILL.md`:
+**Decided. These names are settled, not proposals.**
 
-1. The requirement, first line: this skill needs a working `bd` and has no alternative path.
-2. The probe from §5, including the "run it, do not look for it" rule and the reason, plus the
-   instruction to stop before generating anything if the probe fails.
-3. A pointer to `beads.schema.md`.
+| Skill | Consumes | Produces |
+| --- | --- | --- |
+| `necklace` | a ticket | nothing of its own. Sequences the three below. |
+| `necklace-spec` | a ticket | `spec.md`, and opens `log.md` |
+| `necklace-cuj` | `spec.md` | `cuj.md`, with the mandatory test table |
+| `necklace-beads` | `cuj.md` | JSONL, one `bd import`, then the red gate |
+| `necklace-lint` | a repo | pollution findings. Not a pipeline stage. |
 
-`skills/spec/SKILL.md` and `skills/cuj/SKILL.md` are unchanged from the method document. They carry
-§2, §3, §5, and §7 and they never touch beads.
+Four of the five are named for the artifact they produce, and every name is drawn from §7 of the
+method document rather than invented. That is deliberate. §7 exists because the word "probe" was an
+invented synonym that displaced "REPL" across forty-one occurrences of an earlier draft, and a skill
+name is the most likely place for the next one to enter.
 
-One addition across all three: each skill states which artifact it consumes and which it produces, so
-running them out of order fails loudly instead of producing a CUJ doc from no spec doc.
+The `necklace-` prefix exists because skills share a flat namespace with everything else the user
+installed, and `spec` is a name someone else will want. It is ugly. A Claude Code plugin would
+namespace them as `necklace:spec` and the prefix would disappear, which is the one real argument for
+the plugin channel still open in §9.
 
-`skills/spec/SKILL.md` owns the planning directory from §8. It creates the directory, opens `log.md`
-before drafting anything, and invokes the lint skill on the first run in a repo rather than carrying
-the build-isolation logic itself. All three pipeline skills append to the log as they go. The npm CLI
-is not involved: the directory is per workflow run, so it is created by the skill at use time, not by
-`necklace init` at install time.
+### The orchestrator
 
-`skills/lint/SKILL.md` is the fourth file and the only one outside the pipeline. Its contract is in
-§8. The thing to preserve when editing it is the detect-from-the-repo rule, because that single
-constraint is what separates a check that improves with better models from one that invents config
-keys with more confidence every year.
+`necklace` is the primary entry point. A coworker runs one thing, not three, and treating the
+pipeline as the advanced path rather than the default gets the method used wrong.
+
+It **sequences without absorbing**. It invokes `necklace-spec`, waits for it to return, confirms
+`spec.md` exists, tells the agent to run `necklace-cuj` next, and so on through the red gate. Each
+stage stays independently invocable, which matters because redoing only the CUJ document is a normal
+thing to want.
+
+**How it sequences, given what the platforms actually support.** Claude Code has an explicit skill
+invocation tool, so an orchestrator can call a sub-skill and get control back. Cursor, Copilot, and
+opencode document neither a composition API nor its absence: their docs simply do not address
+skill-to-skill invocation.
+
+So do not depend on one. The orchestrator sequences **in prose**: its SKILL.md tells the agent which
+skill to run, what artifact to check for before moving on, and what to do when the check fails. The
+agent performs the invocation. This works identically on all four targets, needs no capability that
+any vendor has promised, and is the same behavioral-instruction approach §5 of the method document
+already uses for the REPL ladder. Where Claude Code's invocation tool is available the agent will use
+it naturally, and nothing breaks where it is not.
+
+The gate between stages is the artifact, not a return value. `necklace-cuj` does not start because
+`necklace-spec` said it finished. It starts because `spec.md` is on disk. That is the same
+enforce-by-location principle from §0, and it means a stage recovers from a lost session by looking
+at the planning directory rather than by trusting a claim.
+
+### What each pipeline skill adds
+
+`necklace-spec` owns the planning directory from §8. It creates the run directory, opens `log.md`
+before drafting anything, and invokes `necklace-lint` on the first run in a repo rather than carrying
+the isolation logic itself.
+
+`necklace-cuj` and `necklace-beads` are unchanged from the method document. All three append to the
+log as they go.
+
+`necklace-beads` gets three additions: the requirement statement on its first line, the probe from §5
+with the run-it-do-not-look-for-it rule, and a pointer to `beads.schema.md`.
+
+`necklace-lint` is the only skill outside the pipeline. Its contract is in §8. The thing to preserve
+when editing it is the detect-from-the-repo rule, because that single constraint is what separates a
+check that improves with better models from one that invents config keys with more confidence every
+year.
+
+Every skill states which artifact it consumes and which it produces, so running them out of order
+fails loudly instead of producing a CUJ document from no spec document.
+
+### Descriptions are load-bearing
+
+Every target routes on the `description` field. A `necklace-spec` described as "write a specification
+document" will fire whenever anyone says the word spec, which trains people to disable it.
+
+Each description names the method explicitly and states its input artifact, so the skill is only
+selected inside a necklace run. `necklace-lint` and `necklace` are the two that may reasonably
+trigger on their own.
 
 ## 7. Build order
 
