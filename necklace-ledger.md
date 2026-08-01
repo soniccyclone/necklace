@@ -44,10 +44,11 @@ Still unverified, and each is about a minute to check on a machine with the tool
 - JBang, .NET file-based apps, and `cargo -Zscript` as single-file mechanisms.
 - Every scanner marking in §8's table. None of those scanners are installed here.
 
-## Confidence in the method
+## Provenance
 
-What is validated on real tickets versus what has never been tried. Carried over from the method
-document, which now points here.
+Read this before treating anything in the method as a requirement. It mixes practice that already
+works with proposals that have never been tried. Moved here from §1 of the method document, which
+now points at it.
 
 **From Nathan's working practice. Validated on real tickets.**
 
@@ -62,7 +63,7 @@ document, which now points here.
 - One checked-in planning directory per workflow run, holding both documents.
 - Retaining REPL work in that directory.
 
-**Proposals. Untried. Cut freely.**
+**Proposals. Untried, cut them freely.**
 
 - The two-sided altitude test in §2.
 - Actor-outcome pairs as a required section.

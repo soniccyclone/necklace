@@ -92,8 +92,8 @@ method. A run that skips one has not.
 The REPL workflow is not a fourth step. It is a tool the agent reaches for while it works through
 either document with you. Section 5 covers it.
 
-Which parts of this are validated on real tickets and which are untried proposals is recorded in
-`necklace-ledger.md`, along with everything already ruled out.
+Provenance for every claim below, meaning which are validated on real tickets and which are untried
+proposals, is in `necklace-ledger.md` along with everything already ruled out.
 
 ## 2. What "high level" means
 
@@ -131,7 +131,7 @@ Both questions take one read to answer. An agent can apply them to its own draft
 The last three carry a single rule: **the document holds what is still open, the log holds what is
 settled.** These documents balloon because they are asked to be both the plan and the record of how
 the plan was reached, and it is the second job that grows without bound. The log takes that job. See
-§9 of the tool plan.
+§8 of the tool plan.
 
 ### What the document must not contain
 
