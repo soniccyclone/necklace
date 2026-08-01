@@ -92,48 +92,8 @@ method. A run that skips one has not.
 The REPL workflow is not a fourth step. It is a tool the agent reaches for while it works through
 either document with you. Section 5 covers it.
 
-### Provenance
-
-Read this before treating anything below as a requirement. This document mixes practice that
-already works with proposals that have never been tried. Two of the proposals survived long enough
-in earlier drafts to get mistaken for decisions, so the split is now explicit.
-
-**From Nathan's working practice. Validated on real tickets.**
-
-- The three mandatory steps in this section.
-- Both documents, called design docs, in that order.
-- CUJ vertical slices in the second document.
-- Turning each CUJ into a verifiable test.
-- Beads breakdown from the CUJ document.
-- Asserting that the tests exist and trace back to the CUJs.
-- A REPL-like workflow as the tool for answering the agent's own questions.
-- The agent researching aggressively rather than accumulating questions.
-
-**Proposals. Mine, untried, cut them freely.**
-
-- The two-sided altitude test in §2.
-- Actor-outcome pairs as a required section.
-- The "must not contain" list and the two-page length guide.
-- "Fails for the right reason" as part of the red gate.
-- The three-round cap on the self-answer loop.
-- The falsification-condition discipline in §5.
-- The ten-term dictionary in §7.
-- The four trial-run counts in §9.
-- The rung-2-is-the-test-runner rule in §5, and the live-code-loading test for which rung a language
-  sits on. Nathan's observation, my reasoning, neither tried. The "do not install a REPL" rule comes
-  from him having used the C# and Rust ones.
-
-**Already cut. Do not re-propose.**
-
-- A `necklace verify` binary, and any implementation language for it. The agent runs the test suite
-  and reads the output.
-- A `Touches` field on each CUJ, and the serialization check built on it.
-- Critic agents, agent supervision, worktrees, fleets, and phase state machines.
-- Graduated ceremony for small tickets. A ticket gets the full two documents.
-- Bead shape as a configuration choice. It is per-CUJ sizing, not policy. See §4.
-
-Nothing is left in a fourth category. Every claim below is either validated practice or a labeled
-proposal.
+Which parts of this are validated on real tickets and which are untried proposals is recorded in
+`necklace-ledger.md`, along with everything already ruled out.
 
 ## 2. What "high level" means
 
@@ -386,11 +346,10 @@ hand degrades the output silently, which is the argument for making it a skill.
 **What survives into the documents.** The finding, not the script. When a finding informs a test,
 record it in the `Informed by` column. When it informs a claim, cite it inline.
 
-**What survives on disk.** The script, in the planning directory, checked in. That is a change from
-an earlier draft which called REPL work throwaway and deleted it. Throwaway describes its role in the
-documents, where only the finding belongs. It does not describe its value six months later, when
-someone asks why a decision was made and the session that settled it is the answer. Keeping it costs
-a few kilobytes and the build-isolation work in §9 of the tool plan.
+**What survives on disk.** The script, in the planning directory, checked in. Throwaway describes its
+role in the documents, where only the finding belongs. It does not describe its value six months
+later, when someone asks why a decision was made and the session that settled it is the answer.
+Keeping it costs a few kilobytes and the build-isolation work in §8 of the tool plan.
 
 **One optional discipline.** A REPL script that cannot fail proves nothing. Stating what result
 would contradict the claim costs one line, and it stops the agent from writing something that
@@ -452,18 +411,17 @@ compiled code, and neither needs to.
 There is no `repl` skill. The REPL workflow is behavior during `spec` and `cuj`, not a separate
 invocation, so the instruction lives inside both of those.
 
-There is no checker. An earlier draft proposed `necklace verify` to validate the graph and run the
-red gate. The justification was that a prompt cannot self-certify the red gate, which is false. The
-agent runs the test suite and reads the output. Every check in §4 is something the agent already
-does, so a binary would only restate the instruction in another language.
+There is no checker. Every check in §4 is something the agent already does, and §0 gives the deeper
+reason: a binary that validates code against a spec has encoded the belief that the spec outranks the
+code.
 
 Distribution is a Claude Code plugin. `.cursor/commands/` and `.github/prompts/` stubs point at the
 same three files, so a coworker installs one thing.
 
 ### Prior art, and what not to rebuild
 
-Read this before writing any code. An earlier draft of this plan reinvented roughly 60% of what
-already exists in Steve Yegge's `gastownhall` org.
+Read this before writing any code. Most of what an orchestration layer would need already exists in
+Steve Yegge's `gastownhall` org.
 
 | Project | What it already does |
 | --- | --- |

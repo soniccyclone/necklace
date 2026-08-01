@@ -1,109 +1,10 @@
 # necklace, as a tool
 
 How the method in `necklace-plan.md` gets distributed. The method is unchanged. This document only
-covers packaging, installation, and the one real design decision: what happens when `bd` is absent.
+covers packaging, installation, and the skills.
 
-## 0. Provenance
-
-Same discipline as the method document. Validated facts are separated from proposals.
-
-**Verified in this environment on 2026-07-30.**
-
-- `rtk init` takes `--global`, `--agent <claude|cursor|windsurf|cline|kilocode|antigravity|kimi|pi|hermes|droid>`,
-  `--show`, `--hook-only`. That is the CLI shape being copied.
-- Claude Code reads skills from `~/.claude/skills/<name>/SKILL.md` and the project-local
-  `.claude/skills/<name>/SKILL.md`. Confirmed against a skill installed on this machine.
-- `@beads/bd` on npm is version 1.1.2. It is a JS bin shim plus a `postinstall` that downloads a
-  platform binary. Repo is `gastownhall/beads`, subdirectory `npm-package`.
-- **That postinstall can fail and leave `bd` on PATH but non-functional.** It has failed on this
-  machine. `bd --version` exits nonzero with "binary not found ... postinstall script failed to
-  download". This is not hypothetical, it is the current state of Nathan's box.
-- `necklace` is already published on npm as v1.0.0 with an empty description. The bare name is
-  unavailable.
-
-**Verified from vendor documentation on 2026-08-01.** All four committed targets read `SKILL.md`
-with the same required frontmatter, `name` and `description`.
-
-- Cursor reads `.cursor/skills/` and `.agents/skills/`.
-- Copilot reads `.github/skills/`, `.claude/skills/`, and `.agents/skills/`. `SKILL.md` support
-  landed April 2026.
-- opencode reads `.opencode/skills/`, `.claude/skills/`, and `.agents/skills/`.
-- No vendor documents skill-to-skill invocation either way, except Claude Code, which has an
-  explicit invocation tool. §6 designs around the absence rather than depending on it.
-
-**Read from source on 2026-08-01**, in `Fission-AI/OpenSpec`, `github/spec-kit`, and
-`bmad-code-org/BMAD-METHOD`.
-
-- BMAD publishes `tools/installer/ide/platform-codes.yaml`, 45 platforms, declarative. An earlier
-  draft of this document said BMAD published no comparable list. That came from a search summary
-  rather than the repository and was wrong.
-- OpenSpec's `AI_TOOLS` registry in `src/core/config.ts` is 35 entries, plus one adapter file per
-  tool under `src/core/command-generation/adapters/`.
-- Spec Kit ships roughly 37 integration packages under `src/specify_cli/integrations/`.
-- All three target Kiro.
-- Windsurf was rebranded to Devin Desktop on 2026-06-02 and its config directory moved from
-  `.windsurf/` to `.devin/`. OpenSpec keeps `windsurf` as an alias.
-
-**Proposals in this document. Cut freely.**
-
-- The `--skip-beads-check` escape hatch in §5.
-- Prose sequencing in the orchestrator rather than a vendor composition API. Forced by three of four
-  vendors documenting nothing either way, so it is the portable choice rather than the proven one.
-- The working log in §9, and its framing as a write-ahead record rather than a summary. The need is
-  Nathan's, from losing session state that had not reached the documents yet. The shape is mine.
-- Moving rejected alternatives and answered judgment questions out of the spec doc and into the log,
-  and the resulting edit to §2 of the method document. Nathan's call. The "open stays, settled moves"
-  rule is mine.
-- The single-file-script rule and the four-ecosystem table in §8. Python is verified on this machine
-  with `uv run`. JBang, .NET file-based apps, and `cargo -Zscript` are reasoned from what those
-  projects document and are not verified.
-- The per-ecosystem build-isolation table in §8. Python is verified. Go, .NET, Rust, JVM, and Node
-  are reasoned from how their build tools scope a directory and are not verified.
-- The two-track approach to scanner pollution in §8, and the markings table. Reasoned from what each
-  scanner documents; none are installed here.
-- The §0 first-principles section in the method document, and deriving the language guidance from it.
-- The lint skill in §8. Nathan's proposal, including the reasoning that newer agents know newer
-  scanners so the capability grows on its own. The detect-from-the-repo constraint and the
-  demonstrate-do-not-assert rule are mine, and they are what stop it hallucinating config.
-
-**Decided. Not open for re-litigation.**
-
-- **Every target is first class.** necklace installs per repo, so the installer knows which tool it
-  is writing for and uses that tool's native paths and command surface. No consolidating through
-  compatibility paths. Drift is not an argument against per-tool files here, because the files are
-  generated from one source by a program. See §4.
-
-- The five skill names in §6.
-- The four install targets in §4: Claude Code, Copilot, opencode, Cursor. Nathan uses them and his
-  coworkers are heavy Cursor users. Everything else waits for a request.
-- The orchestrator returning control between stages rather than absorbing the pipeline.
-
-**From Nathan's working practice.**
-
-- One checked-in planning directory per workflow run, holding both documents. Including the reason:
-  the documents answer "why was this decided" long after the conversation is gone.
-- Retaining REPL work in that directory rather than deleting it. He currently builds a venv per
-  planning directory.
-
-**Already cut. Do not re-propose.**
-
-- **The stub generator**, which inlined each SKILL.md into `.cursor/commands/` and
-  `.github/prompts/`. Every target now reads SKILL.md directly, so installing is a directory copy.
-  See §4.
-- **Every CLI command except `init`.** `doctor`, `update`, `init --show`, and the content-hashed
-  manifest that supported them were invented in this document, not asked for, and cut in §3. The
-  checks `doctor` would have run belong to the lint skill. Adding a command to this tool now requires
-  showing that an agent reading a SKILL.md cannot do the job.
-
-- **Any fallback for a missing `bd`.** Beads is a hard requirement. See §5. No degraded mode, no
-  file-mode output, no `.necklace/beads.jsonl` written for later import, no mirroring into a session
-  todo tool. A tool that half-works teaches a workflow that is half Nathan's, which defeats the
-  purpose of shipping it.
-- A binary that validates artifacts. §6 of the method killed `necklace verify` and nothing here
-  revives it. The npm package scaffolds files and exits. It never reads a spec doc, a CUJ doc, or a
-  test result.
-- Rewriting any part of beads, including rendering its graph to markdown.
-- Vendoring the `bd` binary inside the necklace package.
+Decisions, reversals, rejected alternatives, and the record of what was verified live in
+`necklace-ledger.md`. This document says what we are building.
 
 ## 1. What the tool is
 
@@ -184,27 +85,10 @@ It copies the skills to the target directory and checks that `bd` works. That is
 `--force` overwrites an existing file instead of skipping it. Without it, init refuses to clobber and
 says which file it left alone.
 
-An earlier draft of this document had four commands: `init`, `init --show`, `doctor`, and `update`,
-plus a content-hashed manifest to support them. All of it was invented here. None of it was asked
-for, and the sentence introducing it read "four commands, anything beyond this is scope creep," which
-is the tell.
+Nothing else. The lint skill covers environment probing, and `npm update -g` followed by
+`necklace init` covers updating, since init is idempotent.
 
-`init/doctor/update` is the shape every devtool CLI has, which is why I reached for it, which is
-exactly the cargo-culted-best-practices reflex §0 of the method document is written against. `rtk`
-was cited as the model and `rtk` has `init`. It does not have the other two.
-
-What replaces them:
-
-- **`doctor`** is the lint skill. Checking whether `bd` runs, whether the skills are installed, and
-  whether the pollution markings are present is reading and reporting, which is what a prompt is for.
-  A second binary command that duplicates it existed only because I invented it before the skill.
-- **`update`** is `npm update -g` followed by `necklace init`. Init is idempotent, so there is
-  nothing to add.
-- **`init --show`** is `ls`.
-- **The manifest** existed to let `update` tell a user edit from a new release. With no `update`
-  there is nothing to tell apart, so it goes too, and with it the hashing.
-
-Still explicitly not included: no `necklace spec`, no `necklace cuj`, no `necklace beads`. Those are
+Also not included: no `necklace spec`, no `necklace cuj`, no `necklace beads`. Those are
 skill invocations inside the agent. A CLI command that prints "now ask your agent to run the spec
 skill" is a worse README.
 
@@ -218,12 +102,17 @@ for, so it can write that tool's native format and use that tool's first-class f
 reason to reduce four tools to a lowest common denominator when the installer is standing right there
 with the answer.
 
-An earlier draft consolidated to two directories by routing Copilot and opencode through their
-`.claude/skills/` compatibility paths. That is wrong on the merits. A compatibility path is a
-fallback the vendor maintains for other people's files, and taking it means never touching the
-command surface, the slash catalog, or anything else that tool ships. Consolidation also buys
-nothing here: drift across per-tool files is the usual argument for it, and the files are generated
-from one source by a program, so there is no drift to prevent.
+A compatibility path is a fallback the vendor maintains for other people's files, and routing through
+one means never touching that tool's own command surface. Drift across per-tool files is the usual
+argument against this and it does not apply, because the files are generated from one source by a
+program.
+
+Installing is a directory copy plus the target's command files. There is no format translation to do:
+every target reads `SKILL.md` with the same required frontmatter, `name` and `description`, in a
+directory whose name matches `name`.
+
+**Verify a platform's current file convention before designing around its absence.** Cursor and
+Copilot both added skill support recently enough that stale assumptions produce real design errors.
 
 ### The registry, copied from OpenSpec
 
@@ -296,25 +185,6 @@ first-run experience is the wrong workflow.
 
 The requirement is stated in the package description, the README first paragraph, `necklace init`
 output, and the first line of the beads skill.
-
-### Why not TodoWrite specifically
-
-Worth recording, because it will get proposed again by someone who has not read §4 of the method.
-
-Step 3 of the method is "task-breakdown the CUJ document into beads". §4 then requires the result to
-be a DAG, to carry a `cuj:CUJ-NN` label on every bead, to encode every `Depends on` as an edge, to
-support hierarchical IDs for epic-shaped CUJs, and to be queryable afterward with `bd list --json` so
-§8's wide-versus-deep measurement is possible.
-
-TodoWrite has none of those. No edges, no labels, no hierarchy, no persistence past the session, no
-query. Falling back to it does not degrade step 3, it deletes it. A run that produced a spec doc, a
-CUJ doc, and a flat ephemeral checklist has not followed the method, by the method's own definition
-in §1.
-
-The portability argument does not survive contact either. TodoWrite is a Claude Code tool. Cursor's
-todo mechanism is different, Copilot's is different again, and a markdown skill file cannot call any
-of them by name across all three. "All the major IDEs have something like it" is true and useless,
-because there is no common interface to target.
 
 ### Where the requirement is enforced
 
@@ -402,7 +272,7 @@ always writes it.
 
 **File order is free.** The importer topologically sorts rows itself and commits each bead with its
 blocking edges in one transaction, so the skill does not have to emit in dependency order. Removes a
-constraint an earlier draft assumed.
+constraint that would otherwise fall on the generator.
 
 **`--dry-run` exists.** The §4 graph validation gets a real pre-flight, and since one malformed record
 aborts the entire import, running it first is free insurance rather than ceremony.
@@ -424,9 +294,8 @@ own. This is the lint skill's version check, and it is a real number rather than
 | `necklace-lint` | a repo | pollution findings. Not a pipeline stage. |
 
 Four of the five are named for the artifact they produce, and every name is drawn from §7 of the
-method document rather than invented. That is deliberate. §7 exists because the word "probe" was an
-invented synonym that displaced "REPL" across forty-one occurrences of an earlier draft, and a skill
-name is the most likely place for the next one to enter.
+method document rather than invented. That is deliberate: a skill name is the most likely place for a
+new synonym to enter, which is what §7 of the method exists to prevent.
 
 The `necklace-` prefix exists because skills share a flat namespace with everything else the user
 installed, and `spec` is a name someone else will want. It is ugly. A Claude Code plugin would
@@ -462,42 +331,24 @@ at the planning directory rather than by trusting a claim.
 
 ### Subagent execution: lint only, never the pipeline
 
-**No pipeline stage forks.** This is settled by argument, not by measurement.
+**No pipeline stage forks.** A fork must satisfy both halves of one test: it must **return a
+receipt** rather than a report, and it must be **startable cold**.
 
-Two turns of this document got it wrong in two different ways, so both are recorded.
+The first half is about output. A forked task whose result is injected back into the parent saves
+nothing and compounds, because every later fork inherits the accumulation.
 
-**The output argument, from Spec Kit.** They forked `/speckit-analyze` on the theory that its heavy
-reads collapse to a short summary. In practice it returned a 300-500 line report that was injected
-back into the parent conversation, and in long sessions each later fork inherited that accumulated
-context until the chat froze. Their `FORK_CONTEXT_COMMANDS` map is now deliberately empty. So a fork
-must return a receipt, never a report.
+The second half is about input, and it is what rules the pipeline out. A subagent starts cold, and
+`necklace-cuj` does not consume `spec.md` so much as `spec.md` plus everything that happened while
+`spec.md` was written: the self-answer loop from §5 of the method, the judgment calls, the REPL
+findings that informed a claim without earning a table row. That accumulated understanding is what
+the method exists to build and it lives in the main agent's conversation. Spawning a subagent to
+write one file whose quality depends on context the parent already holds loses on both sides.
 
-This document then argued necklace satisfies that, because every stage writes its artifact to disk
-and the next stage gates on the file, so a forked `necklace-cuj` could return one line. The
-reasoning is correct and it is beside the point.
+`log.md` does not substitute. It is a write-ahead record with no completeness requirement.
 
-**The input argument, which decides it.** A subagent starts cold. `necklace-cuj` does not consume
-`spec.md`, it consumes `spec.md` *plus everything that happened while `spec.md` was being written*:
-the self-answer loop from §5, the judgment calls the user made and why, the REPL findings that
-informed a claim without earning a row in a table. That accumulated understanding is the thing the
-method exists to build, and it lives in the main agent's conversation.
-
-Forking throws it away and hands the replacement agent a two-page document. The stage would then
-re-derive from disk what the parent already knew, which is both more expensive and worse. Spawning a
-subagent to write one file, when the file's whole quality depends on context the parent is already
-holding, is a loss on both sides of the ledger.
-
-`log.md` does not rescue this. It is a write-ahead record of decisions, not a transcript, and §8 is
-explicit that it has no completeness requirement. If a summary were sufficient to reconstruct the
-context, the parent would not need the context either.
-
-**The two-sided test for any future fork:** the task must return a receipt *and* be startable cold.
-Pipeline stages pass the first and fail the second, structurally and by design, so no measurement
-will change the answer.
-
-`necklace-lint` passes both. It walks the repo for scanner configuration and needs nothing from the
-conversation, and it returns a short findings list. It is the only skill here that should ever fork,
-and on Claude Code it should.
+`necklace-lint` passes both halves. It walks the repo for scanner configuration, needs nothing from
+the conversation, and returns a short findings list. It is the only skill that should fork, and on
+Claude Code it should.
 
 ### What each pipeline skill adds
 
@@ -563,18 +414,16 @@ One directory per workflow run, checked into the repo.
 Date prefix plus ticket slug on the run directory. Sortable, and it matches how someone looks one up
 a year later.
 
-**`.necklace/`, hidden.** An earlier draft argued for a visible `necklace/` on the grounds that these
-documents are meant to be found. That was wrong, for two reasons.
+**`.necklace/`, hidden.** Two reasons.
 
-The first is §0. A visible top-level directory claims peer status with `src/`, and that is precisely
-the claim the other frameworks make and this one rejects. The spec is provenance about the codebase,
-not a definition it answers to, so it goes where provenance goes. The dot says "tool directory" and
-that is exactly what it is.
+A visible top-level directory claims peer status with `src/`, which is the claim the other frameworks
+make and §0 of the method rejects. The spec is provenance about the codebase, not a definition it
+answers to, so it goes where provenance goes. The dot says tool directory.
 
-The second is mundane and would have bitten someone. A visible top-level `necklace/` collides with
-the module namespace in most ecosystems. In a Python repo it reads as an importable package, and Go,
-Node, and the JVM build tools all treat top-level directories as meaningful. Injecting a plausible
-looking source directory into someone's repo is the same pollution this section is otherwise about.
+It also collides with the module namespace. A visible top-level `necklace/` reads as an importable
+package in Python, and Go, Node, and the JVM build tools all treat top-level directories as
+meaningful. Injecting a plausible-looking source directory into someone's repo is the same pollution
+this section is otherwise about.
 
 Findability survives the dot. `.github/` is a hidden directory full of things humans read, and nobody
 browses a repo to find a decision record anyway. They get sent a link.
@@ -706,15 +555,13 @@ what each project documents, and each is worth confirming the first time it is u
 
 ### The lint skill
 
-The table above has an expiry date. That is the objection to any enumerate-the-bad list: a scanner
-ships in eighteen months, nobody updates the table, and the planning directory quietly rejoins the
-surface area.
+The table above has an expiry date: a scanner ships in eighteen months, nobody updates the table, and
+the planning directory quietly rejoins the surface area.
 
-A fourth skill fixes it, and it fixes it in the direction the rest of this design already runs. Hand
-the agent the *problem*, not the list. A model whose training data postdates this document knows
-about scanners this document has never heard of, so the capability grows without anyone maintaining
-anything. That is the same argument as §0's "get the axis right and the language answers itself,"
-applied to tooling instead of languages.
+The skill exists to fix that. Hand the agent the *problem*, not the list. A model whose training
+postdates this document knows about scanners this document has never heard of, so the capability
+grows without anyone maintaining anything. Same argument as §0's "get the axis right and the language
+answers itself," applied to tooling.
 
 ```
 skills/lint/SKILL.md
@@ -731,8 +578,7 @@ job. Proposing CodeQL markings for a repo with no CodeQL is not, and neither is 
 key that sounds plausible. A config file that is not in the repo generates no finding.
 
 That inversion is what makes the growth safe. Newer agents recognize newer tools *that are actually
-present*, which is the capability Nathan is after, without the hallucinated-config failure that a
-"list every scanner you know" prompt would produce.
+present*, without the hallucinated-config failure a "list every scanner you know" prompt produces.
 
 **Demonstrate, do not assert.** Where the tool is installed, run it and show it picking up the
 planning directory. `pytest --collect-only` listing a scratch test is a finding. "Renovate may scan
@@ -742,18 +588,16 @@ evidence, and an agent that asserts instead of running is the failure mode both 
 Warning fatigue is the thing that kills a linter. Reporting three real findings with output attached
 gets fixed. Reporting twelve theoretical ones gets the skill uninstalled.
 
-**Bounded on purpose.** It checks whether necklace's own artifacts are polluting the repo. It is not
-a general-purpose repo linter, and growing it into one would be building a worse competitor to tools
-that already exist.
+**Bounded on purpose.** It checks whether necklace's own artifacts are polluting the repo, and
+nothing else.
 
 **When it runs.** `necklace init` invokes it once, since that is when markings get written anyway.
 The spec skill invokes it on the first run in a repo, absorbing the build-isolation step §7 assigns
 there rather than duplicating it. It is available on demand after that. It does not run on every
 workflow invocation, because a check that fires constantly is a check nobody reads.
 
-**It absorbs what `doctor` would have been.** §3 cut that command. Everything it was going to probe,
-listed in §5, is reading and reporting, so it belongs here. `init` still checks `bd` itself, because
-it refuses to install without one.
+It also owns the environment probes listed in §5. `init` still checks `bd` itself, because it
+refuses to install without one.
 
 ### Keeping the planning directory out of the build
 
