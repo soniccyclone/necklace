@@ -31,6 +31,19 @@ with the same required frontmatter, `name` and `description`.
 - No vendor documents skill-to-skill invocation either way, except Claude Code, which has an
   explicit invocation tool. §6 designs around the absence rather than depending on it.
 
+**Read from source on 2026-08-01**, in `Fission-AI/OpenSpec`, `github/spec-kit`, and
+`bmad-code-org/BMAD-METHOD`.
+
+- BMAD publishes `tools/installer/ide/platform-codes.yaml`, 45 platforms, declarative. An earlier
+  draft of this document said BMAD published no comparable list. That came from a search summary
+  rather than the repository and was wrong.
+- OpenSpec's `AI_TOOLS` registry in `src/core/config.ts` is 35 entries, plus one adapter file per
+  tool under `src/core/command-generation/adapters/`.
+- Spec Kit ships roughly 37 integration packages under `src/specify_cli/integrations/`.
+- All three target Kiro.
+- Windsurf was rebranded to Devin Desktop on 2026-06-02 and its config directory moved from
+  `.windsurf/` to `.devin/`. OpenSpec keeps `windsurf` as an alias.
+
 **Proposals in this document. Cut freely.**
 
 - The `--skip-beads-check` escape hatch in §5.
@@ -54,6 +67,11 @@ with the same required frontmatter, `name` and `description`.
   demonstrate-do-not-assert rule are mine, and they are what stop it hallucinating config.
 
 **Decided. Not open for re-litigation.**
+
+- **Every target is first class.** necklace installs per repo, so the installer knows which tool it
+  is writing for and uses that tool's native paths and command surface. No consolidating through
+  compatibility paths. Drift is not an argument against per-tool files here, because the files are
+  generated from one source by a program. See §4.
 
 - The five skill names in §6.
 - The four install targets in §4: Claude Code, Copilot, opencode, Cursor. Nathan uses them and his
@@ -111,8 +129,9 @@ necklace/
 ├── bin/
 │   └── necklace.js           # entry, ~200 lines, no dependencies
 ├── src/
-│   ├── targets.js            # agent -> install path table
-│   └── install.js            # copy files, refuse to clobber
+│   ├── targets.js            # registry: id, name, skillsDir, detectionPaths, setupNote
+│   ├── adapters/             # one file per target, owns its command surface
+│   └── install.js            # detect, prompt, copy, refuse to clobber
 └── skills/                   # the payload, verbatim from the method doc §6
     ├── necklace/
     │   └── SKILL.md          # the orchestrator. Sequences the three below.
@@ -191,61 +210,74 @@ skill" is a worse README.
 
 ## 4. Install targets
 
-Every target reads `SKILL.md` with the same two required frontmatter fields, `name` and
-`description`, in a directory whose name matches `name`. That was not true when this document was
-drafted and it is the single largest simplification in it.
+**The rule for this project: every target is first class.**
 
-**Verified from vendor documentation, 2026-08-01.**
+necklace installs per repo, through `necklace init`, the same as OpenSpec, Spec Kit, and BMAD. That
+single fact licenses everything below. A per-repo installer knows exactly which tool it is writing
+for, so it can write that tool's native format and use that tool's first-class features. There is no
+reason to reduce four tools to a lowest common denominator when the installer is standing right there
+with the answer.
 
-| Tool | Project paths it reads | Personal |
+An earlier draft consolidated to two directories by routing Copilot and opencode through their
+`.claude/skills/` compatibility paths. That is wrong on the merits. A compatibility path is a
+fallback the vendor maintains for other people's files, and taking it means never touching the
+command surface, the slash catalog, or anything else that tool ships. Consolidation also buys
+nothing here: drift across per-tool files is the usual argument for it, and the files are generated
+from one source by a program, so there is no drift to prevent.
+
+### The registry, copied from OpenSpec
+
+OpenSpec's shape is the right one and it is worth copying closely rather than re-deriving.
+
+A registry entry per tool: id, display name, skills directory, detection paths, and an optional setup
+note for a tool that needs one more step. Then a per-tool adapter that owns that tool's command
+surface, exposing `getFilePath(commandId)` and `formatFile(content)`. OpenSpec keeps one adapter file
+per tool under `command-generation/adapters/`, which is why adding a tool there is a file rather than
+a patch to a switch statement.
+
+Three details in their implementation are worth taking as-is:
+
+- **Detection drives the menu.** `getAvailableTools()` scans the project for each tool's config
+  directory and offers only what is actually present. The user picks from tools they demonstrably
+  use, rather than scrolling a list of forty.
+- **Detection paths are a list, not a directory.** Copilot is detected by any of
+  `.github/copilot-instructions.md`, `.github/instructions`, `.github/prompts`, `.github/agents`,
+  `.github/skills`, and more, because `.github/` alone means nothing.
+- **Ids alias across rebrands.** OpenSpec maps `windsurf` to `devin` so scripted invocations survive
+  the rename. Windsurf became Devin Desktop on 2026-06-02 and its directory moved from `.windsurf/`
+  to `.devin/`.
+
+### The four committed targets
+
+Selectable, multiple at once, detected first and confirmed by the user.
+
+| Target | Skills | First-class surface to use |
 | --- | --- | --- |
-| Claude Code | `.claude/skills/` | `~/.claude/skills/` |
-| Cursor | `.cursor/skills/`, `.agents/skills/` | `~/.cursor/skills/`, `~/.agents/skills/` |
-| Copilot | `.github/skills/`, `.claude/skills/`, `.agents/skills/` | `~/.copilot/skills/`, `~/.agents/skills/` |
-| opencode | `.opencode/skills/`, `.claude/skills/`, `.agents/skills/` | `~/.config/opencode/skills/`, `~/.claude/skills/`, `~/.agents/skills/` |
+| Claude Code | `.claude/skills/necklace-*/SKILL.md` | Skill invocation tool, so the orchestrator in §6 can call and return natively. Subagent execution is available for skills that should not consume the main context. |
+| Cursor | `.cursor/skills/necklace-*/SKILL.md` | `.cursor/commands/necklace-*.md` for the slash catalog. `disable-model-invocation: true` on any skill that should be explicit-only. |
+| Copilot | `.github/skills/necklace-*/SKILL.md` | `.github/agents/necklace-*.agent.md` for the Custom Agents picker, which is Copilot's own surface and invisible from a `.claude/` install. |
+| opencode | `.opencode/skills/necklace-*/SKILL.md` | `.opencode/commands/` for slash commands. `metadata.opencode/autoinvoke` and `slash` to control routing per skill. |
 
-Read the overlap. **Two directories cover all four tools**, because Copilot and opencode both accept
-`.claude/skills/` as a compatibility source:
-
-```
-.claude/skills/necklace-*/     # Claude Code, Copilot, opencode
-.cursor/skills/necklace-*/     # Cursor
-```
-
-`.agents/skills/` is the emerging vendor-neutral path and Cursor, Copilot, and opencode all read it.
-Claude Code does not, so it saves nothing today. It is the better long-term bet and worth revisiting
-if Claude Code adds it, since `.agents/` plus `.claude/` would also be two directories but would
-signal that this is not a Claude-specific tool.
-
-**The stub generator is cut.** An earlier draft had necklace inlining each `SKILL.md` into
-`.cursor/commands/*.md` and `.github/prompts/*.prompt.md`, on the belief that those platforms had no
-skill mechanism to point at. Cursor shipped skills, and Copilot added `SKILL.md` support in April
-2026. Installing is now a directory copy to two paths. The `stubs/` directory leaves the package.
-
-That was not a judgment error, it was a stale-knowledge error, and it is the second time in this
-document that checking took two minutes and would have prevented a design. The rule it earns:
-**verify a platform's current file convention before designing around its absence.**
+Prefixing is universal practice among the prior art and confirms §6's choice: OpenSpec generates
+`opsx-<id>`, Spec Kit generates `speckit-<name>`, and BMAD uses `bmad-`.
 
 ### Beyond the four
 
-The four above are committed because Nathan uses them and his coworkers are heavy Cursor users.
-Everything else is a stretch goal, added when a person asks for it and verified on a machine that
-runs it.
+Stretch goals. A target is added when a person asks and its convention is verified against that
+vendor's docs on a machine that runs it.
 
-The prior art for the long tail: `rtk init --agent` ships ten. Spec Kit claims 30+ integrations.
-OpenSpec's tool list is the longest of the three and includes `amazon-q`, `antigravity`, `auggie`,
-`cline`, `codex`, `continue`, `crush`, `devin`, `factory`, `gemini`, `hermes`, `junie`, `kilocode`,
-`kimi`, `kiro`, `qwen`, `roocode`, `trae`, and `zcode`. BMAD does not publish a comparable list.
+The prior art is worth reading rather than re-deriving, and all three publish a machine-readable
+list. BMAD's `tools/installer/ide/platform-codes.yaml` is 45 platforms of declarative YAML and is
+the easiest to lift wholesale. OpenSpec's `AI_TOOLS` in `src/core/config.ts` is 35 entries and has
+the best detection logic. Spec Kit ships roughly 37 integration packages under
+`src/specify_cli/integrations/`, one directory per tool, which is the heaviest per-tool structure of
+the three.
 
-Rank by whether the tool reads a path we already write. Anything accepting `.agents/skills/` or
-`.claude/skills/` is free and needs only a documentation line. Anything with its own format costs a
-target row and a verification pass, and waits for a request.
-
-**Kiro is the one to think about rather than schedule.** It is spec-driven by design, generating
-`requirements.md`, `design.md`, and `tasks.md` of its own. Installing necklace beside that produces
-two spec pipelines with opposite theories of what a spec is for, since §0 holds that the code is the
-source of truth and Kiro's model is the one §0 rejects. That is a philosophical collision, not an
-integration task, and adding a path row would paper over it.
+All three target Kiro. OpenSpec has a `kiro` adapter writing `.kiro/prompts/`, Spec Kit has a
+`kiro_cli` integration, and BMAD installs to `.kiro/skills`. That settles the question of whether it
+is reachable, and leaves the §0 collision intact: Kiro generates its own `requirements.md`,
+`design.md`, and `tasks.md`, and its model is the spec-as-source model §0 rejects. Reachable and
+advisable are different questions.
 
 ## 5. Beads is a hard requirement
 
