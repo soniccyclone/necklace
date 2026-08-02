@@ -68,3 +68,4 @@
 sync.remote: "git+https://github.com/soniccyclone/necklace.git"
 export:
     auto: true
+    git-add: true

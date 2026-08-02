@@ -28,6 +28,10 @@ Facts established by running something or reading source, rather than by recall.
 | 2026-08-02 | The installed skill has no epic, parent, hierarchy, or breakdown guidance. `bd prime` carries it | grepped both |
 | 2026-08-02 | `bd prime` teaches `bd create`, `--parent=<id>`, `bd dep add`, and suggests parallel subagents for many creates | ran `bd prime` |
 | 2026-08-02 | `bd prime` never mentions `import`, `--graph`, `--file`, or JSONL | grepped its output |
+| 2026-08-02 | `bd create --parent` produces dotted hierarchical IDs; a `bd dep add` edge and the parent-child edge both land in the export | created an epic with two children in `planning/repl-beads` |
+| 2026-08-02 | `export.git-add true` stages `.beads/issues.jsonl` and nothing else | ran it |
+| 2026-08-02 | Auto-export is gated by `export.interval`, default 60s, so a burst of creates leaves the committed file partial. It catches up on the next `bd` command after the interval | observed the file holding only the epic while the DB had all three |
+| 2026-08-02 | `bd export` writes to stdout; `-o` writes the file but does not stage it | ran both |
 | 2026-08-02 | `bd prime` prohibits TodoWrite and markdown task files outright | ran it |
 | 2026-08-01 | bd has three bulk entry points: `create --graph` (JSON plan), `create --file` (markdown), `import` (JSONL) | read `cmd/bd/create.go`, `cmd/bd/create_input.go` |
 | 2026-07-31 | `bd` rewrites a row only when `updated_at` is strictly newer; landed in 1.0.5 | read `cmd/bd/import_shared.go` and the changelog |
@@ -312,7 +316,12 @@ Consequence: the planning directory no longer holds a `beads.jsonl`. An earlier 
 "the record of the graph", which would have been a second source of truth going stale beside the one
 bd maintains. Same error as the deleted `beads.schema.md`, caught before it shipped.
 
-`bd init` defaults auto-export to off, so `necklace init` has to ask for it rather than assume.
+`bd init` defaults auto-export to off, so `necklace init` has to ask for it rather than assume. Both
+`export.auto` and `export.git-add` default false and both are needed.
+
+Running it in `planning/repl-beads` turned up the part that would have broken silently: auto-export
+is interval-gated, so right after a burst of `bd create` calls the committed file holds part of the
+graph. The breakdown has to force `bd export -o` and `git add` rather than trust the timer.
 
 ### Named skills
 

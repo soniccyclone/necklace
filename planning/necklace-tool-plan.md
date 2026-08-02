@@ -220,17 +220,17 @@ progress spinner, and the mandatory re-probe means we never report success over 
 graph in a directory it adds to the repo, ask, run `bd init` on yes. This is a change to someone's
 repository and it gets a yes before it happens.
 
-**Auto-export, which necklace depends on.** `bd init` asks `Enable auto-export? [y/N]` and the
-default is no, so most repos will not have it. necklace needs it on. Check `export.auto` and turn it
-on with `export.git-add`, so a fresh `.beads/issues.jsonl` is written and staged:
+**Auto-export, which necklace depends on.** `bd init` asks `Enable auto-export? [y/N]` and the default
+is no, so most repos will not have it. necklace needs it on, and needs `export.git-add` as well,
+which is a separate key that also defaults false:
 
-```yaml
-export:
-  auto: true
-  path: issues.jsonl
-  git-add: true
-  interval: 60s
 ```
+bd config set export.auto true
+bd config set export.git-add true
+```
+
+That writes and stages `.beads/issues.jsonl`. Verified: `git-add` puts the file in the index without
+touching anything else, including bd's own `config.yaml`.
 
 Without it the graph lives only in the local Dolt database. A bead ID written into a CUJ document
 then resolves to nothing for anyone who reads the repo without running `bd`, which includes anyone
@@ -241,9 +241,26 @@ backlink runs both ways: every bead already carries a `cuj:CUJ-NN` label pointin
 and the CUJ document names the bead IDs pointing back. Both directions resolve from a git checkout
 alone.
 
-It also means necklace does not keep its own copy of the graph. `.beads/issues.jsonl` is the record,
-maintained by the tool that owns it. A second export inside the planning directory would be a source
-of truth that goes stale without anyone noticing.
+**Auto-export is interval-gated, so the breakdown must force one.** Verified: the export fires on a
+`bd` command and only when `export.interval` has elapsed since the last one, default 60 seconds. A
+burst of `bd create` calls therefore leaves the committed file holding part of the graph. In the
+trial run the file contained the epic alone while the database already had both children and the
+dependency. It catches up on the next `bd` command after the interval, which is the wrong moment:
+whoever ran the breakdown is committing now.
+
+So `necklace-beads` ends with an explicit export and a stage:
+
+```
+bd export -o .beads/issues.jsonl
+git add .beads/issues.jsonl
+```
+
+`bd export` with no `-o` writes to stdout, and `-o` writes the file but does not stage it, so both
+lines are needed. Auto-export handles the steady state; this handles the moment the backlink is
+created.
+
+necklace keeps no copy of the graph. `.beads/issues.jsonl` is the record, maintained by the tool that
+owns it.
 
 Non-interactive invocation, meaning no TTY or a `--yes` flag, skips the prompts. `--yes` accepts,
 no-TTY declines and exits nonzero, because a CI run that silently installs a global binary is worse
@@ -279,7 +296,8 @@ So `necklace-beads` carries three things and nothing else:
 2. The mapping from the CUJ document to beads: one bead per CUJ or an epic with children, a
    `cuj:CUJ-NN` label on every bead, every `Depends on` as a `bd dep add`, and the test names
    inherited from the CUJ. Children inherit parent labels, so labelling an epic covers its subtree.
-3. The red gate from §4 of the method, then handoff to the beads skill for execution.
+3. The red gate from §4 of the method, the forced export above, then handoff to the beads skill for
+   execution.
 
 ## 6. The skills
 
