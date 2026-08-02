@@ -23,7 +23,7 @@ Derived from `spec.md` in this directory. One CUJ per actor-outcome pair.
 
 **Done when:** the three tests above pass. All must be red when created.
 
-**Beads:** <filled in by necklace-beads>
+**Beads:** `repl-beads-68i` (epic), `repl-beads-68i.1`, `repl-beads-68i.2`
 
 ---
 
@@ -47,7 +47,7 @@ Derived from `spec.md` in this directory. One CUJ per actor-outcome pair.
 
 **Depends on:** CUJ-01
 
-**Beads:**
+**Beads:** `repl-beads-o11`
 
 ---
 
@@ -74,7 +74,7 @@ Derived from `spec.md` in this directory. One CUJ per actor-outcome pair.
 
 **Depends on:** CUJ-02
 
-**Beads:**
+**Beads:** `repl-beads-31i` (epic), `repl-beads-31i.1`, `repl-beads-31i.2`
 
 ---
 
@@ -98,7 +98,7 @@ Derived from `spec.md` in this directory. One CUJ per actor-outcome pair.
 
 **Depends on:** CUJ-03
 
-**Beads:**
+**Beads:** `repl-beads-7cn`
 
 ---
 
@@ -123,7 +123,7 @@ Derived from `spec.md` in this directory. One CUJ per actor-outcome pair.
 **Blocked:** on the open judgment question in `spec.md`. Do not break this CUJ into beads until
 someone decides whether Finance's path is in scope for PLAT-4471 or a follow-up ticket.
 
-**Beads:**
+**Beads:** not created; CUJ-05 is blocked on the open scope question
 
 ---
 

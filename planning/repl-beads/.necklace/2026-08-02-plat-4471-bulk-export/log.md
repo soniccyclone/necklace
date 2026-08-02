@@ -70,3 +70,29 @@ scope call would create work nobody agreed to.
 
 **Test count.** 12 tests across 5 CUJs. Three of the twelve carry `Informed by` provenance from the
 REPL work; the rest follow from the requirement directly, which is the expected ratio.
+
+## Stage 3, beads and the red gate
+
+**Bead shape.** CUJ-01 and CUJ-03 became epics with two children each. CUJ-02 and CUJ-04 became flat
+beads. Per-CUJ sizing, not policy. 8 beads for 4 CUJs.
+
+**`blocks` edges are type-symmetric in beads.** `bd dep add <task> <epic>` fails with "tasks can only
+block other tasks, not epics", and the mirror case fails with "epics can only block other epics, not
+tasks". So a CUJ-level `Depends on` cannot be expressed as one edge when either end is an epic.
+
+Resolved by expressing every CUJ dependency at the leaf: CUJ-02's bead depends on both CUJ-01
+children, and both CUJ-03 children depend on CUJ-02's bead. Four document-level edges became six
+bead-level edges.
+
+**The first three edges failed silently** because the `bd dep add` output was redirected. `bd ready`
+returned all 8 beads, which is what surfaced it. Reading the edges back from `bd list --json` is the
+check that catches this; a create call that does not error is not evidence.
+
+**Graph width.** `bd ready` returns 4 of 8 at the start: both CUJ-01 children and the two epics.
+That is the wide result the method predicts, not a deep chain.
+
+**Red gate.** 11 tests written, 11 failing, all on `ImportError` or `ModuleNotFoundError` for symbols
+that do not exist yet: `export_rows`, `reporting.jobs`. No syntax errors. The one passing test is the
+pre-existing seeded one. Output pasted into the conversation rather than asserted.
+
+CUJ-05's single test was not written, because the CUJ is blocked on the open scope question.
