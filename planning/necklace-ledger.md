@@ -326,6 +326,31 @@ Running it in `planning/repl-beads` turned up the part that would have broken si
 is interval-gated, so right after a burst of `bd create` calls the committed file holds part of the
 graph. The breakdown has to force `bd export -o` and `git add` rather than trust the timer.
 
+### Release channel: npm, nothing compiled
+
+Considered a Go binary shipped by curl or Homebrew, on the theory that a small installer might be
+cheaper to distribute that way.
+
+The accounting says otherwise. npm costs `npm publish`, because the package is plain JS with no build
+step. A Go binary costs a goreleaser config, a release matrix across three platforms and two
+architectures, checksums, and macOS notarization or a Gatekeeper workaround for users. Then the
+channel is still unchosen: a Homebrew tap is a second repository, `curl | sh` leaves a half-installed
+system on a flaky connection, and `go install` requires a Go toolchain.
+
+The deciding factor is that necklace has nothing to compile. It copies files and shells out to
+`bd --version`.
+
+`bd` and `rtk` went the other way because both are runtimes on a hot path: beads embeds a Dolt
+database, rtk proxies subprocess output. Neither could be a JS file-copier. beads' npm package is the
+compromise between the two, a shim whose postinstall downloads the Go binary, and it is the thing
+that failed on Nathan's machine.
+
+OpenSpec is the closest comparable, a TypeScript CLI that scaffolds per repo, and it ships
+`npm install -g @fission-ai/openspec` with no binary at all.
+
+`npx` was added because `init` runs once per repo, so a global install is not obviously the right
+default. Both go in the README with equal weight.
+
 ### Named skills
 
 `necklace`, `necklace-spec`, `necklace-cuj`, `necklace-beads`, `necklace-lint`. Four are named for

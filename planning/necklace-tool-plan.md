@@ -59,6 +59,26 @@ tarball is the source. Anyone can read what they installed.
 
 **`files` in package.json is explicit.** `bin`, `src`, `skills`, `README.md`. Nothing else ships.
 
+### Release channel
+
+**npm, with nothing compiled.** The package is the artifact: plain JS, zero dependencies, no build
+step, no postinstall, no downloaded binary. Publishing is `npm publish`.
+
+Two ways to run it, and the README must give both equal weight:
+
+```
+npx @soniccyclone/necklace init          # no install, always latest
+npm install -g @soniccyclone/necklace    # necklace on PATH
+```
+
+`npx` is the better fit for the usage pattern, since `init` runs once per repo and is not a tool you
+keep around. Lead with it. But **make the global install equally obvious** rather than a footnote:
+plenty of people want the binary on PATH, and a README that buries it reads as though the tool cannot
+be installed properly.
+
+No Homebrew tap, no `curl | sh`, no GitHub release binaries. Those solve distributing a compiled
+artifact and there is nothing here to compile.
+
 ### The name
 
 `necklace` is taken on npm, so the package is **`@soniccyclone/necklace`**. The binary is still
