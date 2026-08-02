@@ -21,6 +21,8 @@ Facts established by running something or reading source, rather than by recall.
 | 2026-07-30 | That postinstall can fail and leave `bd` on PATH but non-functional | it has failed on Nathan's machine; `bd --version` exits nonzero |
 | 2026-07-30 | `necklace` is taken on npm as v1.0.0 with an empty description | `npm view` |
 | 2026-07-31 | The `bd import` JSONL contract, in full | read `gastownhall/beads` at `9fddc56` against released 1.1.2 |
+| 2026-08-01 | `bd init` installs a `beads` skill covering the execution loop, not bulk breakdown | read `internal/templates/skills/beads/SKILL.md` |
+| 2026-08-01 | bd has three bulk entry points: `create --graph` (JSON plan), `create --file` (markdown), `import` (JSONL) | read `cmd/bd/create.go`, `cmd/bd/create_input.go` |
 | 2026-07-31 | `bd` rewrites a row only when `updated_at` is strictly newer; landed in 1.0.5 | read `cmd/bd/import_shared.go` and the changelog |
 | 2026-07-31 | A bare `pytest` at repo root collects scratch tests out of a planning directory | built the layout and ran `--collect-only` |
 | 2026-07-31 | `norecursedirs` excludes them while leaving them runnable by path | ran it both ways |
@@ -251,6 +253,23 @@ compiler that restarts per expression, so it is rung 2 wearing a rung 1 costume.
 
 The test runner wins rung 2 because it is already wired into the build graph and because it reaches
 internals a scratch binary cannot: in-package Go tests, Rust `#[cfg(test)]`, `InternalsVisibleTo`.
+
+### necklace does not carry a copy of any beads format
+
+A `beads.schema.md` was written into this repo transcribing the `bd import` JSONL contract. Deleted.
+
+beads ships its own skill via `bd init`, and it has purpose-built bulk entry points, notably
+`bd create --graph`, described as creating a graph of issues with dependencies from a JSON plan file.
+Transcribing a format we do not own creates a second source of truth that goes stale without anyone
+noticing, and "rewriting any part of beads" was already cut.
+
+What survives from that reading is the shape of the gap: beads' own skill covers the execution loop
+and not bulk breakdown, which is what `necklace-beads` is for.
+
+The findings from that pass are still true and still useful if the JSONL path is ever chosen: `bd`
+rewrites a row only when `updated_at` is strictly newer, `priority` has no import default so an
+omitted value reads as P0, file order is free because the importer sorts topologically, and both
+`import` and `create --graph` support `--dry-run`.
 
 ### Named skills
 

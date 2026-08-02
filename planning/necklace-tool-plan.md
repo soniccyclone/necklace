@@ -43,8 +43,7 @@ necklace/
     │   ├── SKILL.md
     │   └── cuj.md
     ├── beads/
-    │   ├── SKILL.md
-    │   └── beads.schema.md   # the bd JSONL contract, see §5
+    │   └── SKILL.md
     └── lint/
         └── SKILL.md          # repo pollution check, see §8. Not a pipeline stage.
 ```
@@ -238,28 +237,35 @@ Each failed probe prints the remediation command. `init` runs the first two itse
 refuses to install without a working `bd`. The rest is reading and reporting, which is why it lives
 in a prompt.
 
-### The import contract
+### Hand off to beads, do not reimplement it
 
-The contract is in [`skills/beads/beads.schema.md`](skills/beads/beads.schema.md). The beads skill
-references that file rather than restating it. Four points change what the skill must do.
+`bd init` installs a `beads` skill into the repo, and that skill owns the execution loop: `bd prime`,
+`bd ready`, `bd show`, `bd update --claim`, `bd close`. `necklace-beads` does not restate any of it
+and does not carry a copy of any beads format.
 
-**The `updated_at` guard.** A row only overwrites an existing bead when its `updated_at` is strictly
-newer. Equal timestamps keep local state, and `updated_at` has second granularity. Regenerating the
-JSONL after a CUJ document revision and re-importing is therefore a silent no-op for every bead whose
-timestamp did not advance. The skill stamps a fresh `updated_at` on regeneration and reads the import
-output instead of assuming it applied.
+What the beads skill does **not** cover is bulk breakdown. Its `bd create` guidance is one issue at a
+time, which is the failure §4 of the method names: forty calls give forty chances to drift and no way
+to review the graph before it lands. That gap is the whole job of `necklace-beads`.
 
-**`priority` has no import default.** An omitted priority reads as 0, which is P0. The generator
-always writes it.
+bd has purpose-built bulk entry points for it:
 
-**File order is free.** The importer topologically sorts rows itself and commits each bead with its
-blocking edges in one transaction, so the skill does not have to emit in dependency order. Removes a
-constraint that would otherwise fall on the generator.
+| Entry point | Input |
+| --- | --- |
+| `bd create --graph <file>` | JSON plan file of issues with dependencies. Supports `--dry-run`. |
+| `bd create --file <file>` | markdown batch, `## Title` with `### Priority` and `### Type` sections |
+| `bd import <file>` | JSONL, upsert semantics, also `--dry-run` |
 
-**`--dry-run` exists.** The §4 graph validation gets a real pre-flight, and since one malformed record
-aborts the entire import, running it first is free insurance rather than ceremony.
+`--graph` is described as "create a graph of issues with dependencies from JSON plan file", which is
+this step exactly. Pick it unless a trial run shows otherwise, and read the format from `bd` rather
+than transcribing it here: a copy in this repo is a second source of truth that goes stale silently.
 
-**Version floor: 1.1.0.** The lint skill's version check.
+So `necklace-beads` carries three things and nothing else:
+
+1. The probe from above, and the stop-on-failure rule.
+2. The mapping from the CUJ document to bd's chosen bulk input: one bead per CUJ or an epic with
+   children, a `cuj:CUJ-NN` label on every bead, every `Depends on` as a dependency edge, and the
+   test names inherited from the CUJ.
+3. The red gate from §4 of the method, then handoff to the beads skill for execution.
 
 ## 6. The skills
 
@@ -327,8 +333,8 @@ the isolation logic itself.
 `necklace-cuj` and `necklace-beads` are unchanged from the method document. All three append to the
 log as they go.
 
-`necklace-beads` gets three additions: the requirement statement on its first line, the probe from §5
-with the run-it-do-not-look-for-it rule, and a pointer to `beads.schema.md`.
+`necklace-beads` is specified in §5. It hands off to the repo's `beads` skill for execution rather
+than restating it.
 
 `necklace-lint` is the only skill outside the pipeline. Its contract is in §8. The thing to preserve
 when editing it is the detect-from-the-repo rule, because that single constraint is what separates a
@@ -349,8 +355,9 @@ trigger on their own.
 
 ## 7. Build order
 
-1. ~~Establish the beads JSONL schema from source.~~ Done. `skills/beads/beads.schema.md`.
-2. Write the three SKILL.md files and two templates. This is the actual product. Nothing else in this
+1. Confirm which bd bulk entry point fits, `bd create --graph` or `bd import`, by running one against
+   a real CUJ document. Blocks `necklace-beads` and nothing else.
+2. Write the five SKILL.md files and two templates. This is the actual product. Nothing else in this
    document matters if these are weak.
 3. Run the §9 trial run of the method document using those files, installed by hand with `cp`. No
    npm package, no CLI. If the trial run says the method needs changing, changing markdown is free
