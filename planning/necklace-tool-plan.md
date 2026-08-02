@@ -439,8 +439,7 @@ alternatives and answered judgment questions. The rule those share: **the docume
 still open, the log holds what is settled.** An unresolved judgment question stays in the spec doc,
 because it is a blocking handoff to a human.
 
-§7 of the method needs a term for this file. "Ledger" is wrong and will drift in if nothing is
-chosen.
+"Working log" is the §7 term for it. Not ledger, not journal, not transcript.
 
 ### Do not emit files that other tools recognize
 
@@ -558,13 +557,6 @@ business.**
 
 ## 9. Open
 
-1. npm handle or org to publish the scoped name under. Blocks step 8 only.
-2. Does opencode have a skill or command directory worth targeting? `rtk init --opencode` exists, so
-   there is prior art to read.
-3. Should `--global` install skills or install a Claude Code plugin? The method document said plugin.
-   Skills are simpler and work for cursor and copilot too, and a plugin is Claude-only. I would ship
-   skills first and add a plugin channel later if a coworker asks for it.
-Two questions that were listed here are gone. Both were factual, both named a version or a schema,
-and neither was ever allowed to reach a human under §5 of the method document. They were answered by
-reading `gastownhall/beads` and the answers are in §5 above. Recording the failure because it is the
-exact behavior the spec skill exists to prevent, and the plan for the tool should not model it.
+1. npm handle or org to publish the scoped name under. Blocks publishing and nothing else.
+2. Should `--global` install skills or a Claude Code plugin? A plugin namespaces the skills and drops
+   the `necklace-` prefix, but is Claude-only. Ship skills first; add a plugin channel if asked.

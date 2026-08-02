@@ -476,7 +476,7 @@ The templates and skill prompts are procedures, and agents parse them. One term 
 the same way every time, so a reader and an agent resolve it identically. This applies to the
 artifacts and not to design-doc prose.
 
-Ten terms, one meaning each. The templates use nothing else for these concepts:
+Twelve terms, one meaning each. The templates use nothing else for these concepts:
 
 | Term | Meaning | Not |
 | --- | --- | --- |
@@ -489,6 +489,8 @@ Ten terms, one meaning each. The templates use nothing else for these concepts:
 | test | a permanent assertion about the system being built | check, spec, validation, assertion |
 | red / green | a test that fails / passes | broken, working, passing |
 | bead | one unit of work in `bd` | issue, ticket, task, card |
+| working log | the write-ahead record of decisions, `log.md` in the planning directory | ledger, journal, transcript, notes, diary |
+| planning directory | `.necklace/<date>-<slug>/`, one per run | workspace, folder, change dir |
 | red gate | the §4 check that tests exist and fail | pre-flight, validation step |
 
 The `Not` column carries weight, and this document proves it. The word "probe" was an invented
