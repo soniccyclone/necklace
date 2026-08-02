@@ -33,18 +33,18 @@ necklace/
 │   ├── targets.js            # registry: id, name, skillsDir, detectionPaths, setupNote
 │   ├── adapters/             # one file per target, owns its command surface
 │   └── install.js            # detect, prompt, copy, refuse to clobber
-└── skills/                   # the payload, verbatim from the method doc §6
-    ├── necklace/
+└── skills/                   # the payload. Directory names match the frontmatter `name`,
+    ├── necklace/             # so installing is a straight copy with no renaming.
     │   └── SKILL.md          # the orchestrator. Sequences the three below.
-    ├── spec/
+    ├── necklace-spec/
     │   ├── SKILL.md
     │   └── spec.md
-    ├── cuj/
+    ├── necklace-cuj/
     │   ├── SKILL.md
     │   └── cuj.md
-    ├── beads/
+    ├── necklace-beads/
     │   └── SKILL.md
-    └── lint/
+    └── necklace-lint/
         └── SKILL.md          # repo pollution check, see §8. Not a pipeline stage.
 ```
 
