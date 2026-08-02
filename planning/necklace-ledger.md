@@ -32,6 +32,9 @@ Facts established by running something or reading source, rather than by recall.
 | 2026-08-02 | `export.git-add true` stages `.beads/issues.jsonl` and nothing else | ran it |
 | 2026-08-02 | Auto-export is gated by `export.interval`, default 60s, so a burst of creates leaves the committed file partial. It catches up on the next `bd` command after the interval | observed the file holding only the epic while the DB had all three |
 | 2026-08-02 | `bd export` writes to stdout; `-o` writes the file but does not stage it | ran both |
+| 2026-08-02 | beads ships both channels: `bd init` copies skills, and `plugins/beads/` carries Claude, Codex, and Copilot plugin manifests with skills, an agent, and hooks | read the repo |
+| 2026-08-02 | OpenSpec ships no plugin at all, and namespaces via `.claude/commands/opsx/` subdirectory or an `opsx-` prefix | searched the repo for plugin files |
+| 2026-08-02 | rtk ships neither; it writes `RTK.md`, an `@RTK.md` include, and a settings.json hook | `rtk init --show` |
 | 2026-08-02 | `bd prime` prohibits TodoWrite and markdown task files outright | ran it |
 | 2026-08-01 | bd has three bulk entry points: `create --graph` (JSON plan), `create --file` (markdown), `import` (JSONL) | read `cmd/bd/create.go`, `cmd/bd/create_input.go` |
 | 2026-07-31 | `bd` rewrites a row only when `updated_at` is strictly newer; landed in 1.0.5 | read `cmd/bd/import_shared.go` and the changelog |
@@ -398,9 +401,10 @@ From the tool:
 
 ## Open
 
-1. npm handle or org for the scoped package name. `necklace` is taken.
-2. Skills or a Claude Code plugin for the `--global` channel. A plugin namespaces the skills and
-   removes the `necklace-` prefix.
+1. ~~npm handle.~~ `@soniccyclone/necklace`.
+2. ~~Skills or a plugin.~~ Skills, following OpenSpec, which ships no plugin. A plugin buys
+   namespacing, hooks, and marketplace install; we need none yet. beads' plugin exists mainly to
+   deliver hooks, so a session-start hook is the trigger for revisiting.
 3. Whether Kiro is worth targeting at all. It is reachable, and its spec-as-source model is the one
    §0 rejects.
 4. ASD-STE100 was tried on the artifacts and dropped. Not a project concern.

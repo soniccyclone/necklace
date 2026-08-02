@@ -61,15 +61,8 @@ tarball is the source. Anyone can read what they installed.
 
 ### The name
 
-`necklace` is taken. Options, in the order I would try them:
-
-1. `@<npm-handle>/necklace`, scoped. Costs nothing, reads fine in install instructions, and the
-   binary is still `necklace` because `bin` names are independent of package names.
-2. Ask the squatter. v1.0.0 with an empty description and no README is usually abandoned, and npm has
-   a dispute process for unused names. Slow, uncertain, not worth blocking on.
-
-Recommendation is the scoped name. This decision is Nathan's because it depends on which npm handle
-or org he wants to publish under, and it blocks nothing else in this plan.
+`necklace` is taken on npm, so the package is **`@soniccyclone/necklace`**. The binary is still
+`necklace`, because `bin` names are independent of package names.
 
 ## 3. CLI surface
 
@@ -555,8 +548,33 @@ The rule the skill carries: **a committed planning directory may contain source 
 nothing another machine is configured to act on. What it holds on disk and ignores is its own
 business.**
 
+### Skills, not a plugin
+
+Three ways the prior art ships this, and we take OpenSpec's.
+
+| Project | Channel |
+| --- | --- |
+| OpenSpec | No plugin anywhere in the repo. Per-tool adapters write native files. Namespaced by subdirectory where the tool allows it, `.claude/commands/opsx/<id>.md`, and by an `opsx-` prefix where it does not. |
+| beads | Both. `bd init` copies skills to `.agents/skills/`, and it also ships a plugin under `plugins/beads/` carrying `.claude-plugin/`, `.codex-plugin/`, and `.copilot-plugin/` manifests in one directory, bundling skills, an agent, and hooks, distributed through a marketplace. |
+| rtk | Neither, and it is a different category. It writes `RTK.md`, an `@RTK.md` reference into `CLAUDE.md`, and a hook into `settings.json`, because its job is always-on output filtering rather than an invocable workflow. |
+
+A plugin buys three things: namespacing, bundled hooks, and a one-command install from a marketplace.
+We need none of them yet. The skills are user-invoked so there is nothing to hook, namespacing is
+solvable without one, and a marketplace is a second distribution channel to maintain beside npm.
+
+beads is the useful counterexample rather than a contradiction: its plugin exists mainly to deliver
+hooks, which is how `bd prime` reaches the agent automatically. If necklace ever wants a session-start
+hook, that is when a plugin earns its place.
+
+**Namespacing follows OpenSpec.** Prefer a subdirectory where the target walks its skills root
+recursively, which Cursor documents. Fall back to the `necklace-` prefix where it does not. Confirm
+per target when writing its adapter.
+
+**One pattern worth stealing from beads regardless.** Its plugin keeps `SKILL.md` short and links out
+to `resources/*.md` for the long material. Cursor's docs recommend the same, under roughly 500 lines.
+`necklace-spec` carries §2, the self-answer loop, and the §5 ladder, so it is the one that will need
+this.
+
 ## 9. Open
 
-1. npm handle or org to publish the scoped name under. Blocks publishing and nothing else.
-2. Should `--global` install skills or a Claude Code plugin? A plugin namespaces the skills and drops
-   the `necklace-` prefix, but is Claude-only. Ship skills first; add a plugin channel if asked.
+1. Whether a session-start hook is ever wanted. That is the trigger for revisiting the plugin channel.
