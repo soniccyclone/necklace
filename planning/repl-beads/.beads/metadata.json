@@ -1,0 +1,7 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "embedded",
+  "dolt_database": "repl_beads",
+  "project_id": "192833b1-afea-4dc6-90da-a900716c90f7"
+}
