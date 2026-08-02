@@ -190,6 +190,10 @@ provenance to be valid. It needs an input and an assertion.
 
 `Done when` names tests and nothing else. A test is the only thing that closes a CUJ.
 
+After breakdown, each CUJ also carries the IDs of the beads cut from it. That backlink is only
+durable when beads auto-export is on and `.beads/issues.jsonl` is committed, which §5 of the tool
+plan requires.
+
 Note the `Journey` steps. They use active voice, they name the actor, and they carry one instruction
 per line. Section 7 makes that deliberate.
 

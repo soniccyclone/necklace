@@ -22,6 +22,7 @@ Facts established by running something or reading source, rather than by recall.
 | 2026-07-30 | `necklace` is taken on npm as v1.0.0 with an empty description | `npm view` |
 | 2026-07-31 | The `bd import` JSONL contract, in full | read `gastownhall/beads` at `9fddc56` against released 1.1.2 |
 | 2026-08-01 | `bd init` installs a `beads` skill covering the execution loop, not bulk breakdown | read `internal/templates/skills/beads/SKILL.md` |
+| 2026-08-01 | `bd init` prompts `Enable auto-export? [y/N]`, default no; keys are `export.auto`, `export.path`, `export.git-add`, `export.interval` | read `cmd/bd/init.go`, `internal/config/config.go`, `cmd/bd/init_templates.go` |
 | 2026-08-01 | bd has three bulk entry points: `create --graph` (JSON plan), `create --file` (markdown), `import` (JSONL) | read `cmd/bd/create.go`, `cmd/bd/create_input.go` |
 | 2026-07-31 | `bd` rewrites a row only when `updated_at` is strictly newer; landed in 1.0.5 | read `cmd/bd/import_shared.go` and the changelog |
 | 2026-07-31 | A bare `pytest` at repo root collects scratch tests out of a planning directory | built the layout and ran `--collect-only` |
@@ -270,6 +271,21 @@ The findings from that pass are still true and still useful if the JSONL path is
 rewrites a row only when `updated_at` is strictly newer, `priority` has no import default so an
 omitted value reads as P0, file order is free because the importer sorts topologically, and both
 `import` and `create --graph` support `--dry-run`.
+
+### Beads auto-export is required, and necklace keeps no copy of the graph
+
+Nathan's, from running `bd init` with auto-export on and getting a git-tracked `.beads/issues.jsonl`.
+
+Without it the graph is only in the local Dolt database, so a bead ID in a CUJ document is a dangling
+pointer for anyone reading the repo on GitHub or reviewing a pull request. With it the graph is
+committed and diffable, and the backlink resolves both ways: beads carry `cuj:CUJ-NN` labels and the
+CUJ document names bead IDs.
+
+Consequence: the planning directory no longer holds a `beads.jsonl`. An earlier draft kept one as
+"the record of the graph", which would have been a second source of truth going stale beside the one
+bd maintains. Same error as the deleted `beads.schema.md`, caught before it shipped.
+
+`bd init` defaults auto-export to off, so `necklace init` has to ask for it rather than assume.
 
 ### Named skills
 

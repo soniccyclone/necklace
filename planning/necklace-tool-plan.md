@@ -220,6 +220,31 @@ progress spinner, and the mandatory re-probe means we never report success over 
 graph in a directory it adds to the repo, ask, run `bd init` on yes. This is a change to someone's
 repository and it gets a yes before it happens.
 
+**Auto-export, which necklace depends on.** `bd init` asks `Enable auto-export? [y/N]` and the
+default is no, so most repos will not have it. necklace needs it on. Check `export.auto` and turn it
+on with `export.git-add`, so a fresh `.beads/issues.jsonl` is written and staged:
+
+```yaml
+export:
+  auto: true
+  path: issues.jsonl
+  git-add: true
+  interval: 60s
+```
+
+Without it the graph lives only in the local Dolt database. A bead ID written into a CUJ document
+then resolves to nothing for anyone who reads the repo without running `bd`, which includes anyone
+looking at it on GitHub and anyone reviewing a pull request.
+
+With it, the graph is a committed, diffable artifact. That is what makes the backlink work, and the
+backlink runs both ways: every bead already carries a `cuj:CUJ-NN` label pointing at the document,
+and the CUJ document names the bead IDs pointing back. Both directions resolve from a git checkout
+alone.
+
+It also means necklace does not keep its own copy of the graph. `.beads/issues.jsonl` is the record,
+maintained by the tool that owns it. A second export inside the planning directory would be a source
+of truth that goes stale without anyone noticing.
+
 Non-interactive invocation, meaning no TTY or a `--yes` flag, skips the prompts. `--yes` accepts,
 no-TTY declines and exits nonzero, because a CI run that silently installs a global binary is worse
 than one that fails with a clear message.
@@ -381,13 +406,15 @@ One directory per workflow run, checked into the repo.
     ├── spec.md                           # the §2 document
     ├── cuj.md                            # the §3 document
     ├── log.md                            # the working log, see below
-    ├── beads.jsonl                       # what was imported, kept as the record of the graph
     └── repl/
         └── snapshot_ordering.py          # one file, deps inline, see below
 ```
 
 Date prefix plus ticket slug on the run directory. Sortable, and it matches how someone looks one up
 a year later.
+
+No copy of the bead graph lives here. `.beads/issues.jsonl` is the record, and §5 requires
+auto-export so it is committed. `cuj.md` names the bead IDs; the beads carry `cuj:CUJ-NN` labels back.
 
 **`.necklace/`, hidden.** A visible top-level directory claims peer status with `src/`, and collides
 with the module namespace in most ecosystems.
