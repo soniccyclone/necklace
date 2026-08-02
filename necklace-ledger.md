@@ -287,6 +287,24 @@ Kit's per-tool packages are the heaviest structure without being the most though
 Boundary: copy the infrastructure, not the philosophy. OpenSpec is a spec-driven framework of exactly
 the kind §0 rejects, and its validation subsystem exists to enforce spec conformance.
 
+### Framings that stayed here
+
+Concepts coined while reasoning, kept out of the planning documents because they describe how a
+decision was reached rather than what to build.
+
+- **Enumerate-the-bad versus enumerate-the-good.** The argument for preferring single-file scripts
+  over per-scanner exclusion lists. The plan states the preference and the fallback; this is why.
+- **Receipt versus report.** The output half of the fork test, from Spec Kit's reverted experiment.
+  The plan states both halves of the test as a rule.
+- **The lint skill's expiry argument.** That a table written today goes stale and a newer model does
+  not. The plan states that the skill carries the problem rather than the list.
+- **Warning fatigue.** Three real findings with output attached get fixed; twelve theoretical ones
+  get the skill uninstalled. This is why "demonstrate, do not assert" is a rule.
+- **The polarity collapse.** That a scratch test graduating into the suite is the failure mode
+  behind excluding the planning directory from test discovery.
+
+None of these are §7 terms and none should become §7 terms without a deliberate decision.
+
 ## Already cut. Do not re-propose.
 
 From the method:

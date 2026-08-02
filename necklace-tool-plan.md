@@ -94,25 +94,15 @@ skill" is a worse README.
 
 ## 4. Install targets
 
-**The rule for this project: every target is first class.**
+**Every target is first class.** necklace installs per repo, so the installer knows which tool it is
+writing for and writes that tool's native paths and command surface. No routing through another
+vendor's compatibility path.
 
-necklace installs per repo, through `necklace init`, the same as OpenSpec, Spec Kit, and BMAD. That
-single fact licenses everything below. A per-repo installer knows exactly which tool it is writing
-for, so it can write that tool's native format and use that tool's first-class features. There is no
-reason to reduce four tools to a lowest common denominator when the installer is standing right there
-with the answer.
+Installing is a directory copy plus the target's command files. Every target reads `SKILL.md` with
+the same required frontmatter, `name` and `description`, in a directory whose name matches `name`, so
+there is no format translation.
 
-A compatibility path is a fallback the vendor maintains for other people's files, and routing through
-one means never touching that tool's own command surface. Drift across per-tool files is the usual
-argument against this and it does not apply, because the files are generated from one source by a
-program.
-
-Installing is a directory copy plus the target's command files. There is no format translation to do:
-every target reads `SKILL.md` with the same required frontmatter, `name` and `description`, in a
-directory whose name matches `name`.
-
-**Verify a platform's current file convention before designing around its absence.** Cursor and
-Copilot both added skill support recently enough that stale assumptions produce real design errors.
+**Verify a platform's current file convention before designing around its absence.**
 
 ### The registry, copied from OpenSpec
 
@@ -177,11 +167,7 @@ advisable are different questions.
 
 **necklace does not run without a working `bd`. There is no fallback and no degraded mode.**
 
-That is a product decision, not a technical one. The tool exists to put other people on Nathan's
-workflow. His workflow has beads in it. A necklace that produces two documents and then something
-beads-shaped teaches a different method to whoever installs it, and the difference is invisible to
-them because they have never seen the real one. Shipping a fallback would mean the most common
-first-run experience is the wrong workflow.
+The tool exists to put other people on Nathan's workflow, and his workflow has beads in it.
 
 The requirement is stated in the package description, the README first paragraph, `necklace init`
 output, and the first line of the beads skill.
@@ -254,18 +240,14 @@ in a prompt.
 
 ### The import contract
 
-Settled. Read from `gastownhall/beads` at `9fddc56`, against released 1.1.2, and written up in
-[`skills/beads/beads.schema.md`](skills/beads/beads.schema.md). The beads skill references that file
-rather than restating it.
-
-Four findings change what the skill has to say.
+The contract is in [`skills/beads/beads.schema.md`](skills/beads/beads.schema.md). The beads skill
+references that file rather than restating it. Four points change what the skill must do.
 
 **The `updated_at` guard.** A row only overwrites an existing bead when its `updated_at` is strictly
 newer. Equal timestamps keep local state, and `updated_at` has second granularity. Regenerating the
 JSONL after a CUJ document revision and re-importing is therefore a silent no-op for every bead whose
 timestamp did not advance. The skill stamps a fresh `updated_at` on regeneration and reads the import
-output instead of assuming it applied. This behavior landed in 1.0.5, so it is live in every version
-anyone will install.
+output instead of assuming it applied.
 
 **`priority` has no import default.** An omitted priority reads as 0, which is P0. The generator
 always writes it.
@@ -277,9 +259,7 @@ constraint that would otherwise fall on the generator.
 **`--dry-run` exists.** The §4 graph validation gets a real pre-flight, and since one malformed record
 aborts the entire import, running it first is free insurance rather than ceremony.
 
-**Version floor: 1.1.0.** First stable of the current line, npm and Homebrew both serve 1.1.2, and
-everything the method uses is present. Hierarchical IDs and labels are old and set no floor of their
-own. This is the lint skill's version check, and it is a real number rather than a placeholder.
+**Version floor: 1.1.0.** The lint skill's version check.
 
 ## 6. The skills
 
@@ -331,24 +311,12 @@ at the planning directory rather than by trusting a claim.
 
 ### Subagent execution: lint only, never the pipeline
 
-**No pipeline stage forks.** A fork must satisfy both halves of one test: it must **return a
-receipt** rather than a report, and it must be **startable cold**.
+**No pipeline stage forks.** A fork must both **return a receipt** rather than a report, and be
+**startable cold**. Pipeline stages fail the second: `necklace-cuj` consumes `spec.md` plus the
+accumulated understanding from writing it, which lives in the parent's conversation and which
+`log.md` does not reconstruct.
 
-The first half is about output. A forked task whose result is injected back into the parent saves
-nothing and compounds, because every later fork inherits the accumulation.
-
-The second half is about input, and it is what rules the pipeline out. A subagent starts cold, and
-`necklace-cuj` does not consume `spec.md` so much as `spec.md` plus everything that happened while
-`spec.md` was written: the self-answer loop from §5 of the method, the judgment calls, the REPL
-findings that informed a claim without earning a table row. That accumulated understanding is what
-the method exists to build and it lives in the main agent's conversation. Spawning a subagent to
-write one file whose quality depends on context the parent already holds loses on both sides.
-
-`log.md` does not substitute. It is a write-ahead record with no completeness requirement.
-
-`necklace-lint` passes both halves. It walks the repo for scanner configuration, needs nothing from
-the conversation, and returns a short findings list. It is the only skill that should fork, and on
-Claude Code it should.
+`necklace-lint` passes both and should fork on Claude Code.
 
 ### What each pipeline skill adds
 
@@ -414,120 +382,51 @@ One directory per workflow run, checked into the repo.
 Date prefix plus ticket slug on the run directory. Sortable, and it matches how someone looks one up
 a year later.
 
-**`.necklace/`, hidden.** Two reasons.
-
-A visible top-level directory claims peer status with `src/`, which is the claim the other frameworks
-make and §0 of the method rejects. The spec is provenance about the codebase, not a definition it
-answers to, so it goes where provenance goes. The dot says tool directory.
-
-It also collides with the module namespace. A visible top-level `necklace/` reads as an importable
-package in Python, and Go, Node, and the JVM build tools all treat top-level directories as
-meaningful. Injecting a plausible-looking source directory into someone's repo is the same pollution
-this section is otherwise about.
-
-Findability survives the dot. `.github/` is a hidden directory full of things humans read, and nobody
-browses a repo to find a decision record anyway. They get sent a link.
+**`.necklace/`, hidden.** A visible top-level directory claims peer status with `src/`, and collides
+with the module namespace in most ecosystems.
 
 These are checked in on purpose. When someone asks why a decision was made, the spec doc is the
 answer, and an answer that lives in a chat transcript is not an answer.
 
 ### The working log
 
-BMAD keeps a full transcript of its workflow conversation. Worth copying, with one change to what it
-is for.
+`log.md` is a **write-ahead record**, appended as decisions land, never composed at the end.
 
-The log is a **write-ahead record, not a summary.** It is appended to as decisions land, during the
-work, not composed at the end. That distinction is the whole feature. A log written at the end of the
-workflow is worthless against the failure it exists to prevent, which is losing session state that
-had not yet reached spec.md or cuj.md. Reasoning that only exists in the context window is one
-compaction away from gone.
+In: decisions and their reasons, rejected alternatives, judgment questions and the answers given,
+REPL findings as they arrive. Out: a turn-by-turn transcript. There is no completeness requirement.
 
-What goes in: decisions and their reasons, rejected alternatives, judgment questions and the answers
-given, REPL findings as they arrive. What does not: a turn-by-turn transcript. There is no rule
-forcing it to record everything asked, because a log that must be complete becomes a log nobody
-writes.
+It absorbs the provenance job from both documents, which is what lets §2 of the method drop rejected
+alternatives and answered judgment questions. The rule those share: **the document holds what is
+still open, the log holds what is settled.** An unresolved judgment question stays in the spec doc,
+because it is a blocking handoff to a human.
 
-It is not a ledger in the accounting sense and §7 of the method document should get a term for it
-rather than letting "ledger" drift in, since that section exists precisely to catch this.
-
-### The log makes both documents lighter
-
-This is the log's second effect and it is worth more than the first.
-
-Design docs balloon because they are asked to hold two different things: what we are going to do, and
-the record of how we got there. The second is what grows without bound. Rejected alternatives,
-judgment calls and who made them, the reasoning behind a constraint, the question someone asked in
-week one that turned out to matter. All of it is worth keeping and none of it helps a reader who
-opened the document to find out what is being built.
-
-The log absorbs the second job, so the documents can be cut back to the first.
-
-**Moves to the log.** Rejected alternatives and why. Judgment questions that have been answered,
-with the answer and who gave it. REPL findings, except where one informs a specific test and earns
-its `Informed by` cell. The reasoning behind a constraint, as opposed to the constraint.
-
-**Stays in the spec doc.** The problem and its evidence, the actors, the actor-outcome pairs, the
-constraints themselves, the chosen approach named at strategy level, and any judgment question still
-open. The last one is the exception that matters: an unresolved judgment question is a blocking
-handoff to a human, so it stays where the human is looking. Once answered it moves to the log with
-its answer. The rule is clean, and it is that the document carries what is still open while the log
-carries what is settled.
-
-Naming the alternatives you rejected still happens. It happens in the log. The requirement that the
-work was done survives the requirement that it appear in the deliverable, and §2 of the method
-document is edited accordingly.
-
-That should also pull the spec doc back toward its two-page guide without anyone having to trim
-prose, because the sections that were making it long are the ones that left.
+§7 of the method needs a term for this file. "Ledger" is wrong and will drift in if nothing is
+chosen.
 
 ### Do not emit files that other tools recognize
 
-This is the real engineering problem in the structure, and the test suite is only the first tool that
-gets confused.
+A repo is walked by more than its build: Dependabot and Renovate hunt manifests and lockfiles, SBOM
+and license scanners read the same files, CodeQL analyzes what it finds, pre-commit lints every
+staged file, linguist counts languages.
 
-A repo is walked by more than its build. Dependabot and Renovate hunt manifests and lockfiles.
-Renovate auto-discovers by default, so a `requirements.txt` in a planning directory becomes a pull
-request against a dependency nobody ships. SBOM and license scanners read the same files. CodeQL
-analyzes what it finds. Pre-commit hooks lint every staged file. Coverage tools count what they
-import. GitHub's linguist will happily decide the repo is 40% Python because of a scratch directory.
-
-There are two ways out and both are legitimate. Prefer the first where the ecosystem and the user's
-toolchain both support it. Expect to need the second.
-
-**Track 1, emit nothing they look for.** A scratch script that declares its dependencies inside
-itself gives a manifest scanner nothing to find. No `requirements.txt`, no `package.json`, no
-lockfile, so there is no config to maintain and a scanner invented next year also finds nothing.
-This is the better outcome when it is available.
-
-It is not always available. `uv` is not universal, most ecosystems have no single-file format at all,
-and a person running plain `python -m venv` and `pip install -r requirements.txt` is doing something
-completely reasonable. Track 1 is a preference, not a prerequisite.
-
-**Track 2, commit the manifest and mark the directory ignorable.** This is the realistic default. It
-means writing `.necklace/` into the exclusion config of each tool that would otherwise act on it,
-which is enumerate-the-bad and does carry the maintenance cost that implies. The mitigation is that
-the list is short, stable, and written once by `necklace init` rather than rediscovered per run.
-
-**Deriving this for a language not listed below.** Search the ecosystem for how it runs a single
-script with dependencies and no project. The terms that find it are "single-file script",
-"inline dependencies", or "script metadata". If one exists it is the answer, because §0 says prefer
-what the toolchain blesses. If none exists, you are in the manifest-plus-exclusions fallback, and the
-question becomes the one in the next subsection. Do not invent a convention, and do not install a
-third-party script runner to create one.
-
-Every ecosystem is growing this, because a throwaway script that needs a dependency is a universal
-problem:
+**Track 1, preferred where available.** A scratch script that declares its dependencies inside itself
+gives a manifest scanner nothing to find, so there is no config to maintain and a scanner invented
+next year also finds nothing.
 
 | Ecosystem | Single-file mechanism | Status |
 | --- | --- | --- |
-| Python | PEP 723 `# /// script` header, run with `uv run` | Accepted standard, verified below |
-| Java | JBang `//DEPS` comments | Mature, the reason JBang exists |
-| .NET | File-based apps, `#:package` directives, `dotnet run file.cs` | .NET 10, recent |
-| Rust | `cargo -Zscript` single-file packages | Nightly, not stable, assume unavailable |
+| Python | PEP 723 `# /// script` header, run with `uv run` | accepted standard, verified |
+| Java | JBang `//DEPS` comments | mature |
+| .NET | file-based apps, `#:package`, `dotnet run file.cs` | .NET 10, recent |
+| Rust | `cargo -Zscript` | nightly, assume unavailable |
 
-**Verified here.** A `.py` file carrying a PEP 723 header with a real dependency, run through
-`uv run`, resolved and executed and left nothing behind but the script. One file in the planning
-directory, zero manifests, nothing for Dependabot to find.
+To derive this for an unlisted language, search its ecosystem for "single-file script", "inline
+dependencies", or "script metadata". Do not invent a convention and do not install a third-party
+script runner to create one.
+
+**Track 2, the realistic default.** Commit the manifest and mark the directory ignorable, per the
+table below. `uv` is not universal and most ecosystems have no single-file format, so a plain venv
+with a committed `requirements.txt` is expected.
 
 ### The markings
 
@@ -555,118 +454,64 @@ what each project documents, and each is worth confirming the first time it is u
 
 ### The lint skill
 
-The table above has an expiry date: a scanner ships in eighteen months, nobody updates the table, and
-the planning directory quietly rejoins the surface area.
-
-The skill exists to fix that. Hand the agent the *problem*, not the list. A model whose training
-postdates this document knows about scanners this document has never heard of, so the capability
-grows without anyone maintaining anything. Same argument as §0's "get the axis right and the language
-answers itself," applied to tooling.
+The markings table expires: a scanner ships, nobody updates the table, the planning directory rejoins
+the surface area. The skill carries the problem instead of the list, so a newer model covers scanners
+this document never heard of.
 
 ```
 skills/lint/SKILL.md
 ```
 
-**What it does.** Walk the repo for evidence of tools that read committed files. Determine whether
-any of them would act on `.necklace/`. Report what it finds, propose the fix, and change nothing
-without a yes.
+**What it does.** Walk the repo for evidence of tools that read committed files, determine whether
+any would act on `.necklace/`, report, propose the fix, change nothing without a yes.
 
-**The rule that keeps it honest: detect from the repo, never from memory.** The agent's knowledge is
-for *interpreting* what it finds, not for *enumerating* what might exist. Seeing
-`.github/workflows/codeql.yml` and recognizing that CodeQL will scan the planning directory is the
-job. Proposing CodeQL markings for a repo with no CodeQL is not, and neither is inventing a config
-key that sounds plausible. A config file that is not in the repo generates no finding.
-
-That inversion is what makes the growth safe. Newer agents recognize newer tools *that are actually
-present*, without the hallucinated-config failure a "list every scanner you know" prompt produces.
+**Detect from the repo, never from memory.** Agent knowledge interprets what is present; it does not
+enumerate what might exist. A config file absent from the repo generates no finding. This is what
+keeps the skill improving with better models rather than inventing config keys with more confidence.
 
 **Demonstrate, do not assert.** Where the tool is installed, run it and show it picking up the
-planning directory. `pytest --collect-only` listing a scratch test is a finding. "Renovate may scan
-this" is not. This is §4's red gate discipline pointed at a different problem: the output is the
-evidence, and an agent that asserts instead of running is the failure mode both places.
+planning directory. `pytest --collect-only` listing a scratch test is a finding; "Renovate may scan
+this" is not.
 
-Warning fatigue is the thing that kills a linter. Reporting three real findings with output attached
-gets fixed. Reporting twelve theoretical ones gets the skill uninstalled.
+**Bounded.** It checks whether necklace's own artifacts pollute the repo, and nothing else.
 
-**Bounded on purpose.** It checks whether necklace's own artifacts are polluting the repo, and
-nothing else.
+**When it runs.** `necklace init` invokes it once. `necklace-spec` invokes it on the first run in a
+repo. On demand after that, and never on every workflow invocation.
 
-**When it runs.** `necklace init` invokes it once, since that is when markings get written anyway.
-The spec skill invokes it on the first run in a repo, absorbing the build-isolation step §7 assigns
-there rather than duplicating it. It is available on demand after that. It does not run on every
-workflow invocation, because a check that fires constantly is a check nobody reads.
-
-It also owns the environment probes listed in §5. `init` still checks `bd` itself, because it
-refuses to install without one.
+It also owns the environment probes in §5. `init` still checks `bd` itself, since it refuses to
+install without one.
 
 ### Keeping the planning directory out of the build
 
-Test discovery is still its own problem, since scratch tests are recognized by their filename and not
-by a manifest. Getting this wrong means the project's suite silently adopts a scratch test, which is
-the §5 polarity collapse arriving by accident rather than by carelessness.
+Test discovery is a separate problem, because scratch tests are recognized by filename rather than by
+a manifest. Getting it wrong means the suite silently adopts a scratch test.
 
-**Verified here.** A bare `pytest` at repo root collects `test_*.py` out of a planning directory. I
-built the layout above and it collected the scratch test alongside the real one. Adding
-`norecursedirs = .necklace` to `pytest.ini` excludes it from the suite while leaving it directly
-runnable by path, which is exactly the property the method wants. A venv is already safe by accident,
-because pytest skips dot-directories and has `venv` in its default `norecursedirs`.
+The axis: does the build tool **discover** directories or is it **told** about them? Discovery-based
+tools need an exclusion. Manifest-based tools already ignore an undeclared directory.
 
-**Deriving this for a language not listed below.** The axis from §0 is whether the build tool
-*discovers* directories or is *told* about them.
-
-Discovery-based tools walk from a root and adopt whatever matches a pattern, so they need an
-exclusion: Go with a root `go.mod`, Cargo workspaces, pytest, tsc, Gradle's file-tree conventions.
-Find the tool's exclusion mechanism, which every one of them has, and use it. Manifest-based tools
-build only what a file lists, so an undeclared directory is already invisible and there is nothing to
-do: Maven modules, `settings.gradle` includes, .NET solutions.
-
-Then verify rather than assume. Run the project's full test command and confirm the scratch test does
-not appear in the output. That check takes seconds and it is the same discipline §4 applies to the
-red gate.
-
-**Reasoned, not verified.** No Go, .NET, Rust, or JVM toolchain on this machine. Each of these needs
-confirming on a box that has one, and each is a one-line fact that will take about a minute to check.
-
-| Ecosystem | The risk | The move |
+| Ecosystem | Risk | Move |
 | --- | --- | --- |
-| Go | A root `go.mod` makes every subdirectory part of the module, so `go test ./...` walks in | Any of three blessed outs: a nested `go.mod` (the go tool excludes subdirectories that own one), a `testdata/` directory (ignored outright), or a directory whose name starts with `_` or `.`. Go is better at this than it looks. |
-| .NET | SDK-style projects glob `**/*.cs`, so a planning directory nested inside a project directory gets compiled into it, and a nested `.csproj` produces duplicate-compile errors rather than isolation | Put `.necklace/` at repo root, outside any project directory. A solution only builds projects it lists, so a scratch `.csproj` there is invisible. Watch for a root `Directory.Build.props`, which chains down and can impose analyzers on scratch code. |
-| Rust | A nested crate inside a workspace directory makes cargo error about a package that believes it is in a workspace | One line. Either `exclude = [".necklace"]` in the root `[workspace]`, or an empty `[workspace]` table in the scratch crate's own `Cargo.toml` to declare it a separate root. |
-| JVM | The opposite problem. Maven modules and `settings.gradle` includes are explicit, so an undeclared directory is already ignored. The friction is running the scratch code at all, since it needs a build file and the parent's classpath | JBang is the right tool: single-file Java with dependencies declared in comments and no build file. Otherwise declare a standalone build file depending on the built artifact. |
-| Node and TypeScript | A root `tsconfig.json` `include`, and workspace globs in `package.json` or `pnpm-workspace.yaml` | Add the directory to `exclude`, and keep workspace globs specific rather than `packages/*`-style catch-alls. |
+| Python | `pytest` collects `test_*.py` repo-wide | `norecursedirs = .necklace`. Verified: excludes from the suite, still runnable by path. |
+| Go | a root `go.mod` makes every subdirectory part of the module | a nested `go.mod`, a `testdata/` directory, or a leading `_` or `.` in the name |
+| .NET | SDK projects glob `**/*.cs`; a nested `.csproj` duplicates rather than isolates | keep `.necklace/` at repo root outside any project directory; watch a root `Directory.Build.props` |
+| Rust | a nested crate in a workspace directory errors | `exclude = [".necklace"]` in the root `[workspace]`, or an empty `[workspace]` in the scratch crate |
+| JVM | already invisible; the friction is running the scratch code at all | JBang, or a standalone build file depending on the built artifact |
+| Node and TypeScript | root `tsconfig.json` `include`, workspace globs | add to `exclude`, keep workspace globs specific |
 
-The skill instructs the agent to make this move once, at the start of the first run in a repo, and to
-say what it did. It is a change to the project's build configuration, so it gets stated rather than
-slipped in.
+Then verify: run the project's full test command and confirm the scratch test does not appear.
 
 ### On disk versus committed
 
-Two different questions, and conflating them produces bad advice in both directions. §0 has the
-principle. This is what it means here.
+**On disk is free.** A gitignored `.venv` inside the planning directory is fine and often better, since
+re-resolving on every run is slow and fails outright in a network-restricted environment. Nothing
+that walks a repo reads gitignored files.
 
-**On disk is free.** A gitignored `.venv` inside the planning directory is fine, and often better
-than the alternative, because re-resolving dependencies on every run is slow and simply fails in a
-network-restricted environment. Nothing that walks a repo reads gitignored files. Build the
-environment where it is convenient, keep it warm, gitignore it, and stop thinking about it.
+For `uv` users there is nothing to ignore: `uv sync --script` builds a persistent environment outside
+the repo and `uv run --offline` then works.
 
-That holds regardless of which track above the repo is on. `python -m venv .venv` inside the planning
-directory with a committed `requirements.txt` is a perfectly good setup, and it needs the §8 markings
-rather than a different environment strategy.
-
-On `uv` specifically, since it changes what is even on disk: **verified here**, `uv sync --script`
-builds a persistent environment for a PEP 723 script in `~/.cache/uv/environments-v2/` rather than in
-the repo, and `uv run --offline` then executes against it with no network. Inline dependencies and a
-warm reusable environment are not in tension. This is a nice property for people who already use
-`uv`, and not a reason to make anyone adopt it.
-
-**Committed is where the rules live.** Never commit a resolved artifact directory: `.venv`,
-`node_modules`, `target/`, `bin/`, `obj/`. A venv is 27MB across 1802 files with the absolute
-creation path baked into `pyvenv.cfg`, so it would not work for anyone who cloned it regardless.
-
-Never commit a lockfile, for the less obvious reason. A lockfile is an active input to Dependabot and
-Renovate, which will open pull requests against a transitive dependency of a scratch script that
-ships nowhere. The planning directory has no release and no security surface, so every alert it
-raises is false, and false alerts train people to ignore the real ones.
+**Never committed:** resolved artifact directories (`.venv`, `node_modules`, `target/`, `bin/`,
+`obj/`), and lockfiles. A lockfile is an active input to Dependabot and Renovate, and the planning
+directory has no release and no security surface, so every alert it raises is false.
 
 The rule the skill carries: **a committed planning directory may contain source and prose, and
 nothing another machine is configured to act on. What it holds on disk and ignores is its own
