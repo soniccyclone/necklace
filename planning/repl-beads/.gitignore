@@ -4,3 +4,8 @@
 *.db
 .beads-credential-key
 .beads/proxieddb/
+
+# Trial run scratch
+.venv/
+__pycache__/
+.pytest_cache/
