@@ -199,23 +199,35 @@ per line. Section 7 makes that deliberate.
 
 ## 4. Beads breakdown and the red gate
 
-`bd import` reads JSONL from a file or stdin with upsert semantics. Generate one file and import it
-once. Forty `bd create` calls give you forty chances to drift and no way to review the graph before
-it lands.
+Use the path beads teaches. `bd prime`, which beads injects by hook, names exactly one way to build
+a graph: `bd create` per bead, `bd create --parent=<id>` for hierarchy, and `bd dep add` for edges.
+It never mentions `bd import`, `bd create --graph`, or JSONL. Those exist, but an agent working in a
+beads repo has already been told the other thing, and §0 says prefer what the toolchain blesses.
 
-Validate the graph before import:
+An earlier version of this section required generating one JSONL file and importing it once, on the
+grounds that forty `bd create` calls give forty chances to drift and no way to review the graph
+before it lands. The second half of that concern was already answered elsewhere: **the CUJ document
+is the review artifact.** The graph is derived from it, so review happens there, before any `bd`
+command runs. Reviewing a generated JSONL would be reviewing a translation of something already
+approved.
+
+`bd prime` also suggests parallel subagents when creating many beads. That is safe here for the
+reason §6 of the tool plan gives: each create is mechanical, its content already decided by the CUJ
+document, so it returns a receipt and starts cold.
+
+Validate the graph in the document, before any of it lands:
 
 - The graph is a DAG.
 - Every CUJ has at least one bead.
 - Every `Depends on` in the document appears as an edge.
-- Every bead carries a `cuj:CUJ-NN` label.
+- Every bead carries a `cuj:CUJ-NN` label. A child inherits its parent's labels automatically.
 - Every bead inherits the test names from its CUJ.
 
 Bead shape is per-CUJ sizing, not a setting. A small CUJ becomes one bead. A large one becomes an
 epic with children, which beads supports natively through hierarchical IDs like `bd-a3f8.1.1`.
 Nothing in the method reads the shape, because the `cuj:` label carries traceability either way.
 
-Then run the red gate, after import and before implementation:
+Then run the red gate, after the beads land and before implementation:
 
 - Every named test exists in the repo.
 - Every named test **fails** for the right reason. A missing symbol or a failed assertion counts. A

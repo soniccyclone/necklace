@@ -264,32 +264,21 @@ in a prompt.
 
 ### Hand off to beads, do not reimplement it
 
-`bd init` installs a `beads` skill into the repo, and that skill owns the execution loop: `bd prime`,
-`bd ready`, `bd show`, `bd update --claim`, `bd close`. `necklace-beads` does not restate any of it
-and does not carry a copy of any beads format.
+`bd init` installs a `beads` skill at `.agents/skills/beads/SKILL.md` and wires hooks that inject
+`bd prime` on session start. Between them they own the execution loop and the creation vocabulary.
+`necklace-beads` restates none of it and carries no copy of any beads format.
 
-What the beads skill does **not** cover is bulk breakdown. Its `bd create` guidance is one issue at a
-time, which is the failure §4 of the method names: forty calls give forty chances to drift and no way
-to review the graph before it lands. That gap is the whole job of `necklace-beads`.
-
-bd has purpose-built bulk entry points for it:
-
-| Entry point | Input |
-| --- | --- |
-| `bd create --graph <file>` | JSON plan file of issues with dependencies. Supports `--dry-run`. |
-| `bd create --file <file>` | markdown batch, `## Title` with `### Priority` and `### Type` sections |
-| `bd import <file>` | JSONL, upsert semantics, also `--dry-run` |
-
-`--graph` is described as "create a graph of issues with dependencies from JSON plan file", which is
-this step exactly. Pick it unless a trial run shows otherwise, and read the format from `bd` rather
-than transcribing it here: a copy in this repo is a second source of truth that goes stale silently.
+**Use the commands `bd prime` teaches.** `bd create` per bead, `--parent=<id>` for hierarchy,
+`bd dep add` for edges. `bd import`, `bd create --graph`, and `bd create --file` all exist, and
+`bd prime` mentions none of them, so an agent in a beads repo has already been told otherwise.
+Fighting that to save a few calls trades a blessed path for a format we would have to track.
 
 So `necklace-beads` carries three things and nothing else:
 
 1. The probe from above, and the stop-on-failure rule.
-2. The mapping from the CUJ document to bd's chosen bulk input: one bead per CUJ or an epic with
-   children, a `cuj:CUJ-NN` label on every bead, every `Depends on` as a dependency edge, and the
-   test names inherited from the CUJ.
+2. The mapping from the CUJ document to beads: one bead per CUJ or an epic with children, a
+   `cuj:CUJ-NN` label on every bead, every `Depends on` as a `bd dep add`, and the test names
+   inherited from the CUJ. Children inherit parent labels, so labelling an epic covers its subtree.
 3. The red gate from §4 of the method, then handoff to the beads skill for execution.
 
 ## 6. The skills
@@ -380,19 +369,17 @@ trigger on their own.
 
 ## 7. Build order
 
-1. Confirm which bd bulk entry point fits, `bd create --graph` or `bd import`, by running one against
-   a real CUJ document. Blocks `necklace-beads` and nothing else.
-2. Write the five SKILL.md files and two templates. This is the actual product. Nothing else in this
+1. Write the five SKILL.md files and two templates. This is the actual product. Nothing else in this
    document matters if these are weak.
-3. Run the §9 trial run of the method document using those files, installed by hand with `cp`. No
+2. Run the §9 trial run of the method document using those files, installed by hand with `cp`. No
    npm package, no CLI. If the trial run says the method needs changing, changing markdown is free
    and changing a published package is not.
-4. Write `bin/necklace.js` with `init`, claude target only.
-5. Add cursor and copilot stub generation.
-6. Publish under the scoped name.
+3. Write `bin/necklace.js` with `init`, Claude Code target only.
+4. Add the Cursor, Copilot, and opencode adapters.
+5. Publish under the scoped name.
 
-Steps 4 and 5 are perhaps an afternoon, because the program copies files. The cost is
-entirely in steps 1 through 3. Ordering the trial run before the packaging is the point: it is the
+Steps 3 and 4 are perhaps an afternoon, because the program copies files. The cost is
+entirely in steps 1 and 2. Ordering the trial run before the packaging is the point: it is the
 cheapest place to find out the method needs revision, and §8 of the method document argues exactly
 this about error detection generally.
 

@@ -23,6 +23,12 @@ Facts established by running something or reading source, rather than by recall.
 | 2026-07-31 | The `bd import` JSONL contract, in full | read `gastownhall/beads` at `9fddc56` against released 1.1.2 |
 | 2026-08-01 | `bd init` installs a `beads` skill covering the execution loop, not bulk breakdown | read `internal/templates/skills/beads/SKILL.md` |
 | 2026-08-01 | `bd init` prompts `Enable auto-export? [y/N]`, default no; keys are `export.auto`, `export.path`, `export.git-add`, `export.interval` | read `cmd/bd/init.go`, `internal/config/config.go`, `cmd/bd/init_templates.go` |
+| 2026-08-02 | `bd init` installs the skill at `.agents/skills/beads/SKILL.md` and wires hooks in `.claude/` and `.codex/` | ran it in `planning/repl-beads` |
+| 2026-08-02 | `bd` 1.1.2 works; the broken npm shim is resolved | `bd --version` |
+| 2026-08-02 | The installed skill has no epic, parent, hierarchy, or breakdown guidance. `bd prime` carries it | grepped both |
+| 2026-08-02 | `bd prime` teaches `bd create`, `--parent=<id>`, `bd dep add`, and suggests parallel subagents for many creates | ran `bd prime` |
+| 2026-08-02 | `bd prime` never mentions `import`, `--graph`, `--file`, or JSONL | grepped its output |
+| 2026-08-02 | `bd prime` prohibits TodoWrite and markdown task files outright | ran it |
 | 2026-08-01 | bd has three bulk entry points: `create --graph` (JSON plan), `create --file` (markdown), `import` (JSONL) | read `cmd/bd/create.go`, `cmd/bd/create_input.go` |
 | 2026-07-31 | `bd` rewrites a row only when `updated_at` is strictly newer; landed in 1.0.5 | read `cmd/bd/import_shared.go` and the changelog |
 | 2026-07-31 | A bare `pytest` at repo root collects scratch tests out of a planning directory | built the layout and ran `--collect-only` |
@@ -271,6 +277,27 @@ The findings from that pass are still true and still useful if the JSONL path is
 rewrites a row only when `updated_at` is strictly newer, `priority` has no import default so an
 omitted value reads as P0, file order is free because the importer sorts topologically, and both
 `import` and `create --graph` support `--dry-run`.
+
+### Build the graph the way `bd prime` teaches, not by bulk import
+
+§4 of the method required generating one JSONL and importing it once, because forty `bd create` calls
+give forty chances to drift and no way to review the graph before it lands. That drove several turns
+of work on the `bd import` contract.
+
+Run in `planning/repl-beads`, it turns out `bd prime` is injected by hook on session start and names
+exactly one way to build a graph: `bd create` per bead, `--parent=<id>` for hierarchy, `bd dep add`
+for edges. It never mentions `import`, `--graph`, `--file`, or JSONL. That is why Nathan's practice
+of saying "task breakdown this CUJ doc into beads" produces correct epics and children without him
+ever asking for bulk creation.
+
+Revised. §0 says prefer what the toolchain blesses, and an agent in a beads repo has already been
+told the other thing.
+
+The review half of the original concern still stands and is answered elsewhere: the CUJ document is
+the review artifact, and the graph is derived from it, so review happens before any `bd` command
+runs. Reviewing a generated JSONL would be reviewing a translation of something already approved.
+
+The `bd import` findings are kept above in case that path is ever needed. It is not needed now.
 
 ### Beads auto-export is required, and necklace keeps no copy of the graph
 
