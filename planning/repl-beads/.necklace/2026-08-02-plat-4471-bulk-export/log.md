@@ -51,3 +51,22 @@ rather than assuming it from the source.
 `repl/which_limit.py` — memory exhausts before the timeout at the sizes in question.
 
 Both kept on disk. Neither is a test.
+
+## Stage 2, CUJ document
+
+**Slicing.** Five actor-outcome pairs became five CUJs, one each. No pair merged and none split.
+
+**Dependency edges kept to four.** CUJ-02 depends on CUJ-01 because a job that registers without a
+streaming producer still OOMs when the worker runs. CUJ-03 depends on CUJ-02 because there is no
+state without a job. CUJ-04 and CUJ-05 both depend on CUJ-03 and on nothing else, which is the only
+fan-out in the graph.
+
+Rejected: making CUJ-04 depend on CUJ-03 *and* CUJ-02. Redundant, since the edge is transitive, and
+a redundant edge narrows parallelism for nothing.
+
+**CUJ-05 is blocked, not dropped.** The open judgment question in `spec.md` is a scope call. Writing
+the CUJ costs nothing and deleting it would lose the analysis; breaking it into beads before the
+scope call would create work nobody agreed to.
+
+**Test count.** 12 tests across 5 CUJs. Three of the twelve carry `Informed by` provenance from the
+REPL work; the rest follow from the requirement directly, which is the expected ratio.
