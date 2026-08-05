@@ -1,0 +1,97 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: tests (node ${{ matrix.node }}, ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        node: ['20.11', '22', '24']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci
+      - run: npm test
+
+  pty:
+    name: interactive prompt (pseudo-terminal)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      # node-pty needs a native build, so this runs on one version rather than
+      # the whole matrix. It is the only thing that exercises the prompt.
+      - run: npm ci
+      - run: npm run test:pty
+
+  package:
+    name: shipped artifact
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Every skill directory carries a SKILL.md naming itself
+        run: |
+          fail=0
+          for dir in skills/*/; do
+            name=$(basename "$dir")
+            file="$dir/SKILL.md"
+            if [ ! -f "$file" ]; then
+              echo "::error::$name has no SKILL.md"; fail=1; continue
+            fi
+            declared=$(awk -F': ' '/^name: /{print $2; exit}' "$file")
+            if [ "$declared" != "$name" ]; then
+              echo "::error::$file declares name '$declared' but lives in '$name'"; fail=1
+            fi
+            if ! grep -q '^description: ' "$file"; then
+              echo "::error::$file has no description; every target routes on it"; fail=1
+            fi
+          done
+          exit $fail
+
+      # The payload reaching the tarball is the silent failure mode: an omitted
+      # files entry installs nothing while appearing to succeed.
+      - name: Payload is in the packed tarball
+        run: |
+          npm pack --silent >/dev/null
+          tar tzf ./*.tgz > packed.txt
+          for dir in skills/*/; do
+            name=$(basename "$dir")
+            grep -q "package/skills/$name/SKILL.md" packed.txt \
+              || { echo "::error::$name missing from the tarball"; exit 1; }
+          done
+          grep -q 'package/bin/necklace.js' packed.txt || { echo "::error::bin missing"; exit 1; }
+          ! grep -q 'package/test/' packed.txt || { echo "::error::tests should not ship"; exit 1; }
+
+      # Install the packed artifact the way a user would and run it, so the
+      # distribution path is covered rather than assumed.
+      - name: Installing the tarball produces a working necklace init
+        run: |
+          npm i -g ./*.tgz
+          repo=$(mktemp -d)
+          cd "$repo"
+          necklace init --agent claude --skip-beads-check
+          for dir in $GITHUB_WORKSPACE/skills/*/; do
+            name=$(basename "$dir")
+            test -f ".claude/skills/$name/SKILL.md" \
+              || { echo "::error::$name did not install"; exit 1; }
+          done
+          echo "installed $(ls .claude/skills | wc -l) skills from the tarball"

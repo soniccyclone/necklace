@@ -193,3 +193,28 @@ not" in the outcome table.
 
 Classified as a tweak, not a new increment: no outcome changed and no CUJ was invalidated, so no new
 beads.
+
+## CI
+
+Three jobs.
+
+**tests** across Node 20.11, 22, and 24 on ubuntu and macos. 20.11 is the floor because
+`import.meta.dirname` sets it. macos is in because the install is all path manipulation and separator
+bugs are the obvious failure. Windows is out: `fakeBd` writes a `#!/bin/sh` stub, so the test harness
+would need rewriting before the matrix could grow.
+
+**pty** on one Node version rather than the matrix, since node-pty needs a native build and this is
+the only job that exercises the prompt.
+
+**package** guards the silent failure from the npx-from-GitHub decision. An omitted `files` entry
+installs nothing while appearing to succeed, so the job packs the tarball, asserts every skill and
+the bin are inside and that `test/` is not, then installs that tarball globally and runs
+`necklace init` in a temp directory. That covers the distribution path rather than assuming it.
+
+It also checks the frontmatter contract every target depends on: each skill directory has a
+`SKILL.md`, its `name` matches the directory, and it has a `description`. All four targets require
+the first two and route on the third.
+
+**Adding `.github/workflows/` does not make this repo look like a Copilot user.** Verified: `detect`
+still returns `['claude']`. That is the payoff for keying Copilot off `copilot-instructions.md`,
+`prompts/`, `agents/`, and `skills/` rather than off `.github/` existing.
