@@ -1,0 +1,7 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "embedded",
+  "dolt_database": "necklace",
+  "project_id": "8350f0a9-4227-4903-a4bf-715d4c427477"
+}
