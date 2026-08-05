@@ -428,10 +428,12 @@ From the tool:
 
 1. ~~npm handle.~~ `@soniccyclone/necklace`.
 2. ~~Skills or a plugin.~~ Skills, following OpenSpec, which ships no plugin. Closed, not deferred.
-   An earlier note said a session-start hook would be the trigger for revisiting, on the belief that
-   hooks require a plugin. They do not: `bd init` writes a `SessionStart` hook directly into
-   `.claude/settings.json`, verified in the trial repo. So `necklace init` can do the same and the
-   plugin buys nothing.
+   Two wrong steps got recorded here before this settled. First, that a session-start hook would be
+   the trigger for revisiting, on the belief that hooks require a plugin; `bd init` writes one
+   directly into `.claude/settings.json`, verified in the trial repo. Second, that necklace might
+   want a hook at all. It does not. Hooks serve ambient behaviour, and necklace is invoked
+   explicitly. Both errors came from reading beads' shape as a template instead of asking what
+   necklace needs.
 3. Whether Kiro is worth targeting at all. It is reachable, and its spec-as-source model is the one
    §0 rejects.
 4. ASD-STE100 was tried on the artifacts and dropped. Not a project concern.
