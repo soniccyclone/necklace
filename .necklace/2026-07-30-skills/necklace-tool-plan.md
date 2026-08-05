@@ -600,4 +600,10 @@ this.
 
 ## 9. Open
 
-1. Whether a session-start hook is ever wanted. That is the trigger for revisiting the plugin channel.
+Nothing.
+
+The plugin channel is closed rather than deferred. It would have bought namespacing, bundled hooks,
+and marketplace install; the prefix covers the first, npm covers the third, and hooks turn out not to
+need a plugin at all. `bd init` writes a `SessionStart` hook straight into `.claude/settings.json`,
+verified in the trial repo. If necklace ever wants one, `necklace init` writes it the same way, which
+is a few lines in the installer rather than a second distribution channel.
