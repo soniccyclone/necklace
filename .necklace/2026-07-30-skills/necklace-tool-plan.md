@@ -91,20 +91,31 @@ artifact and there is nothing here to compile.
 **One command.**
 
 ```
-necklace init [--global] [--agent <name>] [--force]
+necklace init [--global] [--agent <name>]
 ```
 
-It copies the skills to the target directory and checks that `bd` works. That is the entire binary.
+It copies the skills to the selected targets and checks that `bd` works. That is the entire binary.
 
-`--force` overwrites an existing file instead of skipping it. Without it, init refuses to clobber and
-says which file it left alone.
+**It always overwrites, and reports every file it wrote.** No conflict detection, no `--force`, no
+manifest.
 
-Nothing else. The lint skill covers environment probing, and `npm update -g` followed by
-`necklace init` covers updating, since init is idempotent.
+The alternative needs a record of what necklace wrote last time, because "the file on disk differs
+from the payload" is the same observation whether the user edited it or we shipped a new version.
+Distinguishing them means a state file, and it buys protection for a case that should not happen:
+the skills are necklace's payload, not user configuration. A locally edited skill means a coworker is
+silently running a different workflow, which is the thing this tool exists to prevent.
 
-Also not included: no `necklace spec`, no `necklace cuj`, no `necklace beads`. Those are
-skill invocations inside the agent. A CLI command that prints "now ask your agent to run the spec
-skill" is a worse README.
+Overwriting is safe because the skills are installed **into a git repo** by definition. An unwanted
+overwrite is visible in `git diff` and recoverable, so the report plus version control does the job a
+manifest would have done.
+
+**Updating is the same command.** `npm update -g @soniccyclone/necklace` then `necklace init`, or
+just `npx @soniccyclone/necklace init` which always fetches latest. Genuinely idempotent: running it
+twice with an unchanged payload writes the same bytes.
+
+Also not included: no `necklace spec`, no `necklace cuj`, no `necklace beads`. Those are skill
+invocations inside the agent. A CLI command that prints "now ask your agent to run the spec skill" is
+a worse README.
 
 ## 4. Install targets
 

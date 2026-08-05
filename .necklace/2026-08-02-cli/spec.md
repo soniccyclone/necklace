@@ -18,7 +18,6 @@ Every one of those is a step someone gets wrong once and then blames the tool fo
 
 - Installer: the person running the command in their repo
 - Reinstaller: the same person, later, on a newer version
-- Skill author: someone who has edited an installed skill for their project
 
 ## Actor-outcome pairs
 
@@ -28,8 +27,7 @@ Every one of those is a step someone gets wrong once and then blames the tool fo
 | Installer | Which agents were detected, which were selected, and exactly what was written |
 | Installer | Whether beads is installed, initialized, and exporting, and what to run if not |
 | Installer | Their agent picking the skills up, without them knowing any target's path convention |
-| Reinstaller | Newer skills in place, with any file they had edited reported rather than silently replaced |
-| Skill author | Their edits still present after a reinstall they did not force |
+| Reinstaller | Newer skills in place after rerunning the same command, with every replaced file named |
 
 ## Constraints
 
@@ -37,22 +35,24 @@ Every one of those is a step someone gets wrong once and then blames the tool fo
   frontmatter, and require the directory name to match `name`. Verified against vendor documentation.
 - Beads is a hard requirement. `bd init` defaults auto-export off, and `export.auto` and
   `export.git-add` are separate keys that both default false.
-- `fs.cp` cannot report what it skipped. With `force: false` it silently preserves existing files, and
-  with `errorOnExist` it aborts on the first conflict. Measured. Any report of what was left alone
-  must come from a pass that runs before the copy.
+- `fs.cp` cannot report what it did. With defaults it overwrites silently, with `force: false` it
+  silently preserves, and with `errorOnExist` it aborts on the first conflict. Measured. Any report of
+  what was written must come from a pass that runs before the copy.
 - Node 18 or newer. `util.parseArgs` landed in 18.3 and `fs.cp` in 16.7.
 - No runtime dependencies. Measured as achievable: keypress events, argument parsing, and recursive
   copy are all in the standard library.
 
 ## Approach
 
-One command, `necklace init`, running five phases in order: detect which agents the repo shows
+One command, `necklace init`, running four phases in order: detect which agents the repo shows
 evidence of, confirm the selection with the user, check that the environment can actually run the
-method, compare intended writes against what is on disk, then write and report.
+method, then write and report every path.
 
 Detection ranks the selection list rather than gating it, so a target whose directory does not exist
-yet stays reachable. Nothing is written before the user has seen what will be written and what will
-be skipped.
+yet stays reachable. The payload always wins: installed skills are necklace's, not user
+configuration, so a rerun is also the update path. What that costs is a local edit, which is why
+every written path is reported and why the skills live in a git repo where an unwanted overwrite
+shows up in `git diff`.
 
 The environment check is a gate rather than a warning, because installing skills that cannot run is
 the failure mode the whole no-fallback rule exists to prevent.

@@ -76,48 +76,25 @@ Derived from `spec.md` in this directory. One CUJ per actor-outcome pair.
 
 ---
 
-## CUJ-04: Skill author's edits survive a reinstall
-
-**Actor:** skill author
-**Trigger:** reruns `necklace init` after editing an installed skill
-**Journey:**
-1. System compares what it would write against what is on disk, before writing anything.
-2. System reports the full set of files that differ and leaves them alone.
-3. System writes everything else.
-
-**Tests to create:**
-
-| Test | Input | Assertion | Informed by |
-| --- | --- | --- | --- |
-| `reports every conflict, not just the first` | two installed skills both edited | both are named in the output | REPL: `errorOnExist` aborts on the first conflict, so the copy cannot produce this list |
-| `leaves an edited file untouched` | one edited `SKILL.md` | its contents are unchanged after the run | REPL: `fs.cp` defaults overwrite it silently |
-| `still installs the non-conflicting skills` | one edited skill, five untouched | the other five are updated | REPL: `force: false` copies the rest but reports nothing |
-| `--force overwrites and says so` | one edited skill, flag set | the file is replaced and the output names it | |
-
-**Done when:** the four tests above pass. All must be red when created.
-
-**Beads:**
-
----
-
-## CUJ-05: Reinstaller gets newer skills without losing local edits silently
+## CUJ-04: Reinstaller updates by running the same command
 
 **Actor:** reinstaller
-**Trigger:** reruns `necklace init` from a newer version
+**Trigger:** reruns `necklace init` after upgrading the package
 **Journey:**
-1. System writes the newer skills.
-2. System reports which files it replaced and which it preserved.
+1. Reinstaller runs the same command they ran the first time.
+2. System writes the current payload over whatever is there.
+3. System names every path it wrote.
 
 **Tests to create:**
 
 | Test | Input | Assertion | Informed by |
 | --- | --- | --- | --- |
-| `replaces an unmodified installed skill` | an installed skill matching the shipped copy, payload since changed | the file is updated with no prompt | an unedited file is not a conflict |
-| `rerunning with no changes writes nothing` | payload identical to what is installed | the run reports no writes and no conflicts | idempotence is what makes this the update path |
+| `overwrites an existing installed skill` | a skill on disk differing from the payload | the file matches the payload afterward | REPL: `fs.cp` defaults overwrite, and this is the behaviour we want rather than one to guard against |
+| `reports every path it wrote` | six skills, one target | all six appear in the output | `fs.cp` reports nothing, so the report is built before the copy |
+| `running twice is identical` | run, then run again unchanged | the second run writes the same bytes and reports the same paths | this is what makes rerunning the update path |
+| `does not remove files it did not write` | an unrelated skill from another tool in the same directory | it is still there afterward | overwriting our payload must not mean owning the directory |
 
-**Done when:** both tests above pass. Both must be red when created.
-
-**Depends on:** CUJ-04
+**Done when:** the four tests above pass. All must be red when created.
 
 **Beads:**
 
@@ -126,10 +103,10 @@ Derived from `spec.md` in this directory. One CUJ per actor-outcome pair.
 <!--
 Checks before finishing:
 
-  Every actor-outcome pair in spec.md has a CUJ here.   6 pairs, 5 CUJs: the two installer-visibility
+  Every actor-outcome pair in spec.md has a CUJ here.   5 pairs, 4 CUJs: the two installer-visibility
                                                         pairs are one journey and merged into CUJ-02.
-  Every CUJ has at least one test row.                  yes, 18 tests.
+  Every CUJ has at least one test row.                  yes, 16 tests.
   Every "Done when" names tests and nothing else.       yes.
   Slices are vertical.                                  each is one actor observing one outcome.
-  Dependencies are sparse.                              one edge.
+  Dependencies are sparse.                              none.
 -->

@@ -72,3 +72,30 @@ exists because of what the `fs.cp` probe found, not because anyone asked for con
 
 **No CUJ is blocked.** `spec.md` has no open judgment questions, so the `**Blocked:**` path in the
 skills stays untested.
+
+## Always overwrite, and updating is the same command
+
+Nathan asked how CUJ-04 told a user edit apart from a version bump, and separately noted the CLI had
+no update story. Same hole.
+
+It cannot tell them apart. "The file on disk differs from the payload" is one observation with two
+causes, and separating them needs a record of what necklace wrote last time. That is the manifest,
+cut earlier as invented complexity. The cut was right about `doctor`, `update`, and `init --show`,
+and wrong about the manifest, which was solving this.
+
+The update story also contradicted itself: the tool plan said rerunning `init` covers updates because
+it is idempotent, while also saying it refuses to clobber without `--force`. A rerun after a version
+bump would have updated nothing.
+
+**Settled: always overwrite, report every path, no `--force`, no manifest.**
+
+The case a manifest protects is a locally edited skill, and that should not happen. The skills are
+necklace's payload, not user configuration, and a coworker running an edited skill is silently
+running a different workflow, which is what this tool exists to prevent.
+
+It is safe because skills install **into a git repo** by definition, so an unwanted overwrite shows
+up in `git diff`. The report plus version control does what the manifest would have.
+
+CUJ-04 and CUJ-05 collapsed into one CUJ about updating. Five CUJs became four, and one of its tests
+is that overwriting our payload must not mean owning the directory: another tool's skill in the same
+folder has to survive.
