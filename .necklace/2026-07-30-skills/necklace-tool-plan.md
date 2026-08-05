@@ -253,23 +253,27 @@ installs, upgrades, or breaks beads and nothing invalidates it.
 
 Separately from the binary, the repo needs an initialized beads database. That is a second probe with
 a different remedy, and `necklace init` handles it at install time so the skill never has to.
+### necklace checks beads, it never sets it up
 
-### Installing and initializing beads for the user
+`necklace init` probes and reports. It does not install beads and it does not run `bd init`.
 
-A hard requirement makes setup `necklace init`'s job. It prompts, and acts on a yes.
+| Probe | Method | On failure |
+| --- | --- | --- |
+| bd works | `bd --version` exits 0 | print the install command, exit nonzero, write nothing |
+| version | at least 1.1.0 | print the floor, exit nonzero, write nothing |
+| repo initialized | `bd where` exits 0 | print `bd init` and what it will add, exit nonzero, write nothing |
+| export configured | `export.auto` and `export.git-add` both true | warn and continue |
 
-**Missing binary.** Print the detected state and the command for the user's package manager, then
-ask. On yes, run it in the foreground with output passed straight through, re-probe, and continue
-only if the re-probe passes. On no, exit nonzero with the command still on screen.
+Run `bd --version` rather than looking for `bd` on PATH: a broken install shim still resolves, and a
+PATH check would pass and then fail later.
 
-The prompt is not ceremony. `@beads/bd`'s postinstall downloads a platform binary from the network
-and we have direct evidence it can fail while still leaving `bd` on PATH. Running it under explicit
-consent with visible output means that failure lands in front of the user instead of inside a
-progress spinner, and the mandatory re-probe means we never report success over a broken shim.
+**Why it does not do the setup.** `bd init` writes `.beads/`, agent instruction files, and hook
+configuration into the repo, and commits them itself. Which agent directories a repo gets is not
+necklace's call, and a tool that commits on someone's behalf as a side effect of installing skills is
+doing something they did not ask for. Print the command and let them run it.
 
-**Uninitialized repo.** Same shape. Detect the absent beads database, explain that beads tracks the
-graph in a directory it adds to the repo, ask, run `bd init` on yes. This is a change to someone's
-repository and it gets a yes before it happens.
+The export keys only warn, because the skills install fine without them and the cost is a bead ID
+that will not resolve for a reader later. `necklace-lint` re-checks them.
 
 **Auto-export, which necklace depends on.** `bd init` asks `Enable auto-export? [y/N]` and the default
 is no, so most repos will not have it. necklace needs it on, and needs `export.git-add` as well,
@@ -329,7 +333,6 @@ The lint skill reports:
 Each failed probe prints the remediation command. `init` runs the first two itself, because it
 refuses to install without a working `bd`. The rest is reading and reporting, which is why it lives
 in a prompt.
-
 ### Hand off to beads, do not reimplement it
 
 `bd init` installs a `beads` skill at `.agents/skills/beads/SKILL.md` and wires hooks that inject
