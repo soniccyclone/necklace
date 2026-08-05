@@ -211,10 +211,6 @@ is the review artifact.** The graph is derived from it, so review happens there,
 command runs. Reviewing a generated JSONL would be reviewing a translation of something already
 approved.
 
-`bd prime` also suggests parallel subagents when creating many beads. That is safe here for the
-reason §6 of the tool plan gives: each create is mechanical, its content already decided by the CUJ
-document, so it returns a receipt and starts cold.
-
 Validate the graph in the document, before any of it lands:
 
 - The graph is a DAG.
@@ -450,17 +446,9 @@ afternoon on a throwaway project settles whether necklace needs to exist. Nathan
 adopt rather than author, and telling a coworker to install an existing tool beats maintaining a
 new one.
 
-**The one measurable disagreement.** `gt-toolkit` produces a phased implementation roadmap. A phase
-is a layer, so its graph runs deep. CUJ slicing runs wide. Check it directly: run `gt-toolkit` on a
-real feature and count how many beads `bd ready` returns at the start. A wide result means the
-objection was over-weighted from a README, and adopting is correct. A deep result means necklace has
-a reason to exist.
-
-**A caveat on that disagreement.** A phased roadmap may be correct at Gas Town's scale. Thirty
-agents cutting vertical slices through shared layers is a merge-conflict machine, and horizontal
-phasing serializes exactly the contention that would otherwise thrash the merge queue. At five
-agents that cost never appears and the wide graph is free. If that is the real explanation, Gas Town
-is not wrong. It is tuned for a scale most people do not operate at.
+**The disagreement.** `gt-toolkit` produces a phased implementation roadmap. A phase is a layer.
+CUJ slicing cuts vertically instead, so each slice carries its own context rather than inheriting it
+from the phase before. That is the reason to prefer it.
 
 **One improvement worth stealing regardless.** If critics ever get added, run them across different
 models rather than as same-model personas. Independent models fail independently. Keep it to two or
@@ -505,10 +493,9 @@ costs a couple thousand tokens. The same assumption caught mid-implementation co
 magnitude more, because rework re-reads context you already paid for. That matters to anyone without
 an unlimited budget, which is nearly everyone.
 
-**Vertical CUJ slices win even without parallelism.** A layer-organized plan makes each task depend
-on context from the tasks before it. Context accumulates and cost grows superlinearly. Independent
-slices take small fixed packets instead. This holds whether the platform runs them concurrently or
-sequentially. `bd list --json` after a run will tell you which one has been happening.
+**Vertical slices keep context small.** A layer-organized plan makes each task depend on context
+from the tasks before it, so context accumulates and cost grows superlinearly. Independent slices
+take small fixed packets instead.
 
 ## 9. The trial run
 

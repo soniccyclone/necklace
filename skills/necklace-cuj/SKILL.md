@@ -20,9 +20,8 @@ The spec document establishes the actors and what each must observe. Each pair b
 actor, a trigger, a journey, and an observable outcome.
 
 Slice **vertically**. A CUJ goes all the way through the system for one actor's outcome. Do not slice
-by layer, and do not produce a phased roadmap. Layer-organized work makes each task depend on context
-from the tasks before it, and context cost grows superlinearly. Independent slices take small fixed
-packets.
+by layer and do not produce a phased roadmap: layered work makes each task depend on context from the
+tasks before it, and that context cost grows superlinearly.
 
 If the CUJs start provoking argument, that is a signal the spec document left an actor or an outcome
 undecided. Go back one step rather than negotiating here.
@@ -74,9 +73,7 @@ them.
 
 ## Dependencies
 
-`Depends on: CUJ-NN` when one slice genuinely cannot start before another. Be sparing. Every
-dependency you add narrows what can be worked in parallel, and a graph that runs deep instead of wide
-is the failure this method exists to avoid.
+`Depends on: CUJ-NN` when one slice genuinely cannot start before another. Be sparing.
 
 Do not add a dependency merely because one CUJ touches code another CUJ also touches.
 

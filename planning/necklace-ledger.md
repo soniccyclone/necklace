@@ -26,7 +26,7 @@ Facts established by running something or reading source, rather than by recall.
 | 2026-08-02 | `bd init` installs the skill at `.agents/skills/beads/SKILL.md` and wires hooks in `.claude/` and `.codex/` | ran it in `planning/repl-beads` |
 | 2026-08-02 | `bd` 1.1.2 works; the broken npm shim is resolved | `bd --version` |
 | 2026-08-02 | The installed skill has no epic, parent, hierarchy, or breakdown guidance. `bd prime` carries it | grepped both |
-| 2026-08-02 | `bd prime` teaches `bd create`, `--parent=<id>`, `bd dep add`, and suggests parallel subagents for many creates | ran `bd prime` |
+| 2026-08-02 | `bd prime` teaches `bd create`, `--parent=<id>`, `bd dep add` | ran `bd prime` |
 | 2026-08-02 | `bd prime` never mentions `import`, `--graph`, `--file`, or JSONL | grepped its output |
 | 2026-08-02 | `bd create --parent` produces dotted hierarchical IDs; a `bd dep add` edge and the parent-child edge both land in the export | created an epic with two children in `planning/repl-beads` |
 | 2026-08-02 | `export.git-add true` stages `.beads/issues.jsonl` and nothing else | ran it |

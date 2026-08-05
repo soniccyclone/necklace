@@ -52,7 +52,7 @@ Checks before finishing:
   Every CUJ has at least one test row with a real input and a real assertion.
   Every "Done when" names tests and nothing else.
   Slices are vertical. If this reads as phases or layers, re-slice.
-  Dependencies are sparse. Each one narrows what can run in parallel.
+  Dependencies are sparse.
 
   "Input" is not "a valid request". Say what makes it the interesting case.
   "Informed by" is optional. A test needs an input and an assertion, not provenance.

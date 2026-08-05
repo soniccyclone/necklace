@@ -88,9 +88,6 @@ bead-level edges.
 returned all 8 beads, which is what surfaced it. Reading the edges back from `bd list --json` is the
 check that catches this; a create call that does not error is not evidence.
 
-**Graph width.** `bd ready` returns 4 of 8 at the start: both CUJ-01 children and the two epics.
-That is the wide result the method predicts, not a deep chain.
-
 **Red gate.** 11 tests written, 11 failing, all on `ImportError` or `ModuleNotFoundError` for symbols
 that do not exist yet: `export_rows`, `reporting.jobs`. No syntax errors. The one passing test is the
 pre-existing seeded one. Output pasted into the conversation rather than asserted.
