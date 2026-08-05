@@ -319,7 +319,7 @@ So `necklace-beads` carries three things and nothing else:
 | Skill | Consumes | Produces |
 | --- | --- | --- |
 | `necklace` | a ticket | nothing of its own. Sequences the three below. |
-| `necklace-spec` | a ticket | `spec.md`, and opens `log.md` |
+| `necklace-spec` | a ticket | `spec.md`, and opens `ledger.md` |
 | `necklace-cuj` | `spec.md` | `cuj.md`, with the mandatory test table |
 | `necklace-beads` | `cuj.md` | JSONL, one `bd import`, then the red gate |
 | `necklace-lint` | a repo | pollution findings. Not a pipeline stage. |
@@ -365,13 +365,13 @@ at the planning directory rather than by trusting a claim.
 **No pipeline stage forks.** A fork must both **return a receipt** rather than a report, and be
 **startable cold**. Pipeline stages fail the second: `necklace-cuj` consumes `spec.md` plus the
 accumulated understanding from writing it, which lives in the parent's conversation and which
-`log.md` does not reconstruct.
+`ledger.md` does not reconstruct.
 
 `necklace-lint` passes both and should fork on Claude Code.
 
 ### What each pipeline skill adds
 
-`necklace-spec` owns the planning directory from §8. It creates the run directory, opens `log.md`
+`necklace-spec` owns the planning directory from §8. It creates the run directory, opens `ledger.md`
 before drafting anything, and invokes `necklace-lint` on the first run in a repo rather than carrying
 the isolation logic itself.
 
@@ -423,7 +423,7 @@ One directory per workflow run, checked into the repo.
 └── 2026-07-31-restore-from-snapshot/
     ├── spec.md                           # the §2 document
     ├── cuj.md                            # the §3 document
-    ├── log.md                            # the working log, see below
+    ├── ledger.md                            # the ledger, see below
     └── repl/
         └── snapshot_ordering.py          # one file, deps inline, see below
 ```
@@ -440,9 +440,9 @@ with the module namespace in most ecosystems.
 These are checked in on purpose. When someone asks why a decision was made, the spec doc is the
 answer, and an answer that lives in a chat transcript is not an answer.
 
-### The working log
+### The ledger
 
-`log.md` is a **write-ahead record**, appended as decisions land, never composed at the end.
+`ledger.md` is a **write-ahead record**, appended as decisions land, never composed at the end.
 
 In: decisions and their reasons, rejected alternatives, judgment questions and the answers given,
 REPL findings as they arrive. Out: a turn-by-turn transcript. There is no completeness requirement.
@@ -452,7 +452,7 @@ alternatives and answered judgment questions. The rule those share: **the docume
 still open, the log holds what is settled.** An unresolved judgment question stays in the spec doc,
 because it is a blocking handoff to a human.
 
-"Working log" is the §7 term for it. Not ledger, not journal, not transcript.
+"Ledger" is the §7 term for it. Not ledger, not journal, not transcript.
 
 ### Do not emit files that other tools recognize
 

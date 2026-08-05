@@ -29,7 +29,7 @@ could check it. This section is load-bearing: each pair becomes a CUJ in the nex
 
 <Existing systems, data volumes, compatibility requirements, deadlines. Cite each one. A constraint
 you cannot cite is a preference and belongs under Approach instead. State the constraint here; the
-reasoning behind it goes in log.md.>
+reasoning behind it goes in ledger.md.>
 
 - <constraint>
 
@@ -38,7 +38,7 @@ reasoning behind it goes in log.md.>
 <The strategy, named, at strategy level. No file paths, no function names, no schemas, no library
 choices unless the library choice is the decision itself.>
 
-<Rejected alternatives go in log.md, not here.>
+<Rejected alternatives go in ledger.md, not here.>
 
 ## Open questions
 

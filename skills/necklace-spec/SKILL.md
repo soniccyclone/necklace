@@ -1,135 +1,116 @@
 ---
 name: necklace-spec
-description: Write the high-level spec document for a ticket as the first stage of the necklace pipeline, using the two-sided altitude test and the self-answer loop. Use when starting necklace or Agentic REPL-Driven Development on a ticket, or when the user asks for the spec document specifically. Consumes a ticket; produces spec.md in a new planning directory.
+description: Generate a high-level planning document for a ticket or subsystem, researching it first by exercising real code paths in a REPL rather than by reading source and reasoning. Stage 1 of the necklace pipeline. Use when asked to generate a planning document over a Jira ticket, a bug, or a subsystem about to be built. Produces spec.md and ledger.md.
 ---
 
 # necklace-spec
 
-Turn a ticket into a high-level spec document. This is stage 1 of 3.
+Generate the high-level planning document for a ticket or a subsystem.
 
-**Consumes:** a ticket, issue, or feature request.
-**Produces:** `.necklace/<YYYY-MM-DD>-<slug>/spec.md`, and opens `log.md`.
+**Produces:** `.necklace/<YYYY-MM-DD>-<slug>/spec.md` and `ledger.md`.
 
-## First run in a repo
+**Most of your effort goes into the research below, not into writing.** A planning document written
+from reading source is a guess with formatting. Exercise the code first.
 
-Invoke `necklace-lint` once, before writing anything. It checks whether `.necklace/` will be picked
-up by the repo's test discovery or its scanners, and proposes the fixes. Do not skip this and do not
-do it yourself.
+## Two documents, different jobs
 
-## Set up the planning directory
+`spec.md` holds **active design only**. What we are doing and why, as it currently stands. When a
+decision changes, the document changes; the old version does not stay behind in it.
 
-```
-.necklace/<YYYY-MM-DD>-<ticket-slug>/
-├── spec.md
-├── log.md
-└── repl/
-```
+`ledger.md` holds **everything else**: what was discussed, what was rejected and why, findings,
+judgment calls and who made them. Open it before writing anything and append as you go, not at the
+end. It keeps recording after implementation starts, including edits made directly to the code that
+diverge from the plan.
 
-Date prefix plus a short slug from the ticket. Create `log.md` and start appending to it **now**, not
-at the end. See "The working log" below.
+Never let the planning document become a record of how it was written.
 
-## Altitude
+## Research by exercising the code
 
-This is the decision that makes or breaks the pipeline. Too vague and no CUJ can be derived. Too
-detailed and it becomes the CUJ document.
+This is the part that makes the document worth anything. Do it before proposing an approach, not
+after.
 
-Apply both questions to your own draft:
+### Get the project loaded
 
-- **Could two competent engineers read this and implement it differently, and both be right?**
-  Must be yes. A no means you have made implementation decisions that belong in the CUJ document.
-- **Could two competent engineers read this and disagree about whether the ticket was satisfied?**
-  Must be no. A yes means you have not said what better looks like.
+Find how this codebase gets into a live process, and use that. Not a bare interpreter, and not a
+mock.
 
-Roughly two pages for a normal ticket. Length is a symptom; the two questions are the rule.
+- Python: `python` with the package importable, or `ipython`. Check for a `conftest.py`, a
+  `shell.py`, or a management command that sets up context.
+- Ruby: `rails console`, or `irb -r ./lib/<project>`.
+- Elixir: `iex -S mix`. Clojure: `lein repl` or `clj` in the project.
+- Node: `node --require ./index.js`, or `npx tsx` for TypeScript.
+- Haskell: `cabal repl`. Scala: `sbt console`.
 
-## What the document must contain
+**Where the runtime cannot load and redefine code, the test runner is the REPL.** Go, Rust, C#, Java,
+C++. Write a scratch test, run it, edit, re-run. `go test -run TestScratch`, `cargo test scratch`,
+`dotnet test --filter`. The test harness reaches internals a scratch binary cannot: in-package Go
+tests see unexported identifiers, Rust `#[cfg(test)]` sees private items, .NET test projects reach
+`internal`.
 
-Use `spec.md` in this skill directory as the template.
+**Do not install a REPL.** If the toolchain did not ship one and the project does not use one, that
+absence tells you which mode you are in. Something marketed as a REPL that recompiles per snippet
+gives none of the benefit and costs an install.
 
-- **The problem, with evidence.** What is broken or missing, and how you know.
-- **The actors.** Every party the change touches: a human role, a calling service, an operator.
-- **Actor-outcome pairs.** For each actor, what it must be able to observe after the change. This is
-  the load-bearing section, because the CUJ document turns each pair into a journey and a test.
-- **Real constraints.** Existing systems, data volumes, compatibility, deadlines. A constraint you
-  cannot cite is a preference; file it under approach. State the constraint, put the reasoning in
-  the log.
-- **The chosen approach, at strategy level.** Name the strategy. Rejected alternatives go in the log,
-  with why. Rejecting them is still required; printing them here is not.
-- **Open judgment questions, and only the open ones.**
+### Exercise the actual path
 
-## What the document must not contain
+Call the real functions with real data shapes. The point is to find out what the system does, not to
+confirm what you think it does.
 
-- File paths, function names, or type signatures.
-- Schema or data structure definitions.
-- Library choices, unless a library choice *is* the decision under discussion.
-- Test names.
-- Task ordering or effort estimates.
-- Factual questions. See below.
-- Rejected alternatives or answered questions. Those are in the log.
+- Start from the entry point the ticket names and follow it down.
+- Use realistic inputs, including the size and shape that the ticket says is failing.
+- Measure when the question is about cost: time it, trace memory, count queries.
+- Push it until it breaks, and note where.
+- When the behavior depends on state, set the state up and vary it.
 
-## The self-answer loop
+**Reading source and reasoning about it is not this.** Source tells you what was intended. Running
+tells you what happens. When the two disagree, the run is right, and that disagreement is usually
+the most valuable thing you will find.
 
-This is the part that matters most and the part most often skipped.
+### Ask questions that have observable answers
 
-1. Draft the document.
-2. Extract your own open questions into a list.
-3. Classify each as **factual** or **judgment**.
-   - Factual: answerable by reading code or by running something. A question naming a symbol, a file,
-     a version, an API, or a config key is factual by pattern.
-   - Judgment: preference, priority, or risk appetite.
-4. **Resolve every factual question yourself.** Reading settles some. A REPL session settles the
-   rest. Do not hand a factual question to the user.
-5. Revise the document and return to step 2, because answers raise new questions.
-6. Stop when the question set stops changing, or after three rounds.
+Before each probe, state what result would prove you wrong. One line. A probe that cannot fail
+proves nothing and will happily flatter whatever you already believed.
 
-A factual question left in the document is a defect. A judgment question must state why neither
-reading nor running settles it.
+Then run it, and write down what actually came back, including the numbers.
 
-A well-worded question reads like progress, which is the trap. Check the shape, not the feeling: if
-it names a symbol, file, version, or API, resolve it.
+### Keep going until the questions stop changing
 
-## The REPL workflow
+Each answer raises the next question. That is the loop working. Stop when a round produces no new
+questions, or after about three rounds.
 
-Reach for this while working through the document. It is not a phase and produces no required
-artifact. Work in `repl/` inside the planning directory.
+### Resolve your own questions
 
-Prefer the highest rung the project supports:
+A question that names a symbol, a file, a version, an API, or a config key is **factual**. Resolve it
+yourself by reading or by running. Do not hand it to the user.
 
-1. **A real REPL with the project loaded.** Available when the runtime can load and redefine code in
-   a live process: Lisps, Elixir, Python, Ruby, Node, Julia, R. `lein repl` in the project,
-   `iex -S mix`, `python` with the package importable, `rails console`, `cabal repl`.
-2. **The project's test runner, driven as a scratch pad.** Everywhere else. `cargo test`, `go test
-   -run`, `dotnet test`, JUnit. The test runner is already wired into the build graph and reaches
-   internals a scratch binary cannot: in-package Go tests, Rust `#[cfg(test)]`, `InternalsVisibleTo`.
-3. **Shell scripts against the running system.** When the behavior only appears in a running service.
+Only **judgment** questions reach the user: preference, priority, risk appetite, scope. Each one must
+state why neither reading nor running settles it.
 
-**Do not install a REPL to satisfy this.** If the toolchain did not ship one and the project does not
-already use one, that absence means the language is on rung 2. Something marketed as a REPL that
-recompiles per snippet is rung 2 wearing a costume.
+A well-worded question reads like progress, which is the trap. Check its shape, not how it feels.
 
-**Scratch dependencies:** prefer the ecosystem's single-file mechanism so no manifest lands in the
-repo. Python PEP 723 `# /// script` with `uv run`, Java JBang `//DEPS`, .NET `#:package`. Where none
-exists, a manifest plus a gitignored environment is fine.
+### What survives
 
-**A scratch test is not a test.** It never counts toward a CUJ's test table and never goes near the
-red gate. Keep it in `repl/`.
+Scripts live in `repl/` inside the planning directory, committed. They are the answer to "why did we
+decide this" six months later.
 
-**What survives:** the finding, not the script, in the document. The script stays on disk in `repl/`,
-committed, because six months later it is the answer to why a decision was made.
+Findings go in the documents. A finding that informs a claim gets cited inline with its numbers. A
+finding that informs a test earns a row in the CUJ document's `Informed by` column later.
 
-## The working log
+A scratch test is not a test. It stays in `repl/` and never joins the suite.
 
-`log.md` is a **write-ahead record**. Append as decisions land, during the work, never composed at
-the end. A log written at the end is worthless against the failure it exists to prevent, which is
-losing reasoning that never reached the documents.
+## Then write the document
 
-In: decisions and their reasons, rejected alternatives, judgment questions and the answers given,
-REPL findings as they arrive.
+Use `spec.md` in this skill directory as the template. Roughly two pages.
 
-Out: a turn-by-turn transcript. There is no completeness requirement. A log that must be complete is
-a log nobody writes.
+What it contains: the problem with evidence, the actors it touches, what each actor must be able to
+observe afterward, real constraints, and the chosen approach at strategy level.
+
+What it does not: file paths, function names, type signatures, schemas, test names, task ordering.
+Those are the next document's job. Rejected alternatives and answered questions belong in the ledger.
+
+Expect to revise it while the user argues with it. Keep researching during that argument rather than
+waiting; most objections are answerable by running something.
 
 ## Done when
 
-`spec.md` passes both altitude questions, contains no factual questions, and every actor has at least
-one outcome. Then say the next stage is `necklace-cuj`.
+The user is satisfied with the design. Then say the next step is `necklace-cuj`.
