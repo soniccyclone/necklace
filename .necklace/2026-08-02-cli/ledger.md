@@ -33,9 +33,13 @@ hand-rolled parsing needed.
 
 ## Decisions
 
-**Planning root is `planning/`, not `.necklace/`.** This repo already kept planning work there before
-necklace existed, so the directory is `planning/2026-08-02-cli/`. The skill now says to follow an
-existing convention when the repo has one rather than forcing `.necklace/`.
+**Planning root is always `.necklace/`.** An earlier version of this reused the repo's existing
+`planning/` directory, and the skill said to follow whatever convention a repo already had. That is
+wrong: a repo where teammates use OpenSpec or spec-kit has `openspec/` or `specs/`, and following the
+local convention would drop necklace documents inside another tool's directory where both tools and
+both sets of users would trip over them.
+
+Everything moved to `.necklace/`, including the earlier freeform directories.
 
 **Slug is `cli`, with no ticket key.** There is no ticket; this is a subsystem. The date is what makes
 it findable later.

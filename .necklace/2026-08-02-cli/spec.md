@@ -59,7 +59,7 @@ the failure mode the whole no-fallback rule exists to prevent.
 
 ## Open questions
 
-None. The scope decisions this needed were settled in `planning/skills/necklace-tool-plan.md`.
+None. The scope decisions this needed were settled in `.necklace/2026-07-30-skills/necklace-tool-plan.md`.
 
 ---
 

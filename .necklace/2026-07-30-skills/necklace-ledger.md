@@ -23,12 +23,12 @@ Facts established by running something or reading source, rather than by recall.
 | 2026-07-31 | The `bd import` JSONL contract, in full | read `gastownhall/beads` at `9fddc56` against released 1.1.2 |
 | 2026-08-01 | `bd init` installs a `beads` skill covering the execution loop, not bulk breakdown | read `internal/templates/skills/beads/SKILL.md` |
 | 2026-08-01 | `bd init` prompts `Enable auto-export? [y/N]`, default no; keys are `export.auto`, `export.path`, `export.git-add`, `export.interval` | read `cmd/bd/init.go`, `internal/config/config.go`, `cmd/bd/init_templates.go` |
-| 2026-08-02 | `bd init` installs the skill at `.agents/skills/beads/SKILL.md` and wires hooks in `.claude/` and `.codex/` | ran it in `planning/repl-beads` |
+| 2026-08-02 | `bd init` installs the skill at `.agents/skills/beads/SKILL.md` and wires hooks in `.claude/` and `.codex/` | ran it in the trial repo in `repl/` |
 | 2026-08-02 | `bd` 1.1.2 works; the broken npm shim is resolved | `bd --version` |
 | 2026-08-02 | The installed skill has no epic, parent, hierarchy, or breakdown guidance. `bd prime` carries it | grepped both |
 | 2026-08-02 | `bd prime` teaches `bd create`, `--parent=<id>`, `bd dep add` | ran `bd prime` |
 | 2026-08-02 | `bd prime` never mentions `import`, `--graph`, `--file`, or JSONL | grepped its output |
-| 2026-08-02 | `bd create --parent` produces dotted hierarchical IDs; a `bd dep add` edge and the parent-child edge both land in the export | created an epic with two children in `planning/repl-beads` |
+| 2026-08-02 | `bd create --parent` produces dotted hierarchical IDs; a `bd dep add` edge and the parent-child edge both land in the export | created an epic with two children in the trial repo in `repl/` |
 | 2026-08-02 | `export.git-add true` stages `.beads/issues.jsonl` and nothing else | ran it |
 | 2026-08-02 | Auto-export is gated by `export.interval`, default 60s, so a burst of creates leaves the committed file partial. It catches up on the next `bd` command after the interval | observed the file holding only the epic while the DB had all three |
 | 2026-08-02 | `bd export` writes to stdout; `-o` writes the file but does not stage it | ran both |
@@ -291,7 +291,7 @@ omitted value reads as P0, file order is free because the importer sorts topolog
 give forty chances to drift and no way to review the graph before it lands. That drove several turns
 of work on the `bd import` contract.
 
-Run in `planning/repl-beads`, it turns out `bd prime` is injected by hook on session start and names
+Run in the trial repo in `repl/`, it turns out `bd prime` is injected by hook on session start and names
 exactly one way to build a graph: `bd create` per bead, `--parent=<id>` for hierarchy, `bd dep add`
 for edges. It never mentions `import`, `--graph`, `--file`, or JSONL. That is why Nathan's practice
 of saying "task breakdown this CUJ doc into beads" produces correct epics and children without him
@@ -322,7 +322,7 @@ bd maintains. Same error as the deleted `beads.schema.md`, caught before it ship
 `bd init` defaults auto-export to off, so `necklace init` has to ask for it rather than assume. Both
 `export.auto` and `export.git-add` default false and both are needed.
 
-Running it in `planning/repl-beads` turned up the part that would have broken silently: auto-export
+Running it in the trial repo in `repl/` turned up the part that would have broken silently: auto-export
 is interval-gated, so right after a burst of `bd create` calls the committed file holds part of the
 graph. The breakdown has to force `bd export -o` and `git add` rather than trust the timer.
 

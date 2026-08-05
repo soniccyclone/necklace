@@ -15,14 +15,16 @@ from reading source is a guess with formatting. Exercise the code first.
 ## The planning directory
 
 ```
-<planning root>/<YYYY-MM-DD>-<slug>/
+.necklace/<YYYY-MM-DD>-<slug>/
 ├── spec.md
 ├── ledger.md
 └── repl/
 ```
 
-**Planning root.** `.necklace/` by default. If the repo already keeps planning work somewhere, use
-that and stay consistent with it.
+**Planning root is always `.necklace/`** at the repo root. Do not put these documents in a planning
+directory the repo already has. Other spec-driven tools own their directories, `openspec/` and
+`specs/` among them, and writing into one puts necklace documents where another tool and its users
+will trip over them. A scoped directory is the point.
 
 **Date.** The day the work started, not the date on the ticket. It sorts, and it is how someone finds
 the thing they started last Tuesday.
