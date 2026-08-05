@@ -42,6 +42,12 @@ jobs:
       # native build. Every OS, because ConPTY and the unix pty differ and the
       # prompt is the only thing exercising raw-mode keypress handling.
       - run: npm ci
+      # node-pty's prebuilt spawn-helper can arrive without its executable bit,
+      # which surfaces as posix_spawnp failing on every spawn rather than as an
+      # install error.
+      - name: Ensure node-pty spawn-helper is executable
+        if: runner.os != 'Windows'
+        run: chmod +x node_modules/node-pty/build/Release/spawn-helper || true
       - run: npm run test:pty
 
   package:

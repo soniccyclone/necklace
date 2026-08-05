@@ -1,0 +1,6 @@
+# The skills are the shipped payload. Keep them byte-identical on every
+# platform: a Windows checkout with autocrlf would otherwise rewrite the
+# frontmatter every target parses.
+* text=auto eol=lf
+*.png binary
+*.jpg binary
