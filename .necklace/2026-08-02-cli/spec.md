@@ -35,21 +35,27 @@ Every one of those is a step someone gets wrong once and then blames the tool fo
   frontmatter, and require the directory name to match `name`. Verified against vendor documentation.
 - Beads is a hard requirement. `bd init` defaults auto-export off, and `export.auto` and
   `export.git-add` are separate keys that both default false.
-- `fs.cp` cannot report what it did. With defaults it overwrites silently, with `force: false` it
-  silently preserves, and with `errorOnExist` it aborts on the first conflict. Measured. Any report of
-  what was written must come from a pass that runs before the copy.
+- `fs.cp` reports nothing about what it did, under any option combination. Measured. The report has to
+  be assembled by whatever drives the copy.
 - Distribution is `npx github:soniccyclone/necklace`, which packs the repository rather than an npm
   release. `package.json` needs a `bin` entry and a `files` list including `skills/`. Updating means
   rerunning the same line, so there is no version metadata to compare against.
-- Node 18 or newer. `util.parseArgs` landed in 18.3 and `fs.cp` in 16.7.
+- Node 20.11 or newer, set by `import.meta.dirname`. `util.parseArgs` landed in 18.3 and `fs.cp` in
+  16.7, so the payload resolution is what raises the floor.
 - No runtime dependencies. Measured as achievable: keypress events, argument parsing, and recursive
-  copy are all in the standard library.
+  copy are all in the standard library. Testing the interactive prompt needs a pseudo-terminal, which
+  is a dev dependency and does not ship.
 
 ## Approach
 
-One command, `necklace init`, running four phases in order: detect which agents the repo shows
-evidence of, confirm the selection with the user, check that the environment can actually run the
-method, then write and report every path.
+One command, `necklace init`, running four phases in order: check that the environment can actually
+run the method, detect which agents the repo shows evidence of, confirm the selection with the user,
+then write and report every path.
+
+The environment check comes first so nobody picks targets and is then told beads is unusable. It
+reports and stops; it never installs beads or initializes a repo, because doing so writes tracked
+files and commits them, which is not a decision to make on someone's behalf as a side effect of
+installing skills.
 
 Detection ranks the selection list rather than gating it, so a target whose directory does not exist
 yet stays reachable. The payload always wins: installed skills are necklace's, not user

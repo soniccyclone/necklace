@@ -169,3 +169,27 @@ installing via npx or `npm i -g`, so the zero-runtime-dependency property is int
 **Naming caught a real problem.** The first version was `test/prompt.pty.test.js`, which the default
 `test/*.test.js` glob matches, so `npm test` and `npm run test:pty` silently ran the same thing and
 the separation existed only in the script names.
+
+## Tweak pass: bringing spec.md back in line with the code
+
+Ran after implementation, which is what `necklace-tweak` is for. Three divergences, two of which
+reading would not have surfaced.
+
+**Phase order was backwards.** The document said detect, confirm, check environment, write. The code
+checks beads first, which is better: nobody should pick targets and only then be told beads is
+unusable. Document follows code.
+
+**Node floor was wrong.** The document said 18, reasoning from `parseArgs` at 18.3 and `fs.cp` at
+16.7. `package.json` says 20.11, because `import.meta.dirname` is what actually sets the floor and it
+landed there. The constraint had been derived from the wrong API.
+
+**A constraint had gone stale.** "Any report of what was written must come from a pass that runs
+before the copy" was true when the design still detected conflicts. Always-overwrite removed the
+pre-pass, and the report is now assembled by the copy loop. The line survived the design change that
+invalidated it.
+
+**necklace never runs `bd init`** is now stated in Approach rather than implied by "what to run if
+not" in the outcome table.
+
+Classified as a tweak, not a new increment: no outcome changed and no CUJ was invalidated, so no new
+beads.
