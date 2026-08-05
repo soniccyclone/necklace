@@ -44,6 +44,8 @@ necklace/
     │   └── cuj.md
     ├── necklace-beads/
     │   └── SKILL.md
+    ├── necklace-tweak/
+    │   └── SKILL.md          # post-implementation edits, backported to the documents
     └── necklace-lint/
         └── SKILL.md          # repo pollution check, see §8. Not a pipeline stage.
 ```
@@ -322,6 +324,7 @@ So `necklace-beads` carries three things and nothing else:
 | `necklace-spec` | a ticket | `spec.md`, and opens `ledger.md` |
 | `necklace-cuj` | `spec.md` | `cuj.md`, with the mandatory test table |
 | `necklace-beads` | `cuj.md` | JSONL, one `bd import`, then the red gate |
+| `necklace-tweak` | running code, user feedback | code edits, plus `spec.md` and `ledger.md` brought in line |
 | `necklace-lint` | a repo | pollution findings. Not a pipeline stage. |
 
 Four of the five are named for the artifact they produce, and every name is drawn from §7 of the
@@ -400,7 +403,7 @@ trigger on their own.
 
 ## 7. Build order
 
-1. Write the five SKILL.md files and two templates. This is the actual product. Nothing else in this
+1. Write the six SKILL.md files and two templates. This is the actual product. Nothing else in this
    document matters if these are weak.
 2. Run the §9 trial run of the method document using those files, installed by hand with `cp`. No
    npm package, no CLI. If the trial run says the method needs changing, changing markdown is free

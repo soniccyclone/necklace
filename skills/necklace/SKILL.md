@@ -14,8 +14,15 @@ Three steps, in order.
 
 Check `bd --version` before starting. If it exits nonzero, stop: necklace requires a working `bd`.
 
+Then **`necklace-tweak`**, once the user has run the feature and wants changes. It edits the code,
+brings `spec.md` back in line with what the code now does, and records the change in `ledger.md`.
+
 Move to the next step when the user is happy with the current one, not automatically. Step 1 is where
 the time goes.
 
-`ledger.md` is opened in step 1 and stays open through all three, and past them. `spec.md` holds
-active design only.
+**It is a loop, not a line.** From `necklace-tweak` the user can go back to editing `spec.md`,
+generate a new CUJ document beside the old one, break that into beads, and come back. Go around as
+many times as the work needs.
+
+`ledger.md` opens in step 1 and stays open through all of it. `spec.md` holds active design only, and
+gets updated to match the code whenever the code moves ahead of it.

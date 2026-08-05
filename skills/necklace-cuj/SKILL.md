@@ -74,6 +74,13 @@ Resolve factual questions yourself. Keep appending to `ledger.md`.
 
 Once `necklace-beads` has run, record each CUJ's bead IDs here.
 
+## Later increments
+
+When `spec.md` changes after a feature has shipped and the change is big enough to need new beads,
+generate a new document beside this one: `cuj-2.md`, `cuj-3.md`. Do not overwrite an existing CUJ
+document. It records what its beads were cut from, and that link is the reason the beads carry
+`cuj:` labels.
+
 ## Done when
 
 Every outcome has a CUJ and every CUJ has a test table. Then say the next step is `necklace-beads`.

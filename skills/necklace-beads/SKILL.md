@@ -52,12 +52,10 @@ Run the suite before closing anything. `bd close <id>` when its CUJ's tests pass
 
 ## Keep the ledger current
 
-Append to `ledger.md` as you go, and keep appending after implementation starts. In particular,
-**record edits made directly to the code that diverge from the plan.** The code is the source of
-truth; the ledger is where that divergence gets noted so someone reading later knows the plan was
-overtaken rather than ignored.
+Append to `ledger.md` as you go, and keep appending after implementation starts. Record decisions
+made while implementing, especially where the code had to depart from what the CUJ document assumed.
 
-Do not go back and rewrite `spec.md` to match what the code became.
+When the user comes back with changes after running the feature, that is `necklace-tweak`.
 
 ## Export the graph
 
