@@ -521,10 +521,18 @@ The first count is the one this whole method exists to drive to zero.
 
 ## 10. Open
 
-1. Does the two-sided altitude test in §2 match your judgment? The trial run answers this.
-2. Are actor-outcome pairs the right required section? Or do you write the spec doc some other way
-   and let the CUJs emerge less directly? The trial run answers this too.
-3. How many self-answer rounds does a document actually need? §5 caps it at three, which is a guess.
-   Count the rounds on the trial run.
+1. **Does the two-sided altitude test match your judgment?** Answered yes. It was cut during a
+   simplification pass and Nathan asked for it back by name.
+2. **How many self-answer rounds does a document actually need?** The cap of three was never
+   reached. The PLAT-4471 trial converged in two, the CLI in one. Leave the cap; it is not binding.
+3. **Are actor-outcome pairs the right required section?** Still open. They worked mechanically in
+   both runs, each pair becoming exactly one CUJ, but that is evidence the section is *usable*, not
+   that it matches how Nathan would write the document unaided.
 
-All three are answered by running the method, not by deciding anything first.
+Untested, and each needs something that does not exist yet:
+
+- `necklace-tweak` has never run. It needs a shipped feature that someone ran locally and wanted
+  changed.
+- `necklace-lint` needs a repo necklace was actually installed into.
+- Skill description routing, meaning whether each skill fires on the right prompt and stays quiet
+  otherwise, needs a real install. Every run so far has read the SKILL.md files directly.
