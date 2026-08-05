@@ -135,3 +135,34 @@ Left as is for the first pass rather than adding a third state.
 **Not covered by tests:** `src/prompt.js` and `bin/necklace.js`, both TTY-bound. Verified by hand
 against a scratch repo with `--agent claude --agent cursor`, which wrote 12 skill directories and
 printed every path. The interactive selection path has not been exercised at all.
+
+## Interactive testing, and bd init's blast radius
+
+**`bd init --non-interactive` writes and commits more than beads.** Run at this repo's root it added
+`.agents/`, `.codex/`, `.claude/settings.json`, `AGENTS.md`, `CLAUDE.md`, and a `.gitignore`, then
+committed them itself as "bd init: initialize beads issue tracking". Nathan did not expect `.codex/`
+and does not use Codex; removed in a follow-up commit. It may come back on a later `bd init`.
+
+The lesson is for `necklace init`, which prompts before running `bd init` on someone's behalf: say
+what it will add, not just that it will run. A tool that commits on your behalf needs its blast
+radius stated up front.
+
+**The installer was never run against this repo.** Detection here returns `['claude']` only, which
+matches what Nathan predicted. The end-to-end check ran in a `mktemp` directory.
+
+**PTY tests, via node-pty as a dev dependency.** Piped stdio is not a TTY, so `isTTY` is false, raw
+mode never engages, and a `child_process` test exercises the non-interactive bailout rather than the
+prompt. A pseudo-terminal is the only way to reach the keypress code. Playwright does not apply here;
+it drives browsers.
+
+Four tests now drive the real binary through a PTY: a detected target arriving preselected and
+installing on enter, typing to filter and space-selecting an undetected target, enter with nothing
+selected refusing to proceed, and ctrl-c aborting without writing.
+
+They live in `test/pty/` and run under a separate script, because node-pty needs a native build and
+should not block the plain suite where that is unavailable. `devDependencies` do not reach anyone
+installing via npx or `npm i -g`, so the zero-runtime-dependency property is intact.
+
+**Naming caught a real problem.** The first version was `test/prompt.pty.test.js`, which the default
+`test/*.test.js` glob matches, so `npm test` and `npm run test:pty` silently ran the same thing and
+the separation existed only in the script names.

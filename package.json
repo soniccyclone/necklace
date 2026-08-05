@@ -18,12 +18,17 @@
     "node": ">=20.11"
   },
   "scripts": {
-    "test": "node --test test/*.test.js"
+    "test": "node --test test/*.test.js",
+    "test:pty": "node --test test/pty/*.test.js",
+    "test:all": "npm test && npm run test:pty"
   },
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/soniccyclone/necklace.git"
+  },
+  "devDependencies": {
+    "node-pty": "^1.1.0"
   },
   "author": "Nathan Barlow"
 }
