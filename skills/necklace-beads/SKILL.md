@@ -1,70 +1,52 @@
 ---
 name: necklace-beads
-description: Task-break-down a necklace CUJ document into beads using bd, then work them to completion. Stage 3 of the necklace pipeline. Use after cuj.md exists, or when asked to break a CUJ document down into beads and iterate through them. Consumes cuj.md; creates beads and implements them.
+description: Task-break-down a necklace CUJ document into beads using bd, then work them through to completion. Stage 3 of the necklace pipeline. Use after cuj.md exists, or when asked to break a CUJ document down into beads and iterate through them. Consumes cuj.md; creates beads and implements them.
 ---
 
 # necklace-beads
 
-Break the CUJ document down into beads, then work them.
+Break the CUJ document down into beads, then work them to completion.
 
 **Consumes:** `.necklace/<date>-<slug>/cuj.md`.
 
-## Beads is required
+## bd owns the mechanics
 
-Run `bd --version` and check the exit status. Run it; do not check PATH, because a `bd` that resolves
-on PATH can still be a broken install shim.
+Run `bd prime`. It is usually hook-injected already, and it carries the command reference, the
+priority format, and the session protocol. The repo's own `beads` skill covers the execution loop.
+Do not restate either of them and do not work around them.
 
-If it exits nonzero, stop. necklace requires a working `bd` and there is no fallback. Do not write a
-task list to a file and do not use a session todo tool.
+This skill only adds what bd cannot know: how a CUJ document maps onto beads.
 
-## Follow bd, do not reimplement it
+If `bd --version` exits nonzero, stop. necklace requires a working `bd` and there is no fallback. Run
+it rather than checking PATH, because a broken install shim still resolves.
 
-`bd init` installs a `beads` skill and wires hooks that inject `bd prime`. Read `bd prime` and use
-what it teaches:
+## The mapping
 
-- `bd create --title=... --description=... --type=... --priority=N`
-- `bd create ... --parent=<id>` for hierarchy. Children inherit parent labels.
-- `bd dep add <issue> <depends-on>`
+Skip any CUJ carrying a `**Blocked:**` line, and say which ones you skipped. It waits on a question
+nobody has answered.
 
-Priority is 0-4, where 0 is critical. Never use `bd edit`.
+For every other CUJ: one bead, or an epic with children when it is large. Label it `cuj:CUJ-NN`, and
+put the CUJ's test names in the description so whoever picks it up knows what closes it.
 
-`bd dep add` refuses to link a task to an epic in either direction. If you hit that, the dependency
-is not worth contorting the graph for: leave it, the CUJ document already records the ordering.
+## Working them
 
-## The breakdown
-
-Skip any CUJ carrying a `**Blocked:**` line. It waits on a judgment question nobody has answered, and
-breaking it into beads creates work that was never agreed to. Say which ones you skipped.
-
-For each CUJ: one bead, or an epic with children when it is large. Label it `cuj:CUJ-NN`. Put the
-CUJ's test names in the description so whoever picks it up knows what closes it.
-
-## Then work them to completion
-
-Take the ready work, implement it, and keep going until the graph is done.
-
-For each bead: write the tests its CUJ names **first**, watch them fail, then implement until they
+For each bead, write the tests its CUJ names **first** and watch them fail, then implement until they
 pass. A test that passes the moment you write it is testing nothing.
 
-Run the suite before closing anything. `bd close <id>` when its CUJ's tests pass.
+Close a bead when its CUJ's tests pass.
 
-## Keep the ledger current
+## Finishing
 
-Append to `ledger.md` as you go, and keep appending after implementation starts. Record decisions
-made while implementing, especially where the code had to depart from what the CUJ document assumed.
-
-When the user comes back with changes after running the feature, that is `necklace-tweak`.
-
-## Export the graph
-
-End with:
+Export the graph and stage it, so a bead ID stays resolvable for anyone reading the repo without
+running bd:
 
 ```
 bd export -o .beads/issues.jsonl
 git add .beads/issues.jsonl
 ```
 
-Auto-export is interval-gated, so right after a burst of `bd create` calls the exported file is
-stale. Both lines are needed: `bd export` alone writes to stdout, and `-o` alone does not stage.
+Both lines. Auto-export is interval-gated, so straight after a burst of creates the file is stale;
+`bd export` alone writes to stdout, and `-o` alone does not stage.
 
-Then write the bead IDs back into each CUJ's **Beads:** line in `cuj.md`.
+Then write the bead IDs into each CUJ's **Beads:** line in `cuj.md`, and append to `ledger.md`
+anything the implementation forced that the CUJ document did not anticipate.
