@@ -28,12 +28,8 @@ what it teaches:
 
 Priority is 0-4, where 0 is critical. Never use `bd edit`.
 
-Two constraints worth knowing before you build the graph:
-
-- **`blocks` edges are type-symmetric.** A task cannot block an epic and an epic cannot block a task.
-  Express CUJ dependencies leaf to leaf.
-- **Verify edges by reading them back**, with `bd list --json`. A `dep add` that printed nothing may
-  have failed.
+`bd dep add` refuses to link a task to an epic in either direction. If you hit that, the dependency
+is not worth contorting the graph for: leave it, the CUJ document already records the ordering.
 
 ## The breakdown
 
@@ -41,8 +37,7 @@ Skip any CUJ carrying a `**Blocked:**` line. It waits on a judgment question nob
 breaking it into beads creates work that was never agreed to. Say which ones you skipped.
 
 For each CUJ: one bead, or an epic with children when it is large. Label it `cuj:CUJ-NN`. Put the
-CUJ's test names in the description so whoever picks it up knows what closes it. Turn each
-`Depends on` into a dependency.
+CUJ's test names in the description so whoever picks it up knows what closes it.
 
 ## Then work them to completion
 

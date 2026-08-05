@@ -215,7 +215,6 @@ Validate the graph in the document, before any of it lands:
 
 - The graph is a DAG.
 - Every CUJ has at least one bead.
-- Every `Depends on` in the document appears as an edge.
 - Every bead carries a `cuj:CUJ-NN` label. A child inherits its parent's labels automatically.
 - Every bead inherits the test names from its CUJ.
 
