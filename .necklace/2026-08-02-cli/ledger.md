@@ -99,3 +99,19 @@ up in `git diff`. The report plus version control does what the manifest would h
 CUJ-04 and CUJ-05 collapsed into one CUJ about updating. Five CUJs became four, and one of its tests
 is that overwriting our payload must not mean owning the directory: another tool's skill in the same
 folder has to survive.
+
+## Release channel: npx from GitHub
+
+Nathan's call, and it stands past the first pass unless something forces otherwise. `npx
+github:soniccyclone/necklace init` packs the repository, so there is no publish step and no
+deployment to manage. Tags give pinning for free.
+
+Two things to confirm while implementing, both cheap:
+
+- That `files` in `package.json` includes `skills/`, since a git install packs the repo the way
+  `npm pack` does and an omitted payload would install nothing while appearing to succeed.
+- That npm's cache does not serve a stale tarball on a rerun after a push. If it does, the README
+  leads with the pinned-tag form.
+
+Reinforces the always-overwrite decision above: with no npm version metadata there is nothing to
+compare against even if we wanted to, so rerunning the line has to be the whole update story.

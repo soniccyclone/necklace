@@ -63,23 +63,27 @@ tarball is the source. Anyone can read what they installed.
 
 ### Release channel
 
-**npm, with nothing compiled.** The package is the artifact: plain JS, zero dependencies, no build
-step, no postinstall, no downloaded binary. Publishing is `npm publish`.
-
-Two ways to run it, and the README must give both equal weight:
+**`npx github:soniccyclone/necklace init`.** No npm publish, at least to start and possibly for good.
 
 ```
-npx @soniccyclone/necklace init          # no install, always latest
-npm install -g @soniccyclone/necklace    # necklace on PATH
+npx github:soniccyclone/necklace init          # latest on the default branch
+npx github:soniccyclone/necklace#v0.2.0 init   # pinned to a tag
 ```
 
-`npx` is the better fit for the usage pattern, since `init` runs once per repo and is not a tool you
-keep around. Lead with it. But **make the global install equally obvious** rather than a footnote:
-plenty of people want the binary on PATH, and a README that buries it reads as though the tool cannot
-be installed properly.
+npm fetches and packs the repository, so there is nothing to publish and no release step to run. A
+tag is a version. That removes deployment from the maintenance surface entirely, which is the point.
 
-No Homebrew tap, no `curl | sh`, no GitHub release binaries. Those solve distributing a compiled
-artifact and there is nothing here to compile.
+The package still needs `package.json` with a `bin` entry, and `files` must include `skills/`, since
+a git install packs the repo the same way `npm pack` does. There is no build and no `prepare` step to
+go wrong, because the package is plain JS with no dependencies.
+
+**What this costs.** No `npm update` and no version metadata, so updating means rerunning the same
+`npx` line. And npm caches git installs, so confirm during implementation that a rerun after a push
+actually fetches the newer commit rather than serving a cached tarball. If it does not, the pinned-tag
+form is the answer and the README says so.
+
+Publishing to npm stays available later. It changes the install line and nothing else, because
+nothing in the package depends on which of the two fetched it.
 
 ### The name
 

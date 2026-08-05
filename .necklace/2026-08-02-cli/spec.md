@@ -38,6 +38,9 @@ Every one of those is a step someone gets wrong once and then blames the tool fo
 - `fs.cp` cannot report what it did. With defaults it overwrites silently, with `force: false` it
   silently preserves, and with `errorOnExist` it aborts on the first conflict. Measured. Any report of
   what was written must come from a pass that runs before the copy.
+- Distribution is `npx github:soniccyclone/necklace`, which packs the repository rather than an npm
+  release. `package.json` needs a `bin` entry and a `files` list including `skills/`. Updating means
+  rerunning the same line, so there is no version metadata to compare against.
 - Node 18 or newer. `util.parseArgs` landed in 18.3 and `fs.cp` in 16.7.
 - No runtime dependencies. Measured as achievable: keypress events, argument parsing, and recursive
   copy are all in the standard library.
