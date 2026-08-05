@@ -115,3 +115,23 @@ Two things to confirm while implementing, both cheap:
 
 Reinforces the always-overwrite decision above: with no npm version metadata there is nothing to
 compare against even if we wanted to, so rerunning the line has to be the whole update story.
+
+## Stage 3, beads and implementation
+
+Four CUJs became four flat beads. None was large enough to want children.
+
+**16 tests written first, all 16 red on `ERR_MODULE_NOT_FOUND`** for `src/{cli,targets,install,beads}.js`,
+then green once those existed. No test was written after the code it covers.
+
+**`node --test test/` does not do what it looks like.** It parses `test/` as the entry module and
+dies with `Cannot find module`, reporting one failed test rather than none found. `node --test
+test/*.test.js` is the working form. Worth knowing because the broken form reports a failure, so it
+looks like a red gate rather than a broken invocation.
+
+**The beads gate warns about export config in a repo that has no beads workspace.** Correct but
+noisy: the real finding there is "not initialized", and the two export keys are downstream of that.
+Left as is for the first pass rather than adding a third state.
+
+**Not covered by tests:** `src/prompt.js` and `bin/necklace.js`, both TTY-bound. Verified by hand
+against a scratch repo with `--agent claude --agent cursor`, which wrote 12 skill directories and
+printed every path. The interactive selection path has not been exercised at all.

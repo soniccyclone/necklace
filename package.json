@@ -1,0 +1,29 @@
+{
+  "name": "@soniccyclone/necklace",
+  "version": "0.1.0",
+  "description": "Agentic REPL-Driven Development skills for Claude Code, Cursor, Copilot, and opencode",
+  "type": "module",
+  "bin": {
+    "necklace": "bin/necklace.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "skills",
+    "README.md",
+    "LICENSE",
+    "NOTICE"
+  ],
+  "engines": {
+    "node": ">=20.11"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  },
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/soniccyclone/necklace.git"
+  },
+  "author": "Nathan Barlow"
+}

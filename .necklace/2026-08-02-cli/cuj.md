@@ -24,7 +24,7 @@ Derived from `spec.md` in this directory. One CUJ per actor-outcome pair.
 
 **Done when:** the four tests above pass. All must be red when created.
 
-**Beads:**
+**Beads:** `necklace-c1a`
 
 ---
 
@@ -48,7 +48,7 @@ Derived from `spec.md` in this directory. One CUJ per actor-outcome pair.
 
 **Done when:** the four tests above pass. All must be red when created.
 
-**Beads:**
+**Beads:** `necklace-2zo`
 
 ---
 
@@ -72,7 +72,7 @@ Derived from `spec.md` in this directory. One CUJ per actor-outcome pair.
 
 **Done when:** the four tests above pass. All must be red when created.
 
-**Beads:**
+**Beads:** `necklace-zzt`
 
 ---
 
@@ -96,7 +96,7 @@ Derived from `spec.md` in this directory. One CUJ per actor-outcome pair.
 
 **Done when:** the four tests above pass. All must be red when created.
 
-**Beads:**
+**Beads:** `necklace-556`
 
 ---
 
