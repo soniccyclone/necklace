@@ -40,8 +40,9 @@ Every one of those is a step someone gets wrong once and then blames the tool fo
 - Distribution is `npx github:soniccyclone/necklace`, which packs the repository rather than an npm
   release. `package.json` needs a `bin` entry and a `files` list including `skills/`. Updating means
   rerunning the same line, so there is no version metadata to compare against.
-- Node 20.11 or newer, set by `import.meta.dirname`. `util.parseArgs` landed in 18.3 and `fs.cp` in
-  16.7, so the payload resolution is what raises the floor.
+- Node 22 or newer. `import.meta.dirname` would allow 20.11, but Node 20 reached end of life in April
+  2026 and the test runner only expands glob patterns itself from v21, which a Windows shell needs
+  since `cmd.exe` does not expand them.
 - No runtime dependencies. Measured as achievable: keypress events, argument parsing, and recursive
   copy are all in the standard library. Testing the interactive prompt needs a pseudo-terminal, which
   is a dev dependency and does not ship.

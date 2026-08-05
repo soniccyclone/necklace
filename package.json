@@ -15,11 +15,11 @@
     "NOTICE"
   ],
   "engines": {
-    "node": ">=20.11"
+    "node": ">=22"
   },
   "scripts": {
-    "test": "node --test test/*.test.js",
-    "test:pty": "node --test test/pty/*.test.js",
+    "test": "node --test \"test/*.test.js\"",
+    "test:pty": "node --test \"test/pty/*.test.js\"",
     "test:all": "npm test && npm run test:pty"
   },
   "license": "Apache-2.0",

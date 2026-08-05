@@ -14,8 +14,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
-        node: ['20.11', '22', '24']
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node: ['22', '24']
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -26,16 +26,21 @@ jobs:
       - run: npm test
 
   pty:
-    name: interactive prompt (pseudo-terminal)
-    runs-on: ubuntu-latest
+    name: interactive prompt (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: npm
-      # node-pty needs a native build, so this runs on one version rather than
-      # the whole matrix. It is the only thing that exercises the prompt.
+      # One Node version rather than the whole matrix, because node-pty needs a
+      # native build. Every OS, because ConPTY and the unix pty differ and the
+      # prompt is the only thing exercising raw-mode keypress handling.
       - run: npm ci
       - run: npm run test:pty
 

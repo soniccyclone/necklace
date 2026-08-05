@@ -15,22 +15,45 @@ export async function cleanup(dir) {
   await rm(dir, { recursive: true, force: true });
 }
 
-/** Write a fake `bd` onto PATH that exits how the test wants. */
+/**
+ * Write a fake `bd` onto PATH that exits how the test wants.
+ *
+ * The fake is a Node script plus a launcher per platform, rather than a shell
+ * script, so this runs on Windows as well. That mirrors reality: beads from npm
+ * on Windows is `bd.cmd`.
+ */
 export async function fakeBd(dir, { version = '1.1.2', exitCode = 0, whereExit = 0, config = {} } = {}) {
   const bin = path.join(dir, 'fakebin');
   await mkdir(bin, { recursive: true });
-  const script = `#!/bin/sh
-case "$1" in
-  --version) echo "bd version ${version} (fake)"; exit ${exitCode} ;;
-  config) case "$3" in
-${Object.entries(config).map(([k, v]) => `    ${k}) echo "${v}"; exit 0 ;;`).join('\n')}
-    *) echo ""; exit 0 ;;
-  esac ;;
-  where) echo "${dir}/.beads"; exit ${whereExit} ;;
-  *) exit ${exitCode} ;;
-esac
-`;
-  await writeFile(path.join(bin, 'bd'), script, { mode: 0o755 });
+
+  const behaviour = JSON.stringify({ version, exitCode, whereExit, config });
+  await writeFile(
+    path.join(bin, 'fake-bd.js'),
+    `const b = ${behaviour};
+const [cmd, ...rest] = process.argv.slice(2);
+if (cmd === '--version') { console.log('bd version ' + b.version + ' (fake)'); process.exit(b.exitCode); }
+if (cmd === 'where') { process.exit(b.whereExit); }
+if (cmd === 'config' && rest[0] === 'get') {
+  const v = b.config[rest[1]];
+  if (v !== undefined) { console.log(v); process.exit(0); }
+  console.log(''); process.exit(0);
+}
+process.exit(b.exitCode);
+`,
+  );
+
+  // POSIX launcher.
+  await writeFile(
+    path.join(bin, 'bd'),
+    `#!/bin/sh\nexec "${process.execPath}" "$(dirname "$0")/fake-bd.js" "$@"\n`,
+    { mode: 0o755 },
+  );
+  // Windows launcher. spawnSync uses a shell there, which resolves .cmd.
+  await writeFile(
+    path.join(bin, 'bd.cmd'),
+    `@echo off\r\n"${process.execPath}" "%~dp0fake-bd.js" %*\r\n`,
+  );
+
   return bin;
 }
 

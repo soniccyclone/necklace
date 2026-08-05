@@ -198,13 +198,35 @@ beads.
 
 Three jobs.
 
-**tests** across Node 20.11, 22, and 24 on ubuntu and macos. 20.11 is the floor because
-`import.meta.dirname` sets it. macos is in because the install is all path manipulation and separator
-bugs are the obvious failure. Windows is out: `fakeBd` writes a `#!/bin/sh` stub, so the test harness
-would need rewriting before the matrix could grow.
+**tests** across Node 22 and 24 on ubuntu, macos, and windows.
 
-**pty** on one Node version rather than the matrix, since node-pty needs a native build and this is
-the only job that exercises the prompt.
+The floor moved from 20.11 to 22 while adding Windows. `cmd.exe` does not expand globs, so
+`node --test test/*.test.js` in an npm script passes the literal string through on Windows. Node
+expands the pattern itself when it is quoted, but only from v21. Rather than work around that, the
+floor moved to 22: Node 20 reached end of life in April 2026, so the old floor was pinned to an
+unsupported runtime for the sake of one API that 22 also has.
+
+**pty** on one Node version but every OS, since node-pty needs a native build but ConPTY and the unix
+pty differ enough that the prompt is worth running on both.
+
+### Windows exposed a production bug, not just a harness one
+
+The first version of this excluded Windows because `fakeBd` wrote a `#!/bin/sh` stub. That was the
+wrong thing to fix around, and fixing it properly surfaced something real.
+
+**Beads installed from npm on Windows is `bd.cmd`, and since Node 18.20 spawning a `.cmd` without a
+shell throws.** So `spawnSync('bd', ...)` would have failed for every Windows user who installed
+beads through npm, while working for anyone who used winget or Homebrew. `src/beads.js` now passes
+`shell` on win32, which covers both.
+
+It also needed `path.delimiter` rather than a hardcoded colon when prepending to PATH, and a fixup
+for Windows resolving PATH case-insensitively while Node's `env` object does not: a lowercase `PATH`
+added next to an existing `Path` is silently ignored.
+
+The fake `bd` is now a Node script with a `bd` shim and a `bd.cmd` shim, which mirrors how beads
+actually installs.
+
+Windows CI is unverified locally, so the first run is the test.
 
 **package** guards the silent failure from the npx-from-GitHub decision. An omitted `files` entry
 installs nothing while appearing to succeed, so the job packs the tarball, asserts every skill and

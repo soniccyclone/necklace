@@ -1,4 +1,5 @@
 import { spawnSync } from 'node:child_process';
+import path from 'node:path';
 
 export const VERSION_FLOOR = [1, 1, 0];
 
@@ -11,9 +12,20 @@ const INIT_BD = `Initialize beads in this repo, then rerun necklace init:
 
 That adds a .beads/ directory and agent instruction files, and commits them.`;
 
+const WINDOWS = process.platform === 'win32';
+
 function bd(args, pathPrefix) {
-  const env = pathPrefix ? { ...process.env, PATH: `${pathPrefix}:${process.env.PATH}` } : process.env;
-  return spawnSync('bd', args, { env, encoding: 'utf8' });
+  const env = { ...process.env };
+  if (pathPrefix) {
+    env.PATH = `${pathPrefix}${path.delimiter}${env.PATH ?? ''}`;
+    // Windows resolves PATH case-insensitively but Node's env object does not,
+    // so a lowercase PATH added alongside an existing Path is ignored.
+    if (WINDOWS && env.Path !== undefined) env.Path = env.PATH;
+  }
+  // A beads installed from npm on Windows is `bd.cmd`, and since Node 18.20
+  // spawning a .cmd without a shell throws. The real executable from Homebrew
+  // or winget is fine either way, so shell on Windows covers both.
+  return spawnSync('bd', args, { env, encoding: 'utf8', shell: WINDOWS });
 }
 
 function parseVersion(text) {
