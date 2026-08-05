@@ -240,3 +240,32 @@ the first two and route on the third.
 **Adding `.github/workflows/` does not make this repo look like a Copilot user.** Verified: `detect`
 still returns `['claude']`. That is the payoff for keying Copilot off `copilot-instructions.md`,
 `prompts/`, `agents/`, and `skills/` rather than off `.github/` existing.
+
+## What CI found on the first three runs
+
+All ten jobs green on run 31047906661. Three real defects surfaced, none visible from Linux.
+
+**Windows tests failed on CRLF.** Git rewrote line endings on checkout, so the frontmatter assertion
+saw `---\r\nname:`. Fixed with `.gitattributes` pinning LF rather than loosening the assertion: the
+skills are the shipped payload and should be byte-identical on every platform.
+
+**macOS pty failed with `posix_spawnp` while node-pty installed cleanly.** node-pty builds from source
+on Linux but ships prebuilds on darwin, so the two platforms keep the helper in different places. The
+first fix chmodded `build/Release/spawn-helper` and CI answered `No such file or directory`, which is
+what pointed at the split. The actual cause is upstream: `prebuilds/darwin-arm64/spawn-helper` ships
+mode 644 because npm tarballs do not preserve the executable bit. Verified in the local install and
+confirmed by the run, which now prints `-rwxr-xr-x` before the tests pass.
+
+**The Windows pty job hung rather than failing.** It ran roughly ten minutes past four tests that each
+cap at eight seconds. The runner finishes and the process never exits, because a live ConPTY handle
+holds the event loop open. `drive()` now releases the terminal on every path behind a `settled` guard.
+Both jobs also carry `timeout-minutes: 5`, since a hang costs more than a failure and reports less.
+
+**The Node floor moved 20.11 to 22** while adding Windows, because `cmd.exe` does not expand globs and
+Node only expands them itself from v21. Node 20 reached end of life in April 2026, so the old floor
+pinned an unsupported runtime for one API that 22 also has.
+
+The pattern worth keeping: excluding Windows because the harness wrote a `#!/bin/sh` stub would have
+hidden a production bug. Beads from npm on Windows is `bd.cmd`, and Node has refused to spawn a `.cmd`
+without a shell since 18.20, so `necklace init` would have failed for every Windows user who installed
+beads that way while working for anyone on winget or Homebrew.
