@@ -24,24 +24,47 @@ function drive(cwd, keys, { timeout = 8000 } = {}) {
 
     let out = '';
     let fed = false;
-    const timer = setTimeout(() => {
-      term.kill();
-      reject(new Error(`timed out. output so far:\n${out}`));
-    }, timeout);
+    let settled = false;
+
+    // Release the pty explicitly on every path. On Windows a live ConPTY
+    // handle keeps the event loop open, so the runner finishes its tests and
+    // then hangs forever instead of exiting.
+    const teardown = () => {
+      try {
+        term.kill();
+      } catch {
+        /* already gone */
+      }
+    };
+
+    const finish = (fn, arg) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      teardown();
+      fn(arg);
+    };
+
+    const timer = setTimeout(
+      () => finish(reject, new Error(`timed out. output so far:\n${out}`)),
+      timeout,
+    );
 
     term.onData((d) => {
       out += d;
       if (!fed && out.includes('space toggles')) {
         fed = true;
-        // Let the first render settle before driving it.
-        setTimeout(() => keys.forEach((k) => term.write(k)), 60);
+        setTimeout(() => {
+          try {
+            keys.forEach((k) => term.write(k));
+          } catch {
+            /* exited before we could write */
+          }
+        }, 60);
       }
     });
 
-    term.onExit(({ exitCode }) => {
-      clearTimeout(timer);
-      resolve({ out, exitCode });
-    });
+    term.onExit(({ exitCode }) => finish(resolve, { out, exitCode }));
   });
 }
 
