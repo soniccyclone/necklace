@@ -57,6 +57,14 @@ Every CUJ names at least one test, its input, and its assertion.
 
 **`Done when` names tests and nothing else.**
 
+## CUJs blocked on an open question
+
+`spec.md` may carry an unresolved judgment question. Write the CUJ that depends on it anyway, and add
+a `**Blocked:**` line naming the question.
+
+Do not drop it, which loses the analysis, and do not let `necklace-beads` break it into beads, which
+creates work nobody has agreed to. It stays written and unbroken until someone answers.
+
 ## Dependencies
 
 `Depends on: CUJ-NN` only when one slice genuinely cannot start before another. Not because two CUJs

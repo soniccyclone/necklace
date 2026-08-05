@@ -37,6 +37,9 @@ Two constraints worth knowing before you build the graph:
 
 ## The breakdown
 
+Skip any CUJ carrying a `**Blocked:**` line. It waits on a judgment question nobody has answered, and
+breaking it into beads creates work that was never agreed to. Say which ones you skipped.
+
 For each CUJ: one bead, or an epic with children when it is large. Label it `cuj:CUJ-NN`. Put the
 CUJ's test names in the description so whoever picks it up knows what closes it. Turn each
 `Depends on` into a dependency.

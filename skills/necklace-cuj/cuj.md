@@ -22,6 +22,9 @@ Derived from `spec.md` in this directory. One CUJ per actor-outcome pair.
 
 **Depends on:** <CUJ-NN, or delete this line>
 
+**Blocked:** <the unresolved judgment question in spec.md this waits on. Delete this line if none.
+While present, necklace-beads leaves this CUJ alone.>
+
 **Beads:** <filled in by necklace-beads after breakdown>
 
 ---
