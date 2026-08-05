@@ -12,6 +12,38 @@ Generate the high-level planning document for a ticket or a subsystem.
 **Most of your effort goes into the research below, not into writing.** A planning document written
 from reading source is a guess with formatting. Exercise the code first.
 
+## The planning directory
+
+```
+<planning root>/<YYYY-MM-DD>-<slug>/
+├── spec.md
+├── ledger.md
+└── repl/
+```
+
+**Planning root.** `.necklace/` by default. If the repo already keeps planning work somewhere, use
+that and stay consistent with it.
+
+**Date.** The day the work started, not the date on the ticket. It sorts, and it is how someone finds
+the thing they started last Tuesday.
+
+**Slug.** Ticket key plus two to four words of description when there is a ticket:
+`2026-08-02-plat-4471-bulk-export`. Neither half works alone: nobody recalls a ticket number, and a
+bare description loses the trace back to the tracker. With no ticket, the description alone:
+`2026-08-02-cli`, `2026-08-02-auth-rewrite`.
+
+Describe **the problem you started with**, not the solution you arrived at. Only the first one is
+stable.
+
+Keep out anything that goes stale: no status, no `-wip` or `-done`, no author, no agent name, no
+version. Those either change or are already in git.
+
+**Never rename the directory.** Beads reference it through their `cuj:` labels, documents link into
+it, and people paste the path. Scope drifting away from the name is normal; a broken link is not.
+Pick it once.
+
+Create `ledger.md` and start appending to it immediately, not at the end.
+
 ## Two documents, different jobs
 
 `spec.md` holds **active design only**. What we are doing and why, as it currently stands. When a

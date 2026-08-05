@@ -33,16 +33,16 @@ hand-rolled parsing needed.
 
 ## Decisions
 
-**Planning artifacts live in `planning/cli/`, not `.necklace/<date>-<slug>/`.** The skill hardcodes
-the latter. This repo is where necklace is built rather than a repo it was installed into, and it
-already had a `planning/` convention.
+**Planning root is `planning/`, not `.necklace/`.** This repo already kept planning work there before
+necklace existed, so the directory is `planning/2026-08-02-cli/`. The skill now says to follow an
+existing convention when the repo has one rather than forcing `.necklace/`.
 
-Noted as a finding against `necklace-spec`: the planning root should follow an existing convention in
-the repo when there is one, rather than being fixed.
+**Slug is `cli`, with no ticket key.** There is no ticket; this is a subsystem. The date is what makes
+it findable later.
 
-**No dated slug directory here either.** The CLI is one long-lived subsystem, not a ticket. The dated
-run directory suits a ticket; a subsystem being built over several sessions does not need a new one
-each time.
+An earlier version of this ledger claimed a dated directory suits a ticket but not a long-lived
+subsystem. That was wrong. The date answers "what did I decide in the thing I started last Tuesday",
+which is the same question either way.
 
 ## Open
 
