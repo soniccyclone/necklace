@@ -85,6 +85,27 @@ form is the answer and the README says so.
 Publishing to npm stays available later. It changes the install line and nothing else, because
 nothing in the package depends on which of the two fetched it.
 
+### Tagging policy
+
+Standard semver, `vMAJOR.MINOR.PATCH`, matching the `version` in `package.json`. Plain `v0.2.0`, not
+prefixed, so the npx pin form reads naturally.
+
+**Not yet.** This starts once the tool actually works end to end. Until then the repo carries
+milestone tags like `skills-v0.1.0` that mark a state rather than a release, and those stay as they
+are rather than being renamed into the release series.
+
+What each level means here, given the package is markdown skills plus a small installer:
+
+- **Major**: an installed skill changes in a way that breaks an existing planning directory, or an
+  install path moves, or a skill is renamed or removed. Anything where rerunning `init` leaves
+  someone worse off than not running it.
+- **Minor**: a new skill, a new install target, a new capability. Rerunning `init` gains something.
+- **Patch**: wording in a skill, an installer bug, a corrected path. Rerunning `init` fixes something.
+
+**1.0.0 is when a coworker has run the whole loop on a real ticket without help.** Not when the
+installer works, and not when the skills read well. Both of those can be true while the thing still
+fails in someone else's repo, which is the only test that counts.
+
 ### The name
 
 `necklace` is taken on npm, so the package is **`@soniccyclone/necklace`**. The binary is still
