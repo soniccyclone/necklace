@@ -16,7 +16,7 @@ export async function cleanup(dir) {
 }
 
 /** Write a fake `bd` onto PATH that exits how the test wants. */
-export async function fakeBd(dir, { version = '1.1.2', exitCode = 0, config = {} } = {}) {
+export async function fakeBd(dir, { version = '1.1.2', exitCode = 0, whereExit = 0, config = {} } = {}) {
   const bin = path.join(dir, 'fakebin');
   await mkdir(bin, { recursive: true });
   const script = `#!/bin/sh
@@ -26,7 +26,7 @@ case "$1" in
 ${Object.entries(config).map(([k, v]) => `    ${k}) echo "${v}"; exit 0 ;;`).join('\n')}
     *) echo ""; exit 0 ;;
   esac ;;
-  where) echo "${dir}/.beads"; exit ${exitCode} ;;
+  where) echo "${dir}/.beads"; exit ${whereExit} ;;
   *) exit ${exitCode} ;;
 esac
 `;

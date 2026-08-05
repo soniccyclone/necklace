@@ -2,11 +2,14 @@ import { spawnSync } from 'node:child_process';
 
 export const VERSION_FLOOR = [1, 1, 0];
 
-const REMEDIATION = `Install beads, then rerun:
+const INSTALL_BD = `Install beads, then rerun necklace init:
   brew install beads          # macOS / Linux
-  npm i -g @beads/bd          # Node
-then, in this repo:
-  bd init`;
+  npm i -g @beads/bd          # Node`;
+
+const INIT_BD = `Initialize beads in this repo, then rerun necklace init:
+  bd init
+
+That adds a .beads/ directory and agent instruction files, and commits them.`;
 
 function bd(args, pathPrefix) {
   const env = pathPrefix ? { ...process.env, PATH: `${pathPrefix}:${process.env.PATH}` } : process.env;
@@ -38,7 +41,7 @@ export function checkBeads({ pathPrefix } = {}) {
     return {
       ok: false,
       reason: 'bd is not installed, or is installed but not working.',
-      remediation: REMEDIATION,
+      remediation: INSTALL_BD,
       warnings,
     };
   }
@@ -48,7 +51,18 @@ export function checkBeads({ pathPrefix } = {}) {
     return {
       ok: false,
       reason: `bd ${version.join('.')} is below the 1.1.0 floor necklace requires.`,
-      remediation: REMEDIATION,
+      remediation: INSTALL_BD,
+      warnings,
+    };
+  }
+
+  // necklace never runs bd init. Initializing a repo adds tracked files and
+  // commits them, which is the user's call to make, so we check and ask.
+  if (bd(['where'], pathPrefix).status !== 0) {
+    return {
+      ok: false,
+      reason: 'beads is installed, but this repo has no beads workspace.',
+      remediation: INIT_BD,
       warnings,
     };
   }

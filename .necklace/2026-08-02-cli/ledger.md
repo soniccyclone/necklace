@@ -128,9 +128,8 @@ dies with `Cannot find module`, reporting one failed test rather than none found
 test/*.test.js` is the working form. Worth knowing because the broken form reports a failure, so it
 looks like a red gate rather than a broken invocation.
 
-**The beads gate warns about export config in a repo that has no beads workspace.** Correct but
-noisy: the real finding there is "not initialized", and the two export keys are downstream of that.
-Left as is for the first pass rather than adding a third state.
+**The beads gate warned about export config in a repo with no beads workspace.** Fixed by adding the
+`bd where` probe: an uninitialized repo now reports that alone.
 
 **Not covered by tests:** `src/prompt.js` and `bin/necklace.js`, both TTY-bound. Verified by hand
 against a scratch repo with `--agent claude --agent cursor`, which wrote 12 skill directories and
@@ -143,9 +142,13 @@ printed every path. The interactive selection path has not been exercised at all
 committed them itself as "bd init: initialize beads issue tracking". Nathan did not expect `.codex/`
 and does not use Codex; removed in a follow-up commit. It may come back on a later `bd init`.
 
-The lesson is for `necklace init`, which prompts before running `bd init` on someone's behalf: say
-what it will add, not just that it will run. A tool that commits on your behalf needs its blast
-radius stated up front.
+**necklace never runs `bd init`.** The tool plan had `necklace init` offering to install beads and
+initialize the repo, prompting first. Cut. `bd init` decides which agent directories a repo gets and
+commits them itself, and neither of those is necklace's call to make as a side effect of installing
+skills. It checks three things and prints the command instead.
+
+That also fixes the noisy warning noted below: export keys are downstream of being initialized, so an
+uninitialized repo reports that one thing rather than three.
 
 **The installer was never run against this repo.** Detection here returns `['claude']` only, which
 matches what Nathan predicted. The end-to-end check ran in a `mktemp` directory.

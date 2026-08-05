@@ -36,6 +36,32 @@ test('reports a bd below the version floor', async () => {
   }
 });
 
+test('reports when the repo has no beads workspace', async () => {
+  const { checkBeads } = await import('../src/beads.js');
+  const repo = await tempRepo();
+  try {
+    const bin = await fakeBd(repo, { whereExit: 1 });
+    const result = checkBeads({ pathPrefix: bin });
+    assert.equal(result.ok, false);
+    assert.match(result.reason, /not initiali[sz]ed|no beads workspace/i);
+    assert.match(result.remediation, /bd init/, 'must tell the user to run it, not run it for them');
+  } finally {
+    await cleanup(repo);
+  }
+});
+
+test('does not nag about export config when the repo is not initialized', async () => {
+  const { checkBeads } = await import('../src/beads.js');
+  const repo = await tempRepo();
+  try {
+    const bin = await fakeBd(repo, { whereExit: 1 });
+    const result = checkBeads({ pathPrefix: bin });
+    assert.deepEqual(result.warnings, [], 'export keys are downstream of being initialized');
+  } finally {
+    await cleanup(repo);
+  }
+});
+
 test('reports export config that is off', async () => {
   const { checkBeads } = await import('../src/beads.js');
   const repo = await tempRepo();
