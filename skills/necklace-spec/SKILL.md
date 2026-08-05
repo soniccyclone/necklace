@@ -108,6 +108,24 @@ observe afterward, real constraints, and the chosen approach at strategy level.
 What it does not: file paths, function names, type signatures, schemas, test names, task ordering.
 Those are the next document's job. Rejected alternatives and answered questions belong in the ledger.
 
+### The altitude test
+
+This is what "high level" means, concretely. Apply both questions to your own draft. Both answers
+must come out right.
+
+- **Could two competent engineers read this and implement it differently, and both be right?**
+  Must be **yes**. A no means you have made implementation decisions that belong in the CUJ document,
+  and the pipeline has collapsed into one document with a fold in the middle.
+- **Could two competent engineers read this and disagree about whether the ticket was satisfied?**
+  Must be **no**. A yes means you have not said what better looks like.
+
+Both take one read to answer. Run them before showing the document to anyone, and again after any
+round of edits, because the usual drift is downward into detail.
+
+Length is a symptom of the same thing. A document running well past two pages has usually started
+making decisions the next document should be making. The two questions are the rule; the page count
+is just the cheap early warning.
+
 Expect to revise it while the user argues with it. Keep researching during that argument rather than
 waiting; most objections are answerable by running something.
 
