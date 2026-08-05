@@ -51,3 +51,24 @@ which is the same question either way.
 ## Open
 
 Nothing yet.
+
+## Stage 2, CUJ document
+
+**Six pairs became five CUJs.** The two installer-visibility pairs in `spec.md`, seeing what was
+detected and seeing what was written, are one journey rather than two. Merged into CUJ-02 rather than
+split for the sake of matching the table one to one.
+
+**`repl/payload_resolution.js`.** The tool will be run as `node ~/necklace/bin/necklace.js init` from
+inside a different repo before it is ever published. `import.meta.dirname` tracks the script while
+`process.cwd()` stays the target repo, so script-relative resolution works and no `--package-root`
+flag is needed. Falsification was that `import.meta.dirname` would follow cwd; it did not.
+
+Worth noting the probe failed first with the `..` count one too deep, resolving silently to a
+directory that did not exist. That is the failure mode CUJ-01's third test exists to catch, so it
+earned its row.
+
+**Three of CUJ-04's four tests carry REPL provenance**, which is unusual and correct here: that CUJ
+exists because of what the `fs.cp` probe found, not because anyone asked for conflict reporting.
+
+**No CUJ is blocked.** `spec.md` has no open judgment questions, so the `**Blocked:**` path in the
+skills stays untested.
