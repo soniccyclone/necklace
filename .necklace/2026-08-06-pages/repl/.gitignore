@@ -1,0 +1,4 @@
+
+# Planning-directory scratch environments
+.necklace/**/repl/.venv/
+.necklace/**/repl/__pycache__/
