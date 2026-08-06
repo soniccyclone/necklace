@@ -28,3 +28,6 @@ node_modules/
 
 # Built site output. Regenerated on every publish; never reviewed as a diff.
 .necklace/**/repl/**/www/
+
+# Generated from the real SKILL.md files at build time.
+.necklace/**/repl/**/gen/

@@ -6,7 +6,7 @@
 <div class="hero">
   <img src="icon.svg" alt="" class="mark" width="96" height="96">
   <h1>necklace</h1>
-  <p class="tagline">Agentic REPL-Driven Development, as installable skills.</p>
+  <p class="tagline">Agentic REPL-Driven Development</p>
 </div>
 #+END_EXPORT
 
@@ -37,7 +37,6 @@ necklace checks for [[https://github.com/gastownhall/beads][beads]] and tells yo
 #+BEGIN_EXPORT html
 <footer>
   <a href="https://github.com/soniccyclone/necklace">Source</a> ·
-  <a href="./docs.html">Documentation</a> ·
-  <a href="https://github.com/gastownhall/beads">beads</a>
+  <a href="./docs.html">Documentation</a>
 </footer>
 #+END_EXPORT

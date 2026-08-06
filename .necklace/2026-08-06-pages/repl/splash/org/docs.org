@@ -30,7 +30,6 @@
 #+BEGIN_EXPORT html
 <footer>
   <a href="./index.html">Home</a> ·
-  <a href="https://github.com/soniccyclone/necklace">Source</a> ·
-  <a href="https://github.com/gastownhall/beads">beads</a>
+  <a href="https://github.com/soniccyclone/necklace">Source</a>
 </footer>
 #+END_EXPORT

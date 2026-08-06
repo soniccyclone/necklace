@@ -2,13 +2,16 @@
 #+OPTIONS: toc:nil num:nil author:nil date:nil
 
 #+BEGIN_EXPORT html
-<div class="hero compact"><h1>necklace-lint</h1>
-<p class="tagline">Verbatim from <code>skills/necklace-lint/SKILL.md</code>. This is the file the agent loads.</p></div>
+<div class="hero compact"><h1>necklace-lint</h1></div>
 #+END_EXPORT
 
-#+INCLUDE: "../../../../../skills/necklace-lint/SKILL.md" src markdown
+#+BEGIN_QUOTE
+Check whether necklace's own artifacts in .necklace/ are being picked up by the repo's test discovery, dependency scanners, linters, or code scanning, and propose the exclusions that stop it. Also probes that beads is installed and configured. Use on the first necklace run in a repo, after necklace init, or when the user asks whether necklace is polluting the repo.
+#+END_QUOTE
+
+#+INCLUDE: "../gen/necklace-lint.org" :minlevel 2
 
 #+BEGIN_EXPORT html
 <footer><a href="./docs.html">Documentation</a> · <a href="./index.html">Home</a> ·
-<a href="https://github.com/soniccyclone/necklace/blob/main/skills/necklace-lint/SKILL.md">On GitHub</a></footer>
+<a href="https://github.com/soniccyclone/necklace/blob/main/skills/necklace-lint/SKILL.md">Source file</a></footer>
 #+END_EXPORT

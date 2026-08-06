@@ -88,6 +88,28 @@ by reasoning harder.
 zero `<style>` blocks. The skin should start from a clean slate rather than overriding defaults it
 did not ask for.
 
+**Skill docs are generated from the real files, via pandoc.** `#+INCLUDE ... src markdown` works but
+renders raw markdown in a `<pre>`, and including the file as org instead double-parses `**bold**` into
+nested `<b>` and leaves backticks literal. Neither is readable.
+
+pandoc converts markdown to org properly, so the content flows through org's own exporter and picks
+up the site CSS. It also emits a `:CUSTOM_ID:` per heading, which is what makes the anchor-stability
+problem go away on exactly the pages that needed it most. Verified: heading anchors are byte-identical
+across rebuilds. Example blocks still get churning hash ids, which does not matter because nothing
+links to a `<pre>`.
+
+No sudo here, so pandoc went to `~/.local/bin`. The workflow will need its own install step.
+
+**Generating the pages found a shipping bug.** pandoc refused `skills/necklace/SKILL.md` with a YAML
+parse error, and it was right: the description read `...on a ticket or subsystem: a planning
+document...`, and an unquoted `: ` inside a plain scalar is invalid YAML. That is the orchestrator,
+the primary entry point, and every one of the four targets parses that block to decide when the skill
+fires. Five of six skills were fine; only that one was malformed.
+
+Fixed by rewording rather than quoting, and CI now parses all six with a real YAML parser instead of
+grepping for the key. The previous check only confirmed a `description:` line existed, which this bug
+passed.
+
 ## Decisions
 
 **The site is a cover, not documentation.** Its job is: understand what this is, decide if it is for

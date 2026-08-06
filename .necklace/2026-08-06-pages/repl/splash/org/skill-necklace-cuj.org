@@ -2,13 +2,16 @@
 #+OPTIONS: toc:nil num:nil author:nil date:nil
 
 #+BEGIN_EXPORT html
-<div class="hero compact"><h1>necklace-cuj</h1>
-<p class="tagline">Verbatim from <code>skills/necklace-cuj/SKILL.md</code>. This is the file the agent loads.</p></div>
+<div class="hero compact"><h1>necklace-cuj</h1></div>
 #+END_EXPORT
 
-#+INCLUDE: "../../../../../skills/necklace-cuj/SKILL.md" src markdown
+#+BEGIN_QUOTE
+Generate a CUJ style technical design document from a necklace planning document, one vertical slice per outcome, each naming the tests that close it. Stage 2 of the necklace pipeline. Use after spec.md exists, or when asked to generate a CUJ document from a planning document. Consumes spec.md; produces cuj.md.
+#+END_QUOTE
+
+#+INCLUDE: "../gen/necklace-cuj.org" :minlevel 2
 
 #+BEGIN_EXPORT html
 <footer><a href="./docs.html">Documentation</a> · <a href="./index.html">Home</a> ·
-<a href="https://github.com/soniccyclone/necklace/blob/main/skills/necklace-cuj/SKILL.md">On GitHub</a></footer>
+<a href="https://github.com/soniccyclone/necklace/blob/main/skills/necklace-cuj/SKILL.md">Source file</a></footer>
 #+END_EXPORT

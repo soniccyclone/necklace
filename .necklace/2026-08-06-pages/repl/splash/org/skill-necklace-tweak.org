@@ -2,13 +2,16 @@
 #+OPTIONS: toc:nil num:nil author:nil date:nil
 
 #+BEGIN_EXPORT html
-<div class="hero compact"><h1>necklace-tweak</h1>
-<p class="tagline">Verbatim from <code>skills/necklace-tweak/SKILL.md</code>. This is the file the agent loads.</p></div>
+<div class="hero compact"><h1>necklace-tweak</h1></div>
 #+END_EXPORT
 
-#+INCLUDE: "../../../../../skills/necklace-tweak/SKILL.md" src markdown
+#+BEGIN_QUOTE
+Make code edits the user asks for after running a feature locally, then bring the planning document back in line with what the code now does and record the change in the ledger. Use after necklace-beads has finished a feature and the user has tried it and wants changes. Consumes running code and user feedback; updates the code, spec.md, and ledger.md.
+#+END_QUOTE
+
+#+INCLUDE: "../gen/necklace-tweak.org" :minlevel 2
 
 #+BEGIN_EXPORT html
 <footer><a href="./docs.html">Documentation</a> · <a href="./index.html">Home</a> ·
-<a href="https://github.com/soniccyclone/necklace/blob/main/skills/necklace-tweak/SKILL.md">On GitHub</a></footer>
+<a href="https://github.com/soniccyclone/necklace/blob/main/skills/necklace-tweak/SKILL.md">Source file</a></footer>
 #+END_EXPORT

@@ -2,13 +2,16 @@
 #+OPTIONS: toc:nil num:nil author:nil date:nil
 
 #+BEGIN_EXPORT html
-<div class="hero compact"><h1>necklace-beads</h1>
-<p class="tagline">Verbatim from <code>skills/necklace-beads/SKILL.md</code>. This is the file the agent loads.</p></div>
+<div class="hero compact"><h1>necklace-beads</h1></div>
 #+END_EXPORT
 
-#+INCLUDE: "../../../../../skills/necklace-beads/SKILL.md" src markdown
+#+BEGIN_QUOTE
+Task-break-down a necklace CUJ document into beads using bd, then work them through to completion. Stage 3 of the necklace pipeline. Use after cuj.md exists, or when asked to break a CUJ document down into beads and iterate through them. Consumes cuj.md; creates beads and implements them.
+#+END_QUOTE
+
+#+INCLUDE: "../gen/necklace-beads.org" :minlevel 2
 
 #+BEGIN_EXPORT html
 <footer><a href="./docs.html">Documentation</a> · <a href="./index.html">Home</a> ·
-<a href="https://github.com/soniccyclone/necklace/blob/main/skills/necklace-beads/SKILL.md">On GitHub</a></footer>
+<a href="https://github.com/soniccyclone/necklace/blob/main/skills/necklace-beads/SKILL.md">Source file</a></footer>
 #+END_EXPORT

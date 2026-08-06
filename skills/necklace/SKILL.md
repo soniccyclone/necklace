@@ -1,6 +1,6 @@
 ---
 name: necklace
-description: Run the full necklace pipeline on a ticket or subsystem: a planning document, then a CUJ technical design document, then a beads breakdown worked to completion. Use when asked to plan out a ticket, feature, bug, or subsystem with necklace. Sequences necklace-spec, necklace-cuj, and necklace-beads.
+description: Run the full necklace pipeline on a ticket or subsystem, producing a planning document, then a CUJ technical design document, then a beads breakdown worked to completion. Use when asked to plan out a ticket, feature, bug, or subsystem with necklace. Sequences necklace-spec, necklace-cuj, and necklace-beads.
 ---
 
 # necklace

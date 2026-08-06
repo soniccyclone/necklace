@@ -2,13 +2,16 @@
 #+OPTIONS: toc:nil num:nil author:nil date:nil
 
 #+BEGIN_EXPORT html
-<div class="hero compact"><h1>necklace-spec</h1>
-<p class="tagline">Verbatim from <code>skills/necklace-spec/SKILL.md</code>. This is the file the agent loads.</p></div>
+<div class="hero compact"><h1>necklace-spec</h1></div>
 #+END_EXPORT
 
-#+INCLUDE: "../../../../../skills/necklace-spec/SKILL.md" src markdown
+#+BEGIN_QUOTE
+Generate a high-level planning document for a ticket or subsystem, researching it first by exercising real code paths in a REPL rather than by reading source and reasoning. Stage 1 of the necklace pipeline. Use when asked to generate a planning document over a Jira ticket, a bug, or a subsystem about to be built. Produces spec.md and ledger.md.
+#+END_QUOTE
+
+#+INCLUDE: "../gen/necklace-spec.org" :minlevel 2
 
 #+BEGIN_EXPORT html
 <footer><a href="./docs.html">Documentation</a> · <a href="./index.html">Home</a> ·
-<a href="https://github.com/soniccyclone/necklace/blob/main/skills/necklace-spec/SKILL.md">On GitHub</a></footer>
+<a href="https://github.com/soniccyclone/necklace/blob/main/skills/necklace-spec/SKILL.md">Source file</a></footer>
 #+END_EXPORT
