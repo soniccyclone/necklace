@@ -55,6 +55,20 @@ The two export settings both default to off and both are needed. Without them th
 only in your local database, so a bead ID written into a design document resolves to nothing for
 anyone reading the repo on GitHub or reviewing a pull request.
 
+### If you do not want beads pushing
+
+beads runs its own session-close protocol, separate from necklace. By default it is conservative and
+will not commit, sync, or push without being told to. If you have opted into maintainer behaviour:
+
+```
+git config --get beads.role      # "maintainer" means push is on the table
+git config --unset beads.role    # back to conservative
+```
+
+necklace does not change this either way. It commits its own planning directory as it works and
+leaves beads to whatever you have configured, because a tool that quietly overrides another tool's
+settings is worse than one that tells you where the switch is.
+
 ## Supported agents
 
 | Agent | Skills land in |

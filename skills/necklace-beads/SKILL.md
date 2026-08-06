@@ -52,6 +52,6 @@ Both lines. Auto-export is interval-gated, so straight after a burst of creates 
 Then write the bead IDs into each CUJ's **Beads:** line in `cuj.md`, and append to `ledger.md`
 anything the implementation forced that the CUJ document did not anticipate.
 
-**Commit as you go. Never push.** `bd prime` describes a session-close protocol that includes pushing
-under some profiles. Ignore that part: necklace commits and stops. Pushing is the user's call and
-they have not made it.
+Commit the planning directory as you go rather than at the end. What happens to the beads themselves,
+including whether anything is pushed, is bd's session protocol and the user's configuration. Do not
+override it.
