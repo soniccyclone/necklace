@@ -70,9 +70,23 @@ different ids. Every deep link into the docs would break on the next deploy. Ver
 `:CUSTOM_ID:` property yields `id="install"`, identical across rebuilds. Any heading worth linking to
 needs one, which is a content rule rather than a build setting.
 
-**Syntax highlighting needs `htmlize`, which is not bundled.** Org warns "Cannot fontify source
-block" and falls back to plain text. Our content is mostly code blocks, so this is a real decision:
-install htmlize in the workflow, or accept plain code and style `pre.src` directly.
+**Syntax highlighting needs `htmlize`, which is not bundled.** Installed from MELPA and verified. The
+workflow has to do the same. With `org-html-htmlize-output-type` set to `css` it emits classes rather
+than inline styles, which is what lets the skin colour code in the same palette as everything else:
+`org-comment`, `org-comment-delimiter`, `org-builtin`, `org-variable-name`, `org-string`,
+`org-keyword`.
+
+A first reading of that output said `sh` blocks were not fontified, because the only span-bearing
+block was elisp. That was wrong, and the sample was the reason: `npx github:soniccyclone/necklace
+init` is a bare command with nothing to highlight. Given real shell syntax, a variable and a
+conditional, `sh` fontifies fully. The inference was corrected by writing a better sample rather than
+by reasoning harder.
+
+**Org injects about 200 lines of default CSS into every page**, including a
+`pre.src-<lang>:before { content: ... }` rule for every language it has ever heard of. Setting
+`org-html-head-include-default-style` to nil removes it: the probe page dropped to 1724 bytes with
+zero `<style>` blocks. The skin should start from a clean slate rather than overriding defaults it
+did not ask for.
 
 ## Decisions
 

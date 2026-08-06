@@ -7,12 +7,7 @@
 :END:
 
 #+BEGIN_SRC sh
-npx github:soniccyclone/necklace init
+# a comment, and a variable
+export NECKLACE_HOME="$HOME/.necklace"
+if [ -d "$NECKLACE_HOME" ]; then echo "found"; fi
 #+END_SRC
-
-* Requirements
-:PROPERTIES:
-:CUSTOM_ID: requirements
-:END:
-
-Needs beads.

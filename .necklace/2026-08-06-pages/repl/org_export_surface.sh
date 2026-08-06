@@ -33,8 +33,18 @@ grep -oE 'id="[a-zA-Z0-9_-]+"|class="[a-zA-Z0-9 _-]+"' www/index.html | sort -u
 #    Fix verified: a :CUSTOM_ID: property yields id="install" and it is
 #    identical across rebuilds.
 #
-# 3. Syntax highlighting needs htmlize, which is NOT bundled. Without it org
-#    warns "Cannot fontify source block" and falls back to plain text. Our
-#    content is mostly code blocks, so this is a real decision rather than a
-#    nicety: install htmlize in the workflow, or accept unhighlighted code and
-#    style pre.src ourselves.
+# 3. Syntax highlighting needs htmlize, which is NOT bundled. Installed from
+#    MELPA; the workflow must do the same. With org-html-htmlize-output-type
+#    set to 'css it emits classes rather than inline styles, so the skin can
+#    colour them: org-comment, org-comment-delimiter, org-builtin,
+#    org-variable-name, org-string, org-keyword.
+#
+# 4. A first read said sh blocks were not fontified. Wrong: the sample was
+#    `npx ... init`, a bare command with nothing to highlight. Given real shell
+#    syntax, sh fontifies fully. Inference corrected by testing.
+#
+# 5. Org injects roughly 200 lines of default CSS into every page, including a
+#    pre.src-<lang>:before content rule for every language it knows. Setting
+#    org-html-head-include-default-style to nil removes it: the probe page went
+#    to 1724 bytes with zero <style> blocks, so the skin starts from a clean
+#    slate rather than fighting defaults.

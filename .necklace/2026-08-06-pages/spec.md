@@ -52,7 +52,9 @@ identifies necklace in a tab, a bookmark, or a list of repos.
   different ids, so any heading worth linking to needs an explicit stable id. Deep links into
   documentation are the point of having documentation pages.
 - Syntax highlighting is not free. Measured: org falls back to plain text without `htmlize`, which
-  Emacs does not bundle, and this site is mostly code blocks.
+  Emacs does not bundle, so the build has to install it. It emits colourable classes once present.
+- Org injects roughly 200 lines of its own CSS into every page unless told not to. Measured: turning
+  that off took the probe page to 1724 bytes with no style block at all.
 
 ## Approach
 
