@@ -86,7 +86,8 @@ The same REPL work from stage 1 applies here, and stage 2 is where the specific 
 what does this function actually return, what shape is that data, what happens at the boundary. Load
 the project and find out rather than assuming.
 
-Resolve factual questions yourself. Keep appending to `ledger.md`.
+Resolve factual questions yourself. Keep appending to `ledger.md`, and **commit as you go, never
+push**, same as stage 1.
 
 ## After the breakdown
 

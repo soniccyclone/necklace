@@ -132,6 +132,16 @@ state. The script says what was measured; only the artifact shows what it looked
 re-runs a script to settle an argument. Keep them small and keep the ones that carry the finding, not
 every intermediate.
 
+**Commit as you go. Never push.**
+
+Commit the planning directory whenever a probe answers something: the script, the output that carries
+the finding, and the paragraph it produced. Not at the end of the session. A REPL session is hours of
+work that exists only on disk until someone commits it, and losing it means losing the reasoning
+behind every decision that followed.
+
+Pushing is a separate act with a separate audience, and it is the user's to make. Commit, say what you
+committed, and leave it there.
+
 Findings go in the documents. A finding that informs a claim gets cited inline with its numbers. A
 finding that informs a test earns a row in the CUJ document's `Informed by` column later.
 

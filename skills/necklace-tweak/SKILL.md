@@ -70,3 +70,5 @@ Do not start that loop on your own. Say which of the two you think this is and l
 
 The code does what was asked, the tests pass, `spec.md` is true again, and `ledger.md` says the
 change happened.
+
+Commit it. Do not push.
