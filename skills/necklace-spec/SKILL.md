@@ -127,6 +127,11 @@ A well-worded question reads like progress, which is the trap. Check its shape, 
 Scripts live in `repl/` inside the planning directory, committed. They are the answer to "why did we
 decide this" six months later.
 
+**Keep the output too when the finding is visual.** A render, a chart, a screenshot of the broken
+state. The script says what was measured; only the artifact shows what it looked like, and nobody
+re-runs a script to settle an argument. Keep them small and keep the ones that carry the finding, not
+every intermediate.
+
 Findings go in the documents. A finding that informs a claim gets cited inline with its numbers. A
 finding that informs a test earns a row in the CUJ document's `Informed by` column later.
 

@@ -20,3 +20,8 @@ node_modules/
 .claude/settings.json
 /AGENTS.md
 /CLAUDE.md
+
+# Scratch environments inside planning directories. The scripts are kept; the
+# environments that ran them are not.
+.necklace/**/repl/.venv/
+.necklace/**/repl/__pycache__/

@@ -32,6 +32,11 @@ reads at 32px and holds a recognisable cluster shape at 16px.
 So the mark needs two variants from one design language, not one file used everywhere. This is the
 kind of thing that ships broken because nobody looks at the 16px render.
 
+**The renders are kept, not just the scripts.** `probe-16.png` is the evidence that five beads fail
+at favicon size; `render.py` only says what was measured. Seven kilobytes for all five. This is now
+a rule in `necklace-spec`: when a finding is visual, the artifact survives alongside the script,
+because nobody re-runs a script to settle an argument.
+
 ## Decisions
 
 **The site is a cover, not documentation.** Its job is: understand what this is, decide if it is for
