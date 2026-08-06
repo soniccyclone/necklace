@@ -22,8 +22,9 @@ it rather than checking PATH, because a broken install shim still resolves.
 
 ## The mapping
 
-Skip any CUJ carrying a `**Blocked:**` line, and say which ones you skipped. It waits on a question
-nobody has answered.
+Skip any CUJ whose `**Beads:**` line already names beads or says `none - done directly`, and any
+carrying a `**Blocked:**` line. Say which ones you skipped and why. Only an empty `**Beads:**` line
+means there is work waiting.
 
 For every other CUJ: one bead, or an epic with children when it is large. Label it `cuj:CUJ-NN`, and
 put the CUJ's test names in the description so whoever picks it up knows what closes it.

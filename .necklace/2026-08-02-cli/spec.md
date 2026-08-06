@@ -28,6 +28,7 @@ Every one of those is a step someone gets wrong once and then blames the tool fo
 | Installer | Whether beads is installed, initialized, and exporting, and what to run if not |
 | Installer | Their agent picking the skills up, without them knowing any target's path convention |
 | Reinstaller | Newer skills in place after rerunning the same command, with every replaced file named |
+| Installer on Windows | The same result as on Linux or macOS, including when their beads came from npm |
 
 ## Constraints
 
@@ -40,12 +41,17 @@ Every one of those is a step someone gets wrong once and then blames the tool fo
 - Distribution is `npx github:soniccyclone/necklace`, which packs the repository rather than an npm
   release. `package.json` needs a `bin` entry and a `files` list including `skills/`. Updating means
   rerunning the same line, so there is no version metadata to compare against.
+- Windows, macOS, and Linux. Beads installed from npm on Windows is `bd.cmd`, and Node has refused to
+  spawn a `.cmd` without a shell since 18.20, so the probe needs one there. Windows also resolves PATH
+  case-insensitively while Node's `env` object does not.
 - Node 22 or newer. `import.meta.dirname` would allow 20.11, but Node 20 reached end of life in April
   2026 and the test runner only expands glob patterns itself from v21, which a Windows shell needs
   since `cmd.exe` does not expand them.
 - No runtime dependencies. Measured as achievable: keypress events, argument parsing, and recursive
-  copy are all in the standard library. Testing the interactive prompt needs a pseudo-terminal, which
-  is a dev dependency and does not ship.
+  copy are all in the standard library. Driving the CLI in tests needs a pseudo-terminal, which is a
+  dev dependency and does not ship.
+- Apache 2.0, and no `NOTICE` file. The licence makes one optional and necklace vendors nothing, so
+  one would only oblige forks to carry an attribution nobody asked for.
 
 ## Approach
 

@@ -25,7 +25,9 @@ Derived from `spec.md` in this directory. One CUJ per actor-outcome pair.
 **Blocked:** <the unresolved judgment question in spec.md this waits on. Delete this line if none.
 While present, necklace-beads leaves this CUJ alone.>
 
-**Beads:** <filled in by necklace-beads after breakdown>
+**Beads:** <one of three. Bead IDs, once necklace-beads has broken this down. Or
+`none - done directly in <ref>` when the work was finished without beads, which is what
+necklace-tweak writes. Or left as-is, meaning not broken down yet.>
 
 ---
 

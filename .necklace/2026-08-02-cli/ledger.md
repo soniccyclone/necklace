@@ -292,3 +292,36 @@ showing the prompt. Ten PTY tests in total.
 disabled in `bin/necklace.js` to confirm they would notice: two failed, the right two, and
 both passed again once it was restored. A test that has never been seen to fail is not
 evidence.
+
+## Tweak pass: CI, Windows, licensing, repo hygiene
+
+Everything since the CLI shipped, brought back into the documents.
+
+**spec.md gained three things.** An actor-outcome row for the Windows installer, a platform
+constraint recording that npm's beads on Windows is `bd.cmd` and Node has refused to spawn one
+without a shell since 18.20, and the licensing decision with the reason there is no `NOTICE`.
+
+**cuj.md gained CUJ-05**, for Windows. It is genuinely CUJ-shaped: a new actor, an observable
+outcome, and tests that were red when written, since the whole Windows matrix was failing. It has no
+beads and never will, because the work was already finished when the CUJ was written.
+
+### The Beads line needed a third state
+
+Nathan asked how a CUJ finished outside the bead flow gets marked so no future agent picks it up.
+It could not, and that is a real hole: an empty `**Beads:**` line meant both "not broken down yet"
+and "done directly", which are opposite instructions to whoever reads next.
+
+Three states now, written into the template, `necklace-cuj`, `necklace-beads`, and `necklace-tweak`:
+
+- bead IDs, meaning broken down, check `bd`
+- `none - done directly in <ref>`, meaning finished without beads
+- empty, meaning work is waiting, and now the *only* state that means that
+
+`necklace-beads` skips the first two and says which it skipped. `necklace-tweak` writes the second
+when a tweak turns out to be CUJ-shaped.
+
+### Not written into cuj.md
+
+CI, the PTY coverage, the licence scrub, and the beads gitignore are not CUJs. None gives an actor a
+new observable outcome. They are in this ledger and nowhere else, which is the correct home for work
+that changes how the project is built rather than what it does.

@@ -100,12 +100,37 @@ Derived from `spec.md` in this directory. One CUJ per actor-outcome pair.
 
 ---
 
+## CUJ-05: Installer on Windows gets the same result as anywhere else
+
+**Actor:** installer on Windows
+**Trigger:** runs `necklace init` in a repo, having installed beads from npm
+**Journey:**
+1. Installer runs the command.
+2. System probes `bd`, which on Windows from npm is `bd.cmd`.
+3. System writes the skills and reports, identically to Linux and macOS.
+
+**Tests to create:**
+
+| Test | Input | Assertion | Informed by |
+| --- | --- | --- | --- |
+| the whole suite, on windows-latest | CI matrix, Node 22 and 24 | every test passes on Windows as on Linux | CI: `bd.cmd` cannot be spawned without a shell since Node 18.20 |
+| the pty suite, on windows-latest | CI matrix | the prompt works over ConPTY | CI: a live ConPTY handle held the event loop open and the job hung rather than failing |
+| `fakeBd` provides a `bd.cmd` launcher | Windows | the probe resolves the fake the way it would resolve a real npm install | |
+
+**Done when:** the CI matrix is green on windows-latest. It was red when this was written.
+
+**Beads:** none - done directly in 5e2ab76, 2d8bc50, d36bd51
+
+---
+
 <!--
 Checks before finishing:
 
-  Every actor-outcome pair in spec.md has a CUJ here.   5 pairs, 4 CUJs: the two installer-visibility
+  Every actor-outcome pair in spec.md has a CUJ here.   6 pairs, 5 CUJs: the two installer-visibility
                                                         pairs are one journey and merged into CUJ-02.
-  Every CUJ has at least one test row.                  yes, 16 tests.
+  Every CUJ has at least one test row.                  yes, 19 tests.
+  Every CUJ's Beads line is IDs, done-directly, or       yes. An empty one means work is waiting.
+    deliberately empty.
   Every "Done when" names tests and nothing else.       yes.
   Slices are vertical.                                  each is one actor observing one outcome.
   Dependencies are sparse.                              none.

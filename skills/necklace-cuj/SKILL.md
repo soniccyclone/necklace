@@ -65,6 +65,16 @@ a `**Blocked:**` line naming the question.
 Do not drop it, which loses the analysis, and do not let `necklace-beads` break it into beads, which
 creates work nobody has agreed to. It stays written and unbroken until someone answers.
 
+## The Beads line means three different things
+
+- **Bead IDs**: broken down, check `bd` for status.
+- **`none - done directly in <ref>`**: finished without beads, by `necklace-tweak`. Nobody should
+  pick it up.
+- **Left empty**: not broken down yet. This is the only state that means there is work waiting.
+
+Never leave it empty for work that is already done. An empty line is a standing invitation for the
+next agent to start something that finished months ago.
+
 ## Dependencies
 
 `Depends on: CUJ-NN` only when one slice genuinely cannot start before another. Not because two CUJs

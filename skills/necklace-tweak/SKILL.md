@@ -47,6 +47,11 @@ Judgment call, and it is the one worth getting right.
 **Just a tweak:** the outcomes in `spec.md` are unchanged and you are correcting how one of them
 works. Edit the code, update the document, note it in the ledger, done. No new beads.
 
+If the tweak turns out to be CUJ-shaped, meaning it gave an actor a new observable outcome and it has
+tests, write the CUJ into `cuj.md` anyway and set its `**Beads:** none - done directly in <ref>`.
+The work is finished, so it never gets beads, and the marker is what stops a later agent picking it
+up as pending. A CUJ with an empty `**Beads:**` line reads as available work.
+
 **A new increment:** the change adds an outcome, changes who the feature is for, or invalidates a CUJ
 rather than adjusting one. Say so and offer to loop:
 
