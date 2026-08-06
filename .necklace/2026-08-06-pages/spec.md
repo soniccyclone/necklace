@@ -44,20 +44,30 @@ identifies necklace in a tab, a bookmark, or a list of repos.
 - The mark must work at favicon size. Measured: five beads render clearly at 128px and become an
   indistinct smudge at 16px, so one file cannot serve both purposes.
 - Purple. Lavender pearls on a deeper purple cord.
+- No frontend framework. HTMX is acceptable if something genuinely needs interactivity; nothing here
+  does. This is Nathan's constraint and it matches the package's own no-build-step property.
+- Emacs org-mode is the source format, published with `org-publish`. This is a deliberate choice, not
+  an incidental one: the site being rendered org is part of what it says about the project.
 
 ## Approach
 
-A single static page, no build step and no generator, matching the package's own no-build property.
+**Org files, published by Emacs, deployed from Actions.** Source lives as `.org`, a batch Emacs run
+turns it into HTML, and the result is uploaded straight to Pages. No framework, no generator, no
+node_modules, and nothing to keep in sync with a theme someone else maintains.
 
-It is a **cover, not documentation**. It answers what necklace is, what it requires, and how to
-install it, then sends the reader to the repo. It does not restate the skills, the method, or the
-workflow, because the README already does and a second copy is a second thing to be wrong.
+The skin is CSS in the publish configuration, hooking the ids and classes org's exporter already
+emits. Purple, against org's default structure rather than fighting it.
+
+A splash page plus documentation pages, all org. It is a **cover with docs**, not a mirror of the
+repo: it says what necklace is, what it requires, and how to install it, then goes deeper on the
+method for anyone who wants it. The install command is the one thing that must not drift from the
+README, and that is a constraint on how the two are kept, not a reason to omit it.
 
 The mark is one design language in two renderings: the full necklace where there is room, and a
-reduced form for sizes where the full one stops resolving. Both ship as vectors so a single file
-serves every display size in its class.
+reduced form for sizes where the full one stops resolving. Both ship as vectors.
 
-Deployment source and the exact reduction are implementation choices, deliberately left open here.
+Nothing built is committed. The output directory is generated on every deploy, so there is no
+generated HTML in the repo to go stale or to review.
 
 ## Open questions
 
