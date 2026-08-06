@@ -269,3 +269,26 @@ The pattern worth keeping: excluding Windows because the harness wrote a `#!/bin
 hidden a production bug. Beads from npm on Windows is `bd.cmd`, and Node has refused to spawn a `.cmd`
 without a shell since 18.20, so `necklace init` would have failed for every Windows user who installed
 beads that way while working for anyone on winget or Homebrew.
+
+## PTY coverage past the prompt
+
+The four original PTY tests all invoked the binary with identical argv,
+`init --skip-beads-check`, interactive. So `bin/necklace.js` ran, but along one path:
+parse, gate skipped, detect, prompt, install, report. Everything else in it was
+unexercised, including the one that matters most, the gate failing and nothing being
+written.
+
+The first response to that was a proposal to extract `bin/` into a testable `run()` so
+the branches could be unit tested, on the reasoning that PTY tests are heavyweight and
+should stay narrow. That reasoning was invented: a PTY job is about fifteen seconds per
+OS in CI. Nathan pointed it out and the refactor was dropped.
+
+`drive()` now takes `argv` and `env`, so every path goes through the same harness as a
+real process. Six tests added: `--help`, unknown command, a typo'd flag, the gate failing
+with a broken `bd`, a repo with no beads workspace, and `--agent` installing without ever
+showing the prompt. Ten PTY tests in total.
+
+**Mutation-checked rather than trusted.** All six passed on the first run, so the gate was
+disabled in `bin/necklace.js` to confirm they would notice: two failed, the right two, and
+both passed again once it was restored. A test that has never been seen to fail is not
+evidence.

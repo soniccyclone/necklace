@@ -6,20 +6,25 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node-pty';
-import { tempRepo, cleanup, listSkills, path, mkdir } from '../helpers.js';
+import { tempRepo, cleanup, fakeBd, listSkills, path, mkdir } from '../helpers.js';
 
 const BIN = path.resolve(import.meta.dirname, '..', '..', 'bin', 'necklace.js');
 const KEY = { down: '\x1b[B', up: '\x1b[A', space: ' ', enter: '\r', ctrlC: '\x03' };
 
-/** Run the CLI in a PTY, feeding keys once the prompt appears. */
-function drive(cwd, keys, { timeout = 8000 } = {}) {
+/**
+ * Run the CLI in a PTY, optionally feeding keys once the prompt appears.
+ *
+ * Everything goes through here, interactive or not, so the binary is always
+ * exercised as a real process with a real terminal rather than a module.
+ */
+function drive(cwd, keys, { timeout = 8000, argv = ['init', '--skip-beads-check'], env = {} } = {}) {
   return new Promise((resolve, reject) => {
-    const term = spawn(process.execPath, [BIN, 'init', '--skip-beads-check'], {
+    const term = spawn(process.execPath, [BIN, ...argv], {
       name: 'xterm-256color',
       cols: 100,
       rows: 30,
       cwd,
-      env: { ...process.env, FORCE_COLOR: '0' },
+      env: { ...process.env, FORCE_COLOR: '0', ...env },
     });
 
     let out = '';
@@ -52,7 +57,7 @@ function drive(cwd, keys, { timeout = 8000 } = {}) {
 
     term.onData((d) => {
       out += d;
-      if (!fed && out.includes('space toggles')) {
+      if (keys.length && !fed && out.includes('space toggles')) {
         fed = true;
         setTimeout(() => {
           try {
@@ -118,6 +123,95 @@ test('ctrl-c aborts without writing anything', async () => {
     assert.notEqual(exitCode, 0);
     assert.match(out, /cancelled/);
     assert.deepEqual(await listSkills(path.join(repo, '.claude', 'skills')), []);
+  } finally {
+    await cleanup(repo);
+  }
+});
+
+// Paths that never reach the prompt. Same harness: a real process, real argv.
+
+test('--help prints usage and exits zero', async () => {
+  const repo = await tempRepo();
+  try {
+    const { out, exitCode } = await drive(repo, [], { argv: ['--help'] });
+    assert.equal(exitCode, 0);
+    assert.match(out, /necklace init/);
+    assert.match(out, /--agent/);
+  } finally {
+    await cleanup(repo);
+  }
+});
+
+test('an unknown command exits nonzero and shows usage', async () => {
+  const repo = await tempRepo();
+  try {
+    const { out, exitCode } = await drive(repo, [], { argv: ['frobnicate'] });
+    assert.notEqual(exitCode, 0);
+    assert.match(out, /unknown command: frobnicate/);
+  } finally {
+    await cleanup(repo);
+  }
+});
+
+test('a typo in a flag exits nonzero rather than being ignored', async () => {
+  const repo = await tempRepo();
+  try {
+    const { out, exitCode } = await drive(repo, [], { argv: ['init', '--agnet', 'claude'] });
+    assert.notEqual(exitCode, 0);
+    assert.match(out, /agnet/);
+  } finally {
+    await cleanup(repo);
+  }
+});
+
+test('a failing beads gate writes nothing and exits nonzero', async () => {
+  const repo = await tempRepo();
+  try {
+    const bin = await fakeBd(repo, { exitCode: 127 });
+    const { out, exitCode } = await drive(repo, [], {
+      argv: ['init', '--agent', 'claude'],
+      env: { PATH: `${bin}${path.delimiter}${process.env.PATH}` },
+    });
+    assert.notEqual(exitCode, 0);
+    assert.match(out, /requires a working bd/);
+    assert.deepEqual(
+      await listSkills(path.join(repo, '.claude', 'skills')),
+      [],
+      'the gate failing must leave the repo untouched',
+    );
+  } finally {
+    await cleanup(repo);
+  }
+});
+
+test('a repo without a beads workspace is told to run bd init', async () => {
+  const repo = await tempRepo();
+  try {
+    const bin = await fakeBd(repo, { whereExit: 1 });
+    const { out, exitCode } = await drive(repo, [], {
+      argv: ['init', '--agent', 'claude'],
+      env: { PATH: `${bin}${path.delimiter}${process.env.PATH}` },
+    });
+    assert.notEqual(exitCode, 0);
+    assert.match(out, /bd init/);
+    assert.deepEqual(await listSkills(path.join(repo, '.claude', 'skills')), []);
+  } finally {
+    await cleanup(repo);
+  }
+});
+
+test('--agent installs without ever showing the prompt', async () => {
+  const repo = await tempRepo();
+  try {
+    const bin = await fakeBd(repo, { config: { 'export.auto': 'true', 'export.git-add': 'true' } });
+    const { out, exitCode } = await drive(repo, [], {
+      argv: ['init', '--agent', 'claude', '--agent', 'cursor'],
+      env: { PATH: `${bin}${path.delimiter}${process.env.PATH}` },
+    });
+    assert.equal(exitCode, 0, out);
+    assert.doesNotMatch(out, /space toggles/, 'an explicit --agent must not prompt');
+    assert.equal((await listSkills(path.join(repo, '.claude', 'skills'))).length, 6);
+    assert.equal((await listSkills(path.join(repo, '.cursor', 'skills'))).length, 6);
   } finally {
     await cleanup(repo);
   }

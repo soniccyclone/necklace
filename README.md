@@ -117,7 +117,7 @@ planning document stays about two pages instead of growing into a record of its 
 ```
 npm ci
 npm test          # 18 tests
-npm run test:pty  # 4 more, driving the prompt through a pseudo-terminal
+npm run test:pty  # 10 more, driving the real binary through a pseudo-terminal
 ```
 
 The package ships with zero runtime dependencies. node-pty is a dev dependency and never reaches
