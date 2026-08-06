@@ -1,0 +1,14 @@
+#+TITLE: necklace
+#+OPTIONS: toc:nil num:nil author:nil date:nil
+
+#+BEGIN_EXPORT html
+<div class="hero compact"><h1>necklace</h1>
+<p class="tagline">Verbatim from <code>skills/necklace/SKILL.md</code>. This is the file the agent loads.</p></div>
+#+END_EXPORT
+
+#+INCLUDE: "../../../../../skills/necklace/SKILL.md" src markdown
+
+#+BEGIN_EXPORT html
+<footer><a href="./docs.html">Documentation</a> · <a href="./index.html">Home</a> ·
+<a href="https://github.com/soniccyclone/necklace/blob/main/skills/necklace/SKILL.md">On GitHub</a></footer>
+#+END_EXPORT

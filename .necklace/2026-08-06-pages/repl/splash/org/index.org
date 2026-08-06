@@ -1,0 +1,43 @@
+#+TITLE: necklace
+#+SUBTITLE: Agentic REPL-Driven Development, as installable skills
+#+OPTIONS: toc:nil num:nil author:nil date:nil
+
+#+BEGIN_EXPORT html
+<div class="hero">
+  <img src="icon.svg" alt="" class="mark" width="96" height="96">
+  <h1>necklace</h1>
+  <p class="tagline">Agentic REPL-Driven Development, as installable skills.</p>
+</div>
+#+END_EXPORT
+
+Two documents thread through a ticket. Beads hang off the second one.
+
+#+BEGIN_SRC sh
+npx github:soniccyclone/necklace init
+#+END_SRC
+
+* How it works
+:PROPERTIES:
+:CUSTOM_ID: how
+:END:
+
+1. *A planning document*, researched by exercising real code paths rather than reading source and reasoning about it.
+2. *A CUJ technical design document*, one vertical slice per outcome, each naming the tests that close it.
+3. *A beads breakdown*, worked to completion.
+
+The code is the source of truth. The documents are provenance.
+
+* Requires beads
+:PROPERTIES:
+:CUSTOM_ID: requires
+:END:
+
+necklace checks for [[https://github.com/gastownhall/beads][beads]] and tells you what to run. It never installs anything on your behalf.
+
+#+BEGIN_EXPORT html
+<footer>
+  <a href="https://github.com/soniccyclone/necklace">Source</a> ·
+  <a href="./docs.html">Documentation</a> ·
+  <a href="https://github.com/gastownhall/beads">beads</a>
+</footer>
+#+END_EXPORT

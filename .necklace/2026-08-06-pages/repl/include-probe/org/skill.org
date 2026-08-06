@@ -1,0 +1,23 @@
+#+TITLE: necklace-spec
+#+OPTIONS: toc:nil num:nil author:nil date:nil
+
+* As a source block
+:PROPERTIES:
+:CUSTOM_ID: src
+:END:
+
+#+INCLUDE: "../../../../../skills/necklace-spec/SKILL.md" src markdown
+
+* Only part of it
+:PROPERTIES:
+:CUSTOM_ID: part
+:END:
+
+#+INCLUDE: "../../../../../skills/necklace-spec/SKILL.md" src markdown :lines "1-6"
+
+* Included as org rather than as a source block
+:PROPERTIES:
+:CUSTOM_ID: raw
+:END:
+
+#+INCLUDE: "../../../../../skills/necklace-spec/SKILL.md" :lines "6-14"

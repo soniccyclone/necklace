@@ -25,3 +25,6 @@ node_modules/
 # environments that ran them are not.
 .necklace/**/repl/.venv/
 .necklace/**/repl/__pycache__/
+
+# Built site output. Regenerated on every publish; never reviewed as a diff.
+.necklace/**/repl/**/www/
