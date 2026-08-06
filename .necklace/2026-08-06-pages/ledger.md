@@ -49,14 +49,30 @@ the pattern Nathan wants copied. Cloned and read rather than described:
   through settings. That matters here because our repo reports `has_pages: false`.
 - `:auto-sitemap t` generates an index of pages for free.
 
-**The org export surface could not be verified.** `repl/org_export_surface.sh` fetched the live blog
-to read which ids and classes org emits, and got GitHub's 404 page: the source repo is private, so
-Pages is not publicly served. No Emacs on this machine either, and installing one to answer this is
-the "do not install a REPL" trap.
+**The org export surface, verified.** Nathan installed Emacs mid-session, so the earlier secondhand
+reading was replaced with a real `org-publish` run. `repl/orgprobe/` holds the minimal project;
+`repl/org_export_surface.sh` runs it and records the results. Emacs 30.2, org bundled.
 
-Falling back to secondhand evidence: that repo's own CSS styles `#content`, `#table-of-contents`,
-`#postamble`, `.org-src-container`, `pre`, and `code`, and it was written against real output. Those
-hooks exist. Treated as unverified until our own CI builds once, which is cheap to confirm.
+Falsification was that there would be no stable hooks to skin. It did not fire: org emits `#content`,
+`#table-of-contents`, `#postamble`, `.title`, `.author`, `.date`, `.outline-2` and `.outline-text-2`
+per heading level, `.org-src-container`, `pre.src.src-<lang>`, and `.org-left` on table cells. More
+than enough, and more than the reference repo's CSS uses.
+
+Three findings the secondhand reading would have missed:
+
+**Angle brackets are escaped.** `<actor>` in an org file exports as `&lt;actor&gt;`. The nine
+template placeholders are safe, which retires the concern the Jekyll probe raised about raw HTML
+eating them.
+
+**Heading anchors are unstable, and this is the important one.** Without a `CUSTOM_ID`, org generates
+hashes like `id="org3daff1b"`, and two consecutive builds of an unchanged file produced entirely
+different ids. Every deep link into the docs would break on the next deploy. Verified fix: a
+`:CUSTOM_ID:` property yields `id="install"`, identical across rebuilds. Any heading worth linking to
+needs one, which is a content rule rather than a build setting.
+
+**Syntax highlighting needs `htmlize`, which is not bundled.** Org warns "Cannot fontify source
+block" and falls back to plain text. Our content is mostly code blocks, so this is a real decision:
+install htmlize in the workflow, or accept plain code and style `pre.src` directly.
 
 ## Decisions
 

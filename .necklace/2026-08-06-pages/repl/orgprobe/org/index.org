@@ -1,0 +1,18 @@
+#+TITLE: necklace
+#+OPTIONS: toc:t num:nil
+
+* Install
+:PROPERTIES:
+:CUSTOM_ID: install
+:END:
+
+#+BEGIN_SRC sh
+npx github:soniccyclone/necklace init
+#+END_SRC
+
+* Requirements
+:PROPERTIES:
+:CUSTOM_ID: requirements
+:END:
+
+Needs beads.

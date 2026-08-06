@@ -1,28 +1,40 @@
 #!/bin/sh
-# REPL: what CSS hooks does org-publish's HTML actually emit? The skin depends
-# on them, and they are not documented anywhere as a contract.
+# REPL: what does org-publish actually emit, and does it survive our content?
+# The skin hooks whatever this produces, and a docs site needs stable anchors.
 #
-# No emacs on this machine and installing one to answer this would be the
-# "do not install a REPL" trap, so read a real published artifact instead:
-# the live site built by the reference repo.
+# Falsification: if there are no stable ids, a skin has nothing to target and
+# the approach needs a custom template rather than CSS.
 #
-# Falsification: if the served HTML has no stable ids or classes, a skin has
-# nothing to hook and the approach needs a template rather than CSS.
+# Emacs 30.2 locally. Run from this directory.
 
-URL=https://soniccyclops-bot-collab.github.io/soniccyclops-blog/
-echo "fetching $URL"
-body=$(curl -sS --max-time 20 "$URL") || { echo "unreachable"; exit 1; }
+cd "$(dirname "$0")/orgprobe" || exit 1
+rm -rf www ~/.org-timestamps 2>/dev/null
+emacs --batch --load build.el 2>&1 | grep -i warning
 
-echo "  bytes: $(printf '%s' "$body" | wc -c)"
 echo
-echo "ids and classes org emitted:"
-printf '%s' "$body" | grep -oE 'id="[a-z0-9-]+"|class="[a-z0-9 _-]+"' | sort | uniq -c | sort -rn | head -20
+echo "ids and classes emitted:"
+grep -oE 'id="[a-zA-Z0-9_-]+"|class="[a-zA-Z0-9 _-]+"' www/index.html | sort -u
 
-# RESULT: the URL serves GitHub's 404 page (9114 bytes, id="suggestions",
-# class="logo logo-img-2x"). The source repo is private, so Pages is not
-# publicly served and the export surface cannot be read from the live site.
+# RESULTS, Emacs 30.2, org bundled:
 #
-# Falling back to secondhand evidence: build-blog.el in that repo styles
-# #content, #table-of-contents, #postamble, .org-src-container, pre and code.
-# That CSS was written against real org output, so those hooks exist. Treat as
-# unverified until our own CI builds once.
+# Hooks available: #content, #table-of-contents, #text-table-of-contents,
+#   #postamble, .title .author .date .status .validation, .outline-2 and
+#   .outline-text-2 per heading level, .org-src-container, pre.src.src-<lang>,
+#   .org-left for table cells. Plenty to skin. Falsification did not fire.
+#
+# 1. Angle brackets are escaped. <actor> in an org file comes out as
+#    &lt;actor&gt;, so the nine template placeholders are safe. This retires the
+#    raw-HTML concern raised by the earlier Jekyll probe.
+#
+# 2. Heading anchors are UNSTABLE. Without CUSTOM_ID, org generates
+#    id="org3daff1b" style hashes that differ on every export: two consecutive
+#    builds of an unchanged file produced completely different ids. Any deep
+#    link into the docs dies on the next deploy.
+#    Fix verified: a :CUSTOM_ID: property yields id="install" and it is
+#    identical across rebuilds.
+#
+# 3. Syntax highlighting needs htmlize, which is NOT bundled. Without it org
+#    warns "Cannot fontify source block" and falls back to plain text. Our
+#    content is mostly code blocks, so this is a real decision rather than a
+#    nicety: install htmlize in the workflow, or accept unhighlighted code and
+#    style pre.src ourselves.

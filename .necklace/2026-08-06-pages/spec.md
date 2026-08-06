@@ -48,6 +48,11 @@ identifies necklace in a tab, a bookmark, or a list of repos.
   does. This is Nathan's constraint and it matches the package's own no-build-step property.
 - Emacs org-mode is the source format, published with `org-publish`. This is a deliberate choice, not
   an incidental one: the site being rendered org is part of what it says about the project.
+- Org generates unstable heading anchors. Measured: two builds of an unchanged file produced entirely
+  different ids, so any heading worth linking to needs an explicit stable id. Deep links into
+  documentation are the point of having documentation pages.
+- Syntax highlighting is not free. Measured: org falls back to plain text without `htmlize`, which
+  Emacs does not bundle, and this site is mostly code blocks.
 
 ## Approach
 
