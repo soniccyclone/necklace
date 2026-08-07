@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { homedir } from 'node:os';
-import { parse, USAGE } from '../src/cli.js';
+import { parse, USAGE, VERSION } from '../src/cli.js';
 import { TARGETS, detect, rank } from '../src/targets.js';
 import { install, skillNames } from '../src/install.js';
 import { checkBeads } from '../src/beads.js';
@@ -18,8 +18,13 @@ try {
   die(`${e.message}\n\n${USAGE}`);
 }
 
+if (opts.version) {
+  console.log(VERSION);
+  process.exit(0);
+}
+
 if (opts.help) {
-  console.log(USAGE);
+  console.log(`necklace ${VERSION}\n\n${USAGE}`);
   process.exit(0);
 }
 

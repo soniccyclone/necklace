@@ -1,6 +1,6 @@
 {
   "name": "@soniccyclone/necklace",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Agentic REPL-Driven Development skills for Claude Code, Cursor, Copilot, and opencode",
   "type": "module",
   "bin": {

@@ -1,5 +1,11 @@
 import { parseArgs } from 'node:util';
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
 import { TARGET_IDS } from './targets.js';
+
+export const VERSION = JSON.parse(
+  readFileSync(path.join(import.meta.dirname, '..', 'package.json'), 'utf8'),
+).version;
 
 export const USAGE = `necklace init [--global] [--agent <name>] [--skip-beads-check]
 
@@ -20,6 +26,7 @@ export function parse(argv) {
       global: { type: 'boolean', short: 'g' },
       'skip-beads-check': { type: 'boolean' },
       help: { type: 'boolean', short: 'h' },
+      version: { type: 'boolean', short: 'v' },
     },
   });
 
@@ -36,5 +43,6 @@ export function parse(argv) {
     global: values.global === true,
     skipBeadsCheck: values['skip-beads-check'] === true,
     help: values.help === true,
+    version: values.version === true,
   };
 }
