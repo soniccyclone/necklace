@@ -36,3 +36,7 @@ node_modules/
 site/www/
 site/gen/
 site/org/skill-*.org
+
+# REPL scratch: the demo installs prompt libraries to compare against.
+.necklace/**/repl/node_modules/
+.necklace/**/repl/package-lock.json
