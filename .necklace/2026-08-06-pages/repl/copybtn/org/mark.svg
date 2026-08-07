@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="necklace">
+  <defs>
+    <radialGradient id="pc" cx="35%" cy="28%" r="72%">
+      <stop offset="0%" stop-color="#faf5ff"/>
+      <stop offset="50%" stop-color="#d3b6f5"/>
+      <stop offset="100%" stop-color="#7c3fce"/>
+    </radialGradient>
+  </defs>
+  <!-- favicon variant: three beads, fewer and larger, so the shape survives 16px -->
+  <path d="M10 18 Q32 46 54 18" fill="none" stroke="#6d3fb0" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="13" cy="24" r="8"  fill="url(#pc)"/>
+  <circle cx="32" cy="40" r="13" fill="url(#pc)"/>
+  <circle cx="51" cy="24" r="8"  fill="url(#pc)"/>
+</svg>
