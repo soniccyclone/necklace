@@ -43,14 +43,21 @@ identifies necklace in a tab, a bookmark, or a list of repos.
 - The install command exists in the README today. Two copies of it is the drift this has to avoid.
 - The mark must work at favicon size. Measured: five beads render clearly at 128px and become an
   indistinct smudge at 16px, so one file cannot serve both purposes.
-- Purple. Lavender pearls on a deeper purple cord.
+- Purple, on a warm mid-grey ground rather than near-black. Nathan's call after seeing both: a
+  2010-era dark, closer to Zenburn or a terminal than to a modern editor theme.
+- One accent used flat. Headings, bold runs and links all carry the same purple. Two alternatives
+  with fewer purple elements were rendered and rejected; every additional shade is visual noise.
 - No frontend framework. HTMX is acceptable if something genuinely needs interactivity; nothing here
   does. This is Nathan's constraint and it matches the package's own no-build-step property.
 - Emacs org-mode is the source format, published with `org-publish`. This is a deliberate choice, not
   an incidental one: the site being rendered org is part of what it says about the project.
 - Org generates unstable heading anchors. Measured: two builds of an unchanged file produced entirely
-  different ids, so any heading worth linking to needs an explicit stable id. Deep links into
-  documentation are the point of having documentation pages.
+  different ids, so any heading worth linking to needs an explicit stable id. Converting markdown with
+  pandoc supplies them automatically, verified stable across rebuilds.
+- Skill documentation is generated from the real `SKILL.md` files, never transcribed. Measured: org's
+  own include renders raw markdown or double-parses it, so a markdown-to-org conversion is required.
+  The frontmatter is stripped before conversion rather than parsed, because the agents that consume
+  those files read it leniently and a strict parse would reject skills that work.
 - Syntax highlighting is not free. Measured: org falls back to plain text without `htmlize`, which
   Emacs does not bundle, so the build has to install it. It emits colourable classes once present.
 - Org injects roughly 200 lines of its own CSS into every page unless told not to. Measured: turning
@@ -71,7 +78,13 @@ method for anyone who wants it. The install command is the one thing that must n
 README, and that is a constraint on how the two are kept, not a reason to omit it.
 
 The mark is one design language in two renderings: the full necklace where there is room, and a
-reduced form for sizes where the full one stops resolving. Both ship as vectors.
+reduced form for sizes where the full one stops resolving. Both ship as vectors. On the page it sits
+small above the wordmark rather than dominating, which is the register of a text-first site rather
+than a product landing page.
+
+A working version of all of this exists in this planning directory's `repl/splash/`, arrived at by
+building and looking rather than by describing. Implementation is largely a matter of moving it into
+place and wiring the deploy.
 
 Nothing built is committed. The output directory is generated on every deploy, so there is no
 generated HTML in the repo to go stale or to review.

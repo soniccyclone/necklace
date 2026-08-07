@@ -138,3 +138,27 @@ whether `docs/` leaks into the tarball is now moot, since no site directory will
 ## Open
 
 Nothing yet.
+
+## Stage 2, CUJ document
+
+Six actor-outcome pairs became six CUJs, 20 tests, two dependency edges.
+
+**The REPL did the design work, so the CUJs test durability rather than appearance.** Palette, mark
+size, hierarchy and layout were all settled by building and looking, and `repl/splash/` holds the
+result. Re-deciding any of that in the CUJ document would be relitigating a settled argument in a
+worse medium. What the tests cover instead is the property that would silently rot: anchors surviving
+a rebuild, the install line matching the README, skill pages coming from the real files, a broken
+include failing loudly.
+
+**Nearly every test carries `Informed by` provenance**, which is unusual and is a consequence of how
+much REPL work preceded this. Most of these tests exist because something actually broke during the
+session: the Documentation link 404'd, a wrong parent-directory count killed a build, org injected 200
+lines of its own CSS, five beads dissolved at 16px, a strict YAML parse rejected a working skill.
+
+**CUJ-06 is the one with no incident behind it.** Generation from `skills/*/` should mean a new skill
+gets a page for free, but that has never been exercised, and the docs index is hand-written and
+therefore the one page that can fall out of step. Worth a test precisely because it is the part
+assumed to work.
+
+`spec.md` was brought current first: the warm-grey ground, the single flat accent, pandoc supplying
+stable anchors, and a pointer to `repl/splash/` as the reference implementation.
