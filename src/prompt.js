@@ -35,8 +35,12 @@ export function multiSelect({ message, choices, input = process.stdin, output = 
         }),
         'space toggles, type to filter, enter confirms, ctrl-c aborts',
       ];
-      if (lastLines) output.write(`\x1b[${lastLines}A\x1b[0J`);
-      output.write(lines.join('\n') + '\n');
+      // Erase and redraw have to leave as one write. Split across two, the
+      // terminal is free to paint the erased region before the new frame
+      // arrives, which is the flicker. @inquirer/core does exactly this and
+      // nothing more: no double buffering, no synchronized-output escape.
+      const erase = lastLines ? `\x1b[${lastLines}A\x1b[0J` : '';
+      output.write(erase + lines.join('\n') + '\n');
       lastLines = lines.length;
     }
 

@@ -87,9 +87,21 @@ The longest line in the real prompt is 57 characters, so nothing wraps above ~60
 never fires at default widths.
 
 Not fixed here. It is a separate defect from the flicker, and fixing it inside the flicker fix would
-be deciding the dependency question by the back door.
+be deciding the dependency question by the back door. Filed as `necklace-we5`.
 
-## Open
+## Decision
 
-Whether to take the dependency is Nathan's call, since it retires a documented property of the
-package. Both branches are built and one commit away.
+**One write. No dependency.** Nathan's call, made against the four running modes rather than the
+argument.
+
+`src/prompt.js` now emits `erase + body` in a single `write()`. The library's technique was the same
+line, so taking 10 packages would have bought line-wrap handling and nothing else that applies to a
+four-item prompt shown once at install time. The zero-runtime-dependency property survives, which
+matters for a tool people run through `npx` from GitHub.
+
+`test/prompt.test.js` gets `a redraw erases and draws in a single write`. It counts write boundaries
+rather than inspecting bytes, because the gap is the defect and the bytes are identical either way.
+Mutation-checked: red against the two-write version, green against the fix.
+
+The `core` mode in `repl/demo.mjs` stays as-is. If `necklace-we5` ever justifies the dependency, the
+port is already written and measured.
