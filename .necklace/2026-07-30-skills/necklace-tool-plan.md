@@ -97,9 +97,9 @@ nothing in the package depends on which of the two fetched it.
 Standard semver, `vMAJOR.MINOR.PATCH`, matching the `version` in `package.json`. Plain `v0.2.0`, not
 prefixed, so the npx pin form reads naturally.
 
-**Not yet.** This starts once the tool actually works end to end. Until then the repo carries
-milestone tags like `skills-v0.1.0` that mark a state rather than a release, and those stay as they
-are rather than being renamed into the release series.
+**In effect since `v1.0.0`** (2026-08-06). The repo still carries milestone tags like
+`skills-v0.1.0` that mark a state rather than a release; those stay as they are rather than being
+renamed into the release series.
 
 What each level means here, given the package is markdown skills plus a small installer:
 
@@ -109,9 +109,23 @@ What each level means here, given the package is markdown skills plus a small in
 - **Minor**: a new skill, a new install target, a new capability. Rerunning `init` gains something.
 - **Patch**: wording in a skill, an installer bug, a corrected path. Rerunning `init` fixes something.
 
-**1.0.0 is when a coworker has run the whole loop on a real ticket without help.** Not when the
-installer works, and not when the skills read well. Both of those can be true while the thing still
-fails in someone else's repo, which is the only test that counts.
+Stated again at the 1.0.0 cut, in terms of what changed rather than what a rerun does: patch is CLI
+fixes against the agentic tools already supported; minor is skills updates and support for more
+IDEs.
+
+These two framings agree everywhere except one case. A wording change inside an existing skill is
+patch by the rerun test, because a rerun fixes rather than gains, and minor by the "skills updates"
+reading. Unresolved, and it will come up on the first release that only touches skill prose.
+
+**1.0.0 was when the tool ran in a repo that was not this one.** The bar as originally written was a
+coworker running the whole loop on a real ticket without help, on the reasoning that the installer
+working and the skills reading well can both be true while the thing still fails in someone else's
+repo. That reasoning held; what settled it was taking the CLI to a fresh repo and watching it work,
+which is the same test with a shorter feedback loop.
+
+Cut deliberately rather than sitting at `v0.9.x`. A project that never leaves `0.9` is making a
+claim about its own confidence that the code does not support. Rough corners found from here are
+patch and minor releases, which is what those levels are for.
 
 ### The name
 
