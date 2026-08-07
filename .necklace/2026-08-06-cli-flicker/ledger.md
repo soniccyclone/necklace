@@ -72,6 +72,23 @@ node demo.mjs core        # library-owned rendering, filter intact
 
 Hold an arrow key down. `current` tears; the others do not.
 
+## A second, unproven defect: narrow terminals
+
+`lastLines = lines.length` counts logical lines. `\x1b[NA` moves up N *display rows*. When the
+terminal is narrower than a row's text, that row occupies two display rows and the two numbers
+diverge: the cursor lands mid-frame and `\x1b[0J` erases from there down, leaving the top of the
+previous frame on screen. `@inquirer/core` handles this with `breakLines` and `cli-width`, which is
+most of what those 10 packages are for.
+
+`repl/narrow.cjs` tried to catch it by counting header redraws at `cols=24`. **Inconclusive** — it
+counts occurrences in the byte stream, which cannot distinguish a corrupted screen from a clean
+redraw. Proving it needs a terminal emulator replaying the sequences, or a human resizing a window.
+The longest line in the real prompt is 57 characters, so nothing wraps above ~60 columns and this
+never fires at default widths.
+
+Not fixed here. It is a separate defect from the flicker, and fixing it inside the flicker fix would
+be deciding the dependency question by the back door.
+
 ## Open
 
 Whether to take the dependency is Nathan's call, since it retires a documented property of the

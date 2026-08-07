@@ -10,3 +10,6 @@ Hold an arrow key down in each. Findings in `../ledger.md`.
 
     node drive.cjs current    # counts writes per frame
     node smoke.cjs core       # asserts a mode still selects and confirms
+
+Then resize the window narrow (under ~60 columns) and try `onewrite` against
+`core`. That is the one comparison the probes could not settle.
