@@ -169,3 +169,34 @@ test('the docs index lists every skill', async () => {
     assert.match(html, new RegExp(`href="\\./skill-${n}\\.html"`), `docs index omits ${n}`);
   }
 });
+
+// ---- Copy button (added by tweak; serves CUJ-01's "copyable" outcome) ------
+
+test('the copy script is wired to every code block', async () => {
+  // The button is created at runtime, so there is no markup to assert on.
+  // What is checkable statically is that the script ships and targets the
+  // right selector. Browser-level proof that it copies the exact command and
+  // animates lives in repl/copybtn/probe.cjs.
+  for (const p of await pages()) {
+    const html = await read(path.join(OUT, p));
+    if (!html.includes('org-src-container')) continue;
+    assert.match(html, /querySelectorAll\('\.org-src-container'\)/, `${p} ships no copy script`);
+    assert.match(html, /navigator\.clipboard\.writeText/, `${p} script does not reach the clipboard`);
+  }
+});
+
+test('the copy script trims trailing whitespace', async () => {
+  const html = await read(path.join(OUT, 'index.html'));
+  // A trailing newline pastes into a terminal and executes before it is read.
+  assert.match(html, /trimEnd\(\)/, 'the copied text must be trimmed');
+});
+
+test('the page still works without javascript', async () => {
+  // The button is added at runtime. The command itself has to be in the HTML,
+  // so a reader with scripts blocked can still select and copy it.
+  const readme = await read(path.join(ROOT, 'README.md'));
+  const cmd = /^(npx github:[^\s]+ init)$/m.exec(readme)[1];
+  const html = await read(path.join(OUT, 'index.html'));
+  const noScript = html.replace(/<script>[\s\S]*?<\/script>/g, '');
+  assert.ok(noScript.includes(cmd), 'the install command must be in the markup, not injected');
+});

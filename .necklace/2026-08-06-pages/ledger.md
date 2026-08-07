@@ -235,3 +235,45 @@ for people who want to pin rather than a workaround for staleness.
 
 `--version` was added to the CLI to make this testable. A tool with no way to report which build it
 is cannot be checked for staleness at all, which is worth having independently of this question.
+
+## Tweak: copy button on code blocks
+
+The install command had no copy affordance. Options were put side by side rather than argued about:
+nothing, `user-select: all` for one-click selection with no JavaScript, about twenty-five lines of
+vanilla JS, or HTMX. Nathan took the JS, with the reasoning that a small amount of JavaScript was
+never the objection; frameworks were.
+
+Org has no copy-button support of its own. Checked before proposing anything: no `org-html` variable
+mentions copy or clipboard, and the optional scripts it can inject, which this site disables, contain
+nothing of the sort.
+
+**Three things the probe caught that would otherwise have shipped.**
+
+The clipboard held a trailing newline. Pasted into a terminal that executes the command immediately
+rather than letting the reader look at it first. `trimEnd()`, verified against the actual clipboard
+through a browser with permissions granted.
+
+The JavaScript goes inside an elisp string literal, so every quote needs escaping. The first build
+died with `void-variable (true)` as elisp began evaluating the JavaScript. The CSS had the same
+requirement and had been written correctly by hand, so the pattern was invisible until something
+longer went in.
+
+The first probe checked for the animation class immediately after clicking and found none, because
+the handler is async and waits on the clipboard promise. It reported no animation on a button that
+animates. Fixed by waiting for the class rather than guessing a delay.
+
+**Centring is conditional.** Nathan asked for the button to be vertically centred. On a tall block a
+centred button sits beside an arbitrary middle line and reads as belonging to that line rather than
+to the block, so the script adds the centring class only to single-line blocks. Shown both ways
+before deciding.
+
+**The first test written for this was wrong in an instructive way.** It asserted `class="copy-btn"`
+in the built HTML, but the button is created at runtime and no such markup exists. Statically
+checkable is that the script ships and targets the right selector; that it copies the exact command
+and animates is proven in `repl/copybtn/probe.cjs` through a real browser. A test that cannot fail
+for the right reason is worse than no test, and this one would have passed the day the script stopped
+running.
+
+Classified as a tweak: `spec.md` already required the install command to be copyable, so no outcome
+changed and no new CUJ was needed. The no-framework constraint was reworded, since the site now
+ships one script and the old wording said nothing here needs interactivity.

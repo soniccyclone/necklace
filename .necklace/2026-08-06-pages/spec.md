@@ -47,8 +47,8 @@ identifies necklace in a tab, a bookmark, or a list of repos.
   2010-era dark, closer to Zenburn or a terminal than to a modern editor theme.
 - One accent used flat. Headings, bold runs and links all carry the same purple. Two alternatives
   with fewer purple elements were rendered and rejected; every additional shade is visual noise.
-- No frontend framework. HTMX is acceptable if something genuinely needs interactivity; nothing here
-  does. This is Nathan's constraint and it matches the package's own no-build-step property.
+- No frontend framework. A small amount of hand-written JavaScript is fine; a framework is not. The
+  site ships one script, which adds a copy button to code blocks, and the page works without it.
 - Emacs org-mode is the source format, published with `org-publish`. This is a deliberate choice, not
   an incidental one: the site being rendered org is part of what it says about the project.
 - Org generates unstable heading anchors. Measured: two builds of an unchanged file produced entirely
