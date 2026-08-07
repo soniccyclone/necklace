@@ -187,3 +187,32 @@ and only then uploads. Testing after deploying would report a broken site rather
 
 `configure-pages` carries `enablement: true`, so the first run turns Pages on without anyone visiting
 settings. This repo reports `has_pages: false` today.
+
+## Deployed
+
+Live at https://soniccyclone.github.io/necklace/. CI green across all ten jobs, publish green.
+
+**`enablement: true` never could have worked.** It was copied from the reference repo's workflow and
+recorded here as turning Pages on without anyone visiting settings. It failed with "Resource not
+accessible by integration": creating a Pages site needs repo-admin rights and the default
+`GITHUB_TOKEN` does not have them. The reference repo already had Pages on, so the flag was a no-op
+there and reading its workflow could not have revealed this. Enabled once out of band with
+`gh api -X POST .../pages -f build_type=workflow`, and the README documents the manual step.
+
+**The Windows pty failures were the PATH-casing bug again.** Two of the six tests added for the
+non-interactive paths prepend a directory to PATH for the spawned CLI. Windows resolves PATH
+case-insensitively but a JS object does not, so a `PATH` key added beside the OS's `Path` leaves the
+original in charge. `src/beads.js` already carried the fixup; the harness did not, and the fix was
+never generalised when it was first found. Now shared through a helper.
+
+The third test using the same fake passed throughout, because it uses a `bd` that exits 127 and
+cannot distinguish "not found" from "found but failing". The bug only surfaced once a test needed the
+fake to actually run.
+
+**Verified live rather than assumed:** the page serves 200 and carries the README's install line
+verbatim, the favicon is the reduced mark, `docs.html` and the skill pages serve, heading anchors are
+readable slugs so deep links resolve, and htmlize highlighting matches the local build span for span
+on every page. The one page with zero spans has zero locally too, because its code blocks are bare
+commands with nothing to highlight.
+
+Repository homepage set to the site.
