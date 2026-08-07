@@ -342,9 +342,20 @@ one being fixed, which is why it gets three exits rather than one.
 a restore appeared somewhere in the output. Functionally the cursor did come back, but only after the
 install had finished printing, which is precisely the window the user is watching.
 
-Tightened to assert the restore lands *before* the install report. That version fails when the
-restore is removed. Worth noting the mutation check is what exposed it: the test was green, the
-feature worked, and the assertion was still nearly worthless.
+Tightened to assert the restore lands *before* the install report. That passed locally and **broke CI
+on all three operating systems**, which is the second mistake and the more interesting one.
+
+Locally the restore sits at byte 334 and the install report at 342: an eight-byte margin in a stream
+whose interleaving is not something an end-to-end test should be asserting on. The fix was not to
+chase why the ordering differs on a runner. It was to notice that a precise ordering guarantee does
+not belong in a test that drives a real terminal through a real process.
+
+The guarantee moved to `test/prompt.test.js`, which calls `multiSelect` directly with a fake TTY and
+asserts the restore is written before the promise resolves. Deterministic, no timing, and it fails
+when the restore is removed from `finish` while the process-exit handler is still in place. The pty
+test keeps the end-to-end property it can actually hold: both sequences appear, in that order.
+
+Committing on a green local run was the process failure. Three suites exist and only two were run.
 
 Also removed the pinned-tag install line from the README. npx re-resolves the ref on every run, so
 the plain form always gets `main` and the tag form was offering a solution to a problem that does
