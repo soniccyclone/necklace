@@ -57,9 +57,11 @@ jobs:
       - name: Test the built site
         run: node --test "test/site/*.test.js"
 
+      # No `enablement: true`. Creating a Pages site needs repo-admin rights and
+      # the default GITHUB_TOKEN does not have them, so it fails with "Resource
+      # not accessible by integration" in precisely the case it was meant to
+      # handle. Pages is enabled once by a human; see the README.
       - uses: actions/configure-pages@v5
-        with:
-          enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
           path: ./site/www

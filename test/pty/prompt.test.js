@@ -12,6 +12,21 @@ const BIN = path.resolve(import.meta.dirname, '..', '..', 'bin', 'necklace.js');
 const KEY = { down: '\x1b[B', up: '\x1b[A', space: ' ', enter: '\r', ctrlC: '\x03' };
 
 /**
+ * Put a directory at the front of PATH for a child process.
+ *
+ * Windows resolves PATH case-insensitively but a JS object does not, so adding
+ * a `PATH` key beside the `Path` the OS actually set leaves the original in
+ * charge and the child never sees the prepended directory. src/beads.js
+ * carries the same fixup for the same reason.
+ */
+function pathWith(dir) {
+  const env = { ...process.env };
+  const key = Object.keys(env).find((k) => k.toUpperCase() === 'PATH') ?? 'PATH';
+  env[key] = `${dir}${path.delimiter}${env[key] ?? ''}`;
+  return { [key]: env[key] };
+}
+
+/**
  * Run the CLI in a PTY, optionally feeding keys once the prompt appears.
  *
  * Everything goes through here, interactive or not, so the binary is always
@@ -170,7 +185,7 @@ test('a failing beads gate writes nothing and exits nonzero', async () => {
     const bin = await fakeBd(repo, { exitCode: 127 });
     const { out, exitCode } = await drive(repo, [], {
       argv: ['init', '--agent', 'claude'],
-      env: { PATH: `${bin}${path.delimiter}${process.env.PATH}` },
+      env: pathWith(bin),
     });
     assert.notEqual(exitCode, 0);
     assert.match(out, /requires a working bd/);
@@ -190,7 +205,7 @@ test('a repo without a beads workspace is told to run bd init', async () => {
     const bin = await fakeBd(repo, { whereExit: 1 });
     const { out, exitCode } = await drive(repo, [], {
       argv: ['init', '--agent', 'claude'],
-      env: { PATH: `${bin}${path.delimiter}${process.env.PATH}` },
+      env: pathWith(bin),
     });
     assert.notEqual(exitCode, 0);
     assert.match(out, /bd init/);
@@ -206,7 +221,7 @@ test('--agent installs without ever showing the prompt', async () => {
     const bin = await fakeBd(repo, { config: { 'export.auto': 'true', 'export.git-add': 'true' } });
     const { out, exitCode } = await drive(repo, [], {
       argv: ['init', '--agent', 'claude', '--agent', 'cursor'],
-      env: { PATH: `${bin}${path.delimiter}${process.env.PATH}` },
+      env: pathWith(bin),
     });
     assert.equal(exitCode, 0, out);
     assert.doesNotMatch(out, /space toggles/, 'an explicit --agent must not prompt');

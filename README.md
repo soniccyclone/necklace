@@ -126,6 +126,21 @@ transcript is not an answer.
 `spec.md` holds what is currently true. Everything else goes in `ledger.md`, which is why the
 planning document stays about two pages instead of growing into a record of its own drafting.
 
+## The site
+
+[soniccyclone.github.io/necklace](https://soniccyclone.github.io/necklace/) is built from `site/org/`
+by Emacs and published on push. The skill pages are generated from the real `SKILL.md` files, so they
+cannot drift from the installed skills.
+
+```
+sh site/build.sh          # build to site/www
+npm run test:site         # build, then assert it holds together
+```
+
+Pages has to be switched on once by hand, under **Settings → Pages → Source: GitHub Actions**. A
+workflow cannot do it: creating a Pages site needs repo-admin rights and the default `GITHUB_TOKEN`
+does not have them.
+
 ## Development
 
 ```
