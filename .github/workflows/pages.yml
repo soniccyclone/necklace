@@ -1,0 +1,67 @@
+name: Publish site
+
+on:
+  push:
+    branches: [main]
+    paths: ['site/**', 'skills/**', 'README.md', '.github/workflows/pages.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: purcell/setup-emacs@master
+        with:
+          version: 30.1
+
+      # Not bundled with Emacs. Without it org falls back to plain text and
+      # every code block on the site loses its highlighting.
+      - name: Install htmlize
+        run: |
+          emacs --batch --eval "(progn
+            (require 'package)
+            (add-to-list 'package-archives '(\"melpa\" . \"https://melpa.org/packages/\") t)
+            (package-initialize)
+            (package-refresh-contents)
+            (package-install 'htmlize))"
+
+      # Converts each SKILL.md to org so the docs pages are the real skills
+      # rather than a transcription, and supplies stable heading anchors.
+      - name: Install pandoc
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq pandoc
+
+      - name: Build
+        run: sh site/build.sh
+
+      # The site tests assert what would rot silently: anchors surviving a
+      # rebuild, the install line matching the README, skill pages coming from
+      # the real files. Run before deploying, not after.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test the built site
+        run: node --test "test/site/*.test.js"
+
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./site/www
+      - id: deployment
+        uses: actions/deploy-pages@v4

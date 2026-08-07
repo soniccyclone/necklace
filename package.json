@@ -19,7 +19,9 @@
   "scripts": {
     "test": "node --test \"test/*.test.js\"",
     "test:pty": "node --test \"test/pty/*.test.js\"",
-    "test:all": "npm test && npm run test:pty"
+    "test:all": "npm test && npm run test:pty",
+    "build:site": "sh site/build.sh",
+    "test:site": "sh site/build.sh && node --test \"test/site/*.test.js\""
   },
   "license": "Apache-2.0",
   "repository": {

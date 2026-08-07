@@ -27,7 +27,7 @@ and looking. These slices move it into place and make it deploy; they do not re-
 
 **Done when:** the four tests above pass. All must be red when created.
 
-**Beads:**
+**Beads:** `necklace-lr3`
 
 ---
 
@@ -49,7 +49,7 @@ and looking. These slices move it into place and make it deploy; they do not re-
 
 **Done when:** the three tests above pass. All must be red when created.
 
-**Beads:**
+**Beads:** `necklace-73f`
 
 ---
 
@@ -71,7 +71,7 @@ and looking. These slices move it into place and make it deploy; they do not re-
 
 **Done when:** the three tests above pass. All must be red when created.
 
-**Beads:**
+**Beads:** `necklace-6zs`
 
 ---
 
@@ -96,7 +96,7 @@ and looking. These slices move it into place and make it deploy; they do not re-
 
 **Done when:** the five tests above pass. All must be red when created.
 
-**Beads:**
+**Beads:** `necklace-a9q`
 
 ---
 
@@ -121,7 +121,7 @@ and looking. These slices move it into place and make it deploy; they do not re-
 
 **Depends on:** CUJ-01
 
-**Beads:**
+**Beads:** `necklace-uc1`
 
 ---
 
@@ -145,7 +145,7 @@ and looking. These slices move it into place and make it deploy; they do not re-
 
 **Depends on:** CUJ-04
 
-**Beads:**
+**Beads:** `necklace-vgn`
 
 ---
 
@@ -157,7 +157,7 @@ Checks before finishing:
   Every "Done when" names tests and nothing else.       yes.
   Slices are vertical.                                  each is one actor observing one outcome.
   Dependencies are sparse.                              two edges.
-  Every Beads line is empty.                            yes: none of this is built or broken down.
+  Every Beads line names beads.                         yes: all six broken down and closed.
 
   The visual decisions are settled in repl/splash/ and are not re-opened here. What these slices
   test is that the result keeps working, not that it looks the way it looks.

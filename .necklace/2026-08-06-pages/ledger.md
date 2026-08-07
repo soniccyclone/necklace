@@ -162,3 +162,28 @@ assumed to work.
 
 `spec.md` was brought current first: the warm-grey ground, the single flat accent, pandoc supplying
 stable anchors, and a pointer to `repl/splash/` as the reference implementation.
+
+## Stage 3, beads and implementation
+
+Six CUJs became six flat beads. 16 tests written first, all red on `ENOENT` because no site existed,
+then green once `site/` did.
+
+**The build script has to clean its own generated pages.** `site/org/skill-*.org` is generated per
+skill, and deleting a skill left an orphan pointing at a `gen/` file that no longer existed. Org then
+failed the whole build on the missing include. Found by the lenient-YAML test, which creates a
+throwaway skill and removes it: the removal poisoned every subsequent build until the orphan was
+cleared. The fix is one line, `rm -f org/skill-*.org` alongside the existing `rm -rf gen www`.
+
+Worth noting the test that caught it was written for something else entirely. It exercised
+create-then-delete as setup, and the teardown was what broke.
+
+**The error check was written as `grep ... && { exit 1 }`**, which is a compound whose status is
+grep's when it does not match. Rewritten as a real `if`. Verified the intended behaviour directly: a
+build with a broken include exits 1 rather than publishing the two pages that happened to succeed.
+
+**Deploy is a separate workflow** from CI, triggered only by changes to `site/`, `skills/`, the
+README, or itself. It installs Emacs, htmlize from MELPA, and pandoc, builds, **runs the site tests**,
+and only then uploads. Testing after deploying would report a broken site rather than prevent one.
+
+`configure-pages` carries `enablement: true`, so the first run turns Pages on without anyone visiting
+settings. This repo reports `has_pages: false` today.

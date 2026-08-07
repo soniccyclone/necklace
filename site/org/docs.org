@@ -1,0 +1,35 @@
+#+TITLE: necklace documentation
+#+OPTIONS: toc:nil num:nil author:nil date:nil
+
+#+BEGIN_EXPORT html
+<div class="hero compact">
+  <img src="icon.svg" alt="" class="mark">
+  <h1>documentation</h1>
+  <p class="tagline">Six skills. Each page is the file the agent actually loads.</p>
+</div>
+#+END_EXPORT
+
+* The pipeline
+:PROPERTIES:
+:CUSTOM_ID: pipeline
+:END:
+
+- [[./skill-necklace.html][necklace]] — runs the whole pipeline
+- [[./skill-necklace-spec.html][necklace-spec]] — ticket to planning document, researched in a REPL first
+- [[./skill-necklace-cuj.html][necklace-cuj]] — planning document to CUJ technical design document
+- [[./skill-necklace-beads.html][necklace-beads]] — CUJ document to beads, worked to completion
+
+* Outside the pipeline
+:PROPERTIES:
+:CUSTOM_ID: outside
+:END:
+
+- [[./skill-necklace-tweak.html][necklace-tweak]] — post-implementation edits, brought back into the documents
+- [[./skill-necklace-lint.html][necklace-lint]] — checks whether necklace's own files are polluting your repo
+
+#+BEGIN_EXPORT html
+<footer>
+  <a href="./index.html">Home</a> ·
+  <a href="https://github.com/soniccyclone/necklace">Source</a>
+</footer>
+#+END_EXPORT

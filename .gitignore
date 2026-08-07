@@ -31,3 +31,8 @@ node_modules/
 
 # Generated from the real SKILL.md files at build time.
 .necklace/**/repl/**/gen/
+
+# Site build artifacts. Generated from skills/ and org/ on every build.
+site/www/
+site/gen/
+site/org/skill-*.org
