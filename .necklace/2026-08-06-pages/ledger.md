@@ -100,15 +100,25 @@ links to a `<pre>`.
 
 No sudo here, so pandoc went to `~/.local/bin`. The workflow will need its own install step.
 
-**Generating the pages found a shipping bug.** pandoc refused `skills/necklace/SKILL.md` with a YAML
-parse error, and it was right: the description read `...on a ticket or subsystem: a planning
-document...`, and an unquoted `: ` inside a plain scalar is invalid YAML. That is the orchestrator,
-the primary entry point, and every one of the four targets parses that block to decide when the skill
-fires. Five of six skills were fine; only that one was malformed.
+**A "shipping bug" that was not one.** pandoc refused `skills/necklace/SKILL.md` with a YAML parse
+error, because the description contained an unquoted `: `. That was reported here as a defect
+affecting all four targets, on the reasoning that they all parse the frontmatter.
 
-Fixed by rewording rather than quoting, and CI now parses all six with a real YAML parser instead of
-grepping for the key. The previous check only confirmed a `description:` line existed, which this bug
-passed.
+Wrong, and checkable: `ste-writing` is installed and loaded in this very session, it routes correctly
+on its description, and its frontmatter is **invalid YAML** for exactly the same reason. So Claude
+Code parses that block leniently, line by line. pandoc is stricter than the consumers, and the file
+would have worked.
+
+The real fix is to stop handing the block to a strict parser at all. The generator now strips the
+frontmatter before pandoc sees it, since the description is extracted separately anyway. CI went back
+to a line-based check, with a comment saying why: validating strictly would fail skills that work
+today.
+
+The reworded description was kept because it reads fine either way, but it was not a fix.
+
+Worth keeping as the general shape of the error: a tool rejecting a file is evidence about that tool,
+not automatically about the file. The check that settled it was finding a working example in the
+wild rather than reasoning about the YAML spec.
 
 ## Decisions
 

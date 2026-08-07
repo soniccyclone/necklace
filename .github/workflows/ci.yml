@@ -66,32 +66,29 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Every skill has valid frontmatter naming itself
+      - name: Every skill declares a name matching its directory, and a description
         run: |
-          pip install --quiet pyyaml
-          python3 - <<'PY'
-          import glob, re, sys, os
-          bad = []
-          for f in sorted(glob.glob('skills/*/SKILL.md')):
-              want = os.path.basename(os.path.dirname(f))
-              m = re.match(r'^---\n(.*?)\n---\n', open(f).read(), re.S)
-              if not m:
-                  bad.append(f'{f}: no frontmatter'); continue
-              import yaml
-              try:
-                  d = yaml.safe_load(m.group(1))
-              except Exception as e:
-                  # An unquoted colon in a description is the way this breaks,
-                  # and every target parses this block to route on it.
-                  bad.append(f'{f}: invalid YAML: {str(e).splitlines()[0]}'); continue
-              if d.get('name') != want:
-                  bad.append(f"{f}: name is {d.get('name')!r}, directory is {want!r}")
-              if not d.get('description'):
-                  bad.append(f'{f}: no description; every target routes on it')
-          for b in bad:
-              print(f'::error::{b}')
-          sys.exit(1 if bad else 0)
-          PY
+          # Deliberately line-based, not a YAML parse. The frontmatter block is
+          # YAML-shaped but the agents that consume it parse it leniently: a
+          # skill shipping today with an unquoted colon in its description loads
+          # fine in Claude Code. Validating it strictly would fail files that work.
+          fail=0
+          for dir in skills/*/; do
+            name=$(basename "$dir")
+            file="$dir/SKILL.md"
+            if [ ! -f "$file" ]; then
+              echo "::error::$name has no SKILL.md"; fail=1; continue
+            fi
+            head -1 "$file" | grep -qx -- '---' \
+              || { echo "::error::$file does not open with a frontmatter delimiter"; fail=1; }
+            declared=$(awk -F': ' '/^name: /{print $2; exit}' "$file")
+            [ "$declared" = "$name" ] \
+              || { echo "::error::$file declares name '$declared' but lives in '$name'"; fail=1; }
+            desc=$(awk '/^description: /{sub(/^description: /,""); print; exit}' "$file")
+            [ -n "$desc" ] \
+              || { echo "::error::$file has no description; every target routes on it"; fail=1; }
+          done
+          exit $fail
 
       # The payload reaching the tarball is the silent failure mode: an omitted
       # files entry installs nothing while appearing to succeed.

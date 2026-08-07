@@ -5,8 +5,10 @@
 # exporter and picks up the site's CSS. It also emits :CUSTOM_ID: per heading,
 # which is what keeps deep links stable across rebuilds.
 #
-# The YAML frontmatter is metadata to pandoc and gets dropped, so the
-# description is pulled out separately and shown as the page's tagline.
+# The frontmatter block is stripped before pandoc sees it. It is not strict
+# YAML in practice, and the agents that consume these files parse it leniently
+# line by line, so handing it to a strict parser would reject files that work.
+# The description is pulled out separately and shown as the page's tagline.
 set -e
 cd "$(dirname "$0")"
 ROOT=$(git rev-parse --show-toplevel)
@@ -22,7 +24,8 @@ for dir in "$ROOT"/skills/*/; do
   # frontmatter description, unwrapped onto one line
   desc=$(awk '/^description: /{sub(/^description: /,""); print; exit}' "$src")
 
-  "$PANDOC" -f markdown -t org --wrap=none "$src" > "gen/$name.org"
+  sed '1{/^---$/!q}; 1,/^---$/d' "$src" \
+    | "$PANDOC" -f markdown -t org --wrap=none > "gen/$name.org"
 
   cat > "org/skill-$name.org" <<PAGE
 #+TITLE: $name
