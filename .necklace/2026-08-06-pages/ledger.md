@@ -216,3 +216,22 @@ on every page. The one page with zero spans has zero locally too, because its co
 commands with nothing to highlight.
 
 Repository homepage set to the site.
+
+## npx caching, settled
+
+The tool plan flagged this as needing verification before anyone relied on it. Verified against the
+live repository rather than from documentation, which does not cover it.
+
+npx keys its cache directory on the **spec string**, so `github:soniccyclone/necklace` always resolves
+to the same entry under `~/.npm/_npx/`. That entry holds a lockfile pinning a specific commit.
+
+The question was whether a rerun serves that pin or re-resolves. It re-resolves: after `main` moved
+from `d37b8c5` to `60613fc`, a second run with an identical spec reported the new version and the
+same cache entry's pin had been rewritten in place. A rerun with nothing moved takes about 1.6
+seconds, so it is checking the remote ref, not re-cloning.
+
+So the plain install line always gets `main` HEAD, which is the behaviour Nathan wanted, and tags are
+for people who want to pin rather than a workaround for staleness.
+
+`--version` was added to the CLI to make this testable. A tool with no way to report which build it
+is cannot be checked for staleness at all, which is worth having independently of this question.

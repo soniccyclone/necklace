@@ -77,10 +77,17 @@ The package still needs `package.json` with a `bin` entry, and `files` must incl
 a git install packs the repo the same way `npm pack` does. There is no build and no `prepare` step to
 go wrong, because the package is plain JS with no dependencies.
 
-**What this costs.** No `npm update` and no version metadata, so updating means rerunning the same
-`npx` line. And npm caches git installs, so confirm during implementation that a rerun after a push
-actually fetches the newer commit rather than serving a cached tarball. If it does not, the pinned-tag
-form is the answer and the README says so.
+**Caching, verified against the live repository.** npx keys its cache directory on the spec string,
+so `github:soniccyclone/necklace` always lands in the same entry. It re-resolves the ref on every
+run: after `main` moved from `d37b8c5` to `60613fc`, a second `npx` with an identical spec reported
+the new version and the cache entry's pin had been updated in place. A run where nothing has moved
+costs about 1.6 seconds, so it checks the remote ref rather than re-cloning.
+
+The plain form therefore always gets `main`, which is what we want, and the pinned-tag form exists
+for anyone who wants reproducibility rather than as a workaround for staleness.
+
+The one real cost is no `npm update` and no version metadata, so updating means rerunning the same
+line.
 
 Publishing to npm stays available later. It changes the install line and nothing else, because
 nothing in the package depends on which of the two fetched it.
