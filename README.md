@@ -22,12 +22,7 @@ stale one is not a defect.
 npx github:soniccyclone/necklace init
 ```
 
-Not on npm yet, so the GitHub form is the install. It packs this repository, which means a tag is a
-version:
-
-```
-npx github:soniccyclone/necklace#v0.1.0 init
-```
+Not on npm yet, so the GitHub form is the install. It always fetches the current `main`.
 
 `init` detects which agents your repo uses, asks which to install for, and writes the skills. Rerun
 it to update: it always writes the current skills, so there is no separate update command.

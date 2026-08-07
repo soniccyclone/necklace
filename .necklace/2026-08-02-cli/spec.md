@@ -47,6 +47,8 @@ Every one of those is a step someone gets wrong once and then blames the tool fo
 - Node 22 or newer. `import.meta.dirname` would allow 20.11, but Node 20 reached end of life in April
   2026 and the test runner only expands glob patterns itself from v21, which a Windows shell needs
   since `cmd.exe` does not expand them.
+- The prompt owns the terminal while it is open. It hides the cursor on entry and restores it on
+  every exit path, including abort, because a cursor left hidden outlives the process.
 - No runtime dependencies. Measured as achievable: keypress events, argument parsing, and recursive
   copy are all in the standard library. Driving the CLI in tests needs a pseudo-terminal, which is a
   dev dependency and does not ship.

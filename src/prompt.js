@@ -40,13 +40,30 @@ export function multiSelect({ message, choices, input = process.stdin, output = 
       lastLines = lines.length;
     }
 
+    // The cursor sits wherever the last redraw left it, blinking over the list.
+    // Hide it while the prompt owns the screen.
+    const HIDE = '\x1b[?25l';
+    const SHOW = '\x1b[?25h';
+    let restored = false;
+    function restoreCursor() {
+      if (restored) return;
+      restored = true;
+      output.write(SHOW);
+    }
+    // A cursor that never comes back is worse than a visible one, so restore on
+    // the way out however the process leaves: normal exit, ctrl-c, or a throw.
+    process.once('exit', restoreCursor);
+    process.once('SIGINT', restoreCursor);
+
     readline.emitKeypressEvents(input);
     if (input.setRawMode) input.setRawMode(true);
+    output.write(HIDE);
 
     function finish(err, value) {
       if (input.setRawMode) input.setRawMode(false);
       input.removeListener('keypress', onKey);
       input.pause();
+      restoreCursor();
       output.write('\n');
       err ? reject(err) : resolve(value);
     }

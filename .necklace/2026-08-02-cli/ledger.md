@@ -325,3 +325,27 @@ when a tweak turns out to be CUJ-shaped.
 CI, the PTY coverage, the licence scrub, and the beads gitignore are not CUJs. None gives an actor a
 new observable outcome. They are in this ledger and nowhere else, which is the correct home for work
 that changes how the project is built rather than what it does.
+
+## Tweak: the prompt left a blinking cursor on screen
+
+Reported from a real npx install. The prompt redraws its list on every keypress and the terminal
+cursor sat wherever the last redraw left it, blinking over the options. Installers do not normally
+show one.
+
+Fixed with the two standard escapes, hide on entry and show on the way out. The restore runs on
+`finish`, and also on `exit` and `SIGINT`, because a cursor left hidden survives the process and the
+user is left with a terminal that looks broken until they reset it. That failure is worse than the
+one being fixed, which is why it gets three exits rather than one.
+
+**The first test for it passed against a deliberately broken build.** Removing the restore from
+`finish` changed nothing, because the `exit` handler still fired and the assertion only checked that
+a restore appeared somewhere in the output. Functionally the cursor did come back, but only after the
+install had finished printing, which is precisely the window the user is watching.
+
+Tightened to assert the restore lands *before* the install report. That version fails when the
+restore is removed. Worth noting the mutation check is what exposed it: the test was green, the
+feature worked, and the assertion was still nearly worthless.
+
+Also removed the pinned-tag install line from the README. npx re-resolves the ref on every run, so
+the plain form always gets `main` and the tag form was offering a solution to a problem that does
+not exist.

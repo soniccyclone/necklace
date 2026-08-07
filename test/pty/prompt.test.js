@@ -231,3 +231,36 @@ test('--agent installs without ever showing the prompt', async () => {
     await cleanup(repo);
   }
 });
+
+test('the cursor is hidden during the prompt and restored on exit', async () => {
+  const repo = await tempRepo(async (d) => {
+    await mkdir(path.join(d, '.claude'), { recursive: true });
+  });
+  try {
+    const { out } = await drive(repo, [KEY.enter]);
+    const hide = out.indexOf('\x1b[?25l');
+    const show = out.indexOf('\x1b[?25h');
+    const installed = out.indexOf('installed ');
+    assert.ok(hide !== -1, 'the prompt never hid the cursor');
+    assert.ok(show !== -1, 'the cursor was never restored; a terminal left like this stays broken');
+    assert.ok(show > hide, 'the restore must come after the hide');
+    // Restoring only on process exit would leave the cursor hidden for the
+    // whole install, which is the window the user actually watches.
+    assert.ok(installed !== -1, 'expected the install report in the output');
+    assert.ok(show < installed, 'the cursor must come back before the install output, not at exit');
+  } finally {
+    await cleanup(repo);
+  }
+});
+
+test('ctrl-c still restores the cursor', async () => {
+  const repo = await tempRepo(async (d) => {
+    await mkdir(path.join(d, '.claude'), { recursive: true });
+  });
+  try {
+    const { out } = await drive(repo, [KEY.ctrlC]);
+    assert.ok(out.includes('\x1b[?25h'), 'aborting must not leave the cursor hidden');
+  } finally {
+    await cleanup(repo);
+  }
+});
