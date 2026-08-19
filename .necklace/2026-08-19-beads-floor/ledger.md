@@ -118,3 +118,17 @@ which is how a 0.39.0 user gets told to run `bd init` when the actual problem is
 **Judgment call for Nathan, not resolvable by running anything:** whether to drop the floor outright
 or lower it. Dropping it is what the evidence supports. Keeping a number means picking one that is
 wrong for some real version, since the working bands are not monotonic.
+
+## 2026-08-19 — decision and CUJ
+
+Nathan chose to delete `VERSION_FLOOR` outright rather than lower it to 0.39.1 or convert it into a
+tested-up-to ceiling. Recorded in `spec.md` under Decided.
+
+Writing CUJ-03 caught a test that would have been green the moment it was written. The first draft
+asserted the README "does not claim a minimum version" — but grepping the whole repo, the only stated
+bd version anywhere is `skills/necklace-lint/SKILL.md:95`, `| version | at least 1.1.0 |`. The README
+never claimed one. Rewrote the row to assert the README *names the measured range*, which is absent
+today and therefore red.
+
+That also narrows the doc work: the floor is stated in exactly two places in the shipped product,
+`src/beads.js` and the lint skill's probe table. Nothing in `site/org/docs.org` repeats it.

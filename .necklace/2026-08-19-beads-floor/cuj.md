@@ -64,8 +64,8 @@ Derived from `spec.md` in this directory. One CUJ per actor-outcome pair.
 
 | Test | Input | Assertion | Informed by |
 | --- | --- | --- | --- |
-| `the readme states a measured range, not a version floor` | `README.md` | the beads section names the measured range and does not claim a minimum version | |
-| `the lint skill checks capability rather than version` | `skills/necklace-lint/SKILL.md` | its bd table has no row asserting a minimum version, and keeps the rows that run commands | the lint skill's environment table is the other place the requirement is stated |
+| `the readme names the bd versions necklace was measured against` | `README.md` | the beads requirement names the measured range, which it currently states nowhere | grep across README, docs and skills: `skills/necklace-lint/SKILL.md:95` is the only stated bd version anywhere in the repo |
+| `the lint skill checks capability rather than version` | `skills/necklace-lint/SKILL.md` | its bd probe table has no row asserting a version, and keeps the rows that run commands | the row reads `| version | at least 1.1.0 |` today |
 
 **Done when:** the two tests above pass. Both must be red when created.
 
