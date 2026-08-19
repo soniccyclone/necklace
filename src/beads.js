@@ -26,6 +26,14 @@ function bd(args, pathPrefix) {
   return spawnSync('bd', args, { env, encoding: 'utf8', shell: WINDOWS });
 }
 
+function firstLine(text) {
+  return (text ?? '').trim().split('\n')[0].trim();
+}
+
+function quote(said) {
+  return said ? ` bd said: ${said}` : '';
+}
+
 function parseVersion(text) {
   const m = /(\d+)\.(\d+)\.(\d+)/.exec(text ?? '');
   return m ? [Number(m[1]), Number(m[2]), Number(m[3])] : null;
@@ -59,11 +67,19 @@ export function checkBeads({ pathPrefix } = {}) {
 
   // necklace never runs bd init. Initializing a repo adds tracked files and
   // commits them, which is the user's call to make, so we check and ask.
-  if (bd(['where'], pathPrefix).status !== 0) {
+  const where = bd(['where'], pathPrefix);
+  if (where.status !== 0) {
+    // bd separates "that command does not exist" from "no workspace here" from
+    // "the backend is unreachable", and each wants a different fix. Quote it
+    // rather than mapping all three onto one guess.
+    const said = firstLine(where.stderr) || firstLine(where.stdout);
+    const tooOld = /unknown command/i.test(said);
     return {
       ok: false,
-      reason: 'beads is installed, but this repo has no beads workspace.',
-      remediation: INIT_BD,
+      reason: tooOld
+        ? `this bd has no \`where\` command, so it is too old for necklace.${quote(said)}`
+        : `beads is installed, but this repo has no beads workspace.${quote(said)}`,
+      remediation: tooOld ? INSTALL_BD : INIT_BD,
       warnings,
     };
   }

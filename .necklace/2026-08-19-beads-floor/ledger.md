@@ -132,3 +132,39 @@ today and therefore red.
 
 That also narrows the doc work: the floor is stated in exactly two places in the shipped product,
 `src/beads.js` and the lint skill's probe table. Nothing in `site/org/docs.org` repeats it.
+
+## Implementation
+
+**CUJ-01.** `VERSION_FLOOR`, `below()` and the floor branch came out of `src/beads.js`. `parseVersion`
+stayed — the version still rides along in the result for reporting, it just does not decide anything.
+Three tests red first, then green, full suite 23/23. Closed `necklace-sux`.
+
+**CUJ-02.** One of the three tests, `still tells an uninitialized repo to run bd init`, was green the
+moment it was written. It is the pre-existing behaviour rewritten to pin bd's real stderr string, and
+it exists so the remediation branch cannot silently swallow the common case. Calling it a red-first
+test would be a lie; it is a regression guard and the CUJ's "all must be red" is wrong for it.
+
+The branch keys on `unknown command` in bd's stderr. That is a cobra-ism and it is stable across the
+entire measured range — 0.39.0 prints `Error: unknown command "where" for "bd"`.
+
+Verified against real bd builds, not just stubs (`repl/out-gate-fixed.txt`):
+
+    1.2.1  1.0.2  0.45.0  0.39.1   PASS
+    0.39.0   BLOCK  this bd has no `where` command, so it is too old for necklace.
+                    bd said: Error: unknown command "where" for "bd"
+    0.51.0   BLOCK  beads is installed, but this repo has no beads workspace.
+                    bd said: Error: no beads database found
+    1.2.1, uninitialized repo
+             BLOCK  beads is installed, but this repo has no beads workspace.
+                    bd said: Error: No active beads workspace found.
+
+Three different faults, three different lines, and the 0.39.0 user is told to upgrade instead of being
+sent to `bd init`.
+
+## Note on this repo's own beads workspace
+
+There was no local beads database here — `.beads/issues.jsonl` was tracked but `bd where` exited 1, so
+step 3 could not run. Nathan authorised `bd init`. It imported 11 issues from the jsonl and committed
+`.codex/`, `.cursor/` and a `.gitignore` change as `2e84f29`, which is exactly the tracked-files
+behaviour necklace refuses to trigger on a user's behalf. Both export keys came up false on a fresh
+init, so they were set per the README before any bead was created.

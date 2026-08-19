@@ -70,15 +70,57 @@ test('does not gate on the version number at all', async () => {
   }
 });
 
-test('reports when the repo has no beads workspace', async () => {
+// CUJ-02: bd already distinguishes "that command does not exist" from "no
+// workspace here" from "the backend is unreachable", and each points at a
+// different fix. All three strings below came off real bd builds in
+// .necklace/2026-08-19-beads-floor/repl/out-sweep.txt.
+test('still tells an uninitialized repo to run bd init', async () => {
   const { checkBeads } = await import('../src/beads.js');
   const repo = await tempRepo();
   try {
-    const bin = await fakeBd(repo, { whereExit: 1 });
+    const bin = await fakeBd(repo, {
+      whereExit: 1,
+      whereStderr: 'Error: No active beads workspace found.',
+    });
     const result = checkBeads({ pathPrefix: bin });
     assert.equal(result.ok, false);
     assert.match(result.reason, /not initiali[sz]ed|no beads workspace/i);
     assert.match(result.remediation, /bd init/, 'must tell the user to run it, not run it for them');
+  } finally {
+    await cleanup(repo);
+  }
+});
+
+test("quotes bd's own reason when where fails", async () => {
+  const { checkBeads } = await import('../src/beads.js');
+  const repo = await tempRepo();
+  const said = 'Error: failed to open database: Dolt server unreachable at 127.0.0.1:0';
+  try {
+    const bin = await fakeBd(repo, { whereExit: 1, whereStderr: said });
+    const result = checkBeads({ pathPrefix: bin });
+    assert.equal(result.ok, false);
+    assert.ok(
+      result.reason.includes(said),
+      `a guessed cause hides the real one; got: ${result.reason}`,
+    );
+  } finally {
+    await cleanup(repo);
+  }
+});
+
+test('tells an old bd to upgrade, not to run bd init', async () => {
+  const { checkBeads } = await import('../src/beads.js');
+  const repo = await tempRepo();
+  try {
+    const bin = await fakeBd(repo, {
+      version: '0.39.0',
+      whereExit: 1,
+      whereStderr: 'Error: unknown command "where" for "bd"',
+    });
+    const result = checkBeads({ pathPrefix: bin });
+    assert.equal(result.ok, false);
+    assert.match(result.remediation, /brew install beads|npm i -g/);
+    assert.doesNotMatch(result.remediation, /bd init/, 'the workspace is not the fault here');
   } finally {
     await cleanup(repo);
   }
