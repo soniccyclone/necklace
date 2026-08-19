@@ -74,3 +74,47 @@ version. This is the argument against the floor, independent of where it is set.
 The `bd config get` string contract `src/beads.js` depends on — stdout trimming to exactly `true` —
 holds unchanged from 0.39.0 through 1.2.1. The one exception is the 0.50.x band, where the value does
 not round-trip at all.
+
+## Probe 3 — what the gate does, not what it intends
+
+`repl/gate.mjs` imports the real `checkBeads` and runs it inside the container against each bd, in a
+repo already `bd init`ed and configured. `BEADS_MODULE` selects which copy of `src/beads.js` to load,
+so the same probe runs the shipped gate and a copy with `VERSION_FLOOR` dropped to `[0,0,0]`.
+
+What would prove the floor earns its place: a version the floor blocks that the capability probes let
+through despite being broken.
+
+Shipped gate (`repl/out-gate-shipped.txt`): PASS for 1.2.1 and 1.1.0, BLOCK for all eleven others,
+every one of them on the floor message. The floor returns before `bd where` or `bd config get` ever
+run, so on the current build those probes are dead code for anything below 1.1.0.
+
+Floor stripped (`repl/out-gate-nofloor.txt`):
+
+    1.2.1 1.1.0 1.0.4 1.0.2   PASS
+    0.62.0 0.51.0             BLOCK — no beads workspace
+    0.50.3                    PASS + both export warnings
+    0.49.6 0.45.0 0.41.0 0.39.1  PASS
+    0.39.0                    BLOCK — no beads workspace
+
+The capability probes catch every version the sweep found broken and pass every version the sweep
+found working. Nothing came through the floor-stripped gate that should not have. The floor's entire
+observable contribution is rejecting 0.39.1–0.50.3 and 1.0.2–1.0.5, all of which run necklace fine.
+
+Nathan's bd at work was almost certainly in that 1.0.x band. He was right.
+
+### The one thing the probes get wrong
+
+Both BLOCK cases report `beads is installed, but this repo has no beads workspace` and tell the user
+to run `bd init`. Neither is that:
+
+    0.39.0   Error: unknown command "where" for "bd"
+    0.51.0   Error: failed to open database: Dolt server unreachable at 127.0.0.1:0
+    1.2.1    Error: No active beads workspace found.        (the real uninitialized case)
+
+bd already distinguishes all three on stderr. necklace throws that away and substitutes a guess,
+which is how a 0.39.0 user gets told to run `bd init` when the actual problem is that their bd has no
+`where` command. Surfacing bd's own line costs nothing and is right in all three cases.
+
+**Judgment call for Nathan, not resolvable by running anything:** whether to drop the floor outright
+or lower it. Dropping it is what the evidence supports. Keeping a number means picking one that is
+wrong for some real version, since the working bands are not monotonic.
