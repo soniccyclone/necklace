@@ -1,8 +1,6 @@
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
 
-export const VERSION_FLOOR = [1, 1, 0];
-
 const INSTALL_BD = `Install beads, then rerun necklace init:
   brew install beads          # macOS / Linux
   npm i -g @beads/bd          # Node`;
@@ -33,17 +31,16 @@ function parseVersion(text) {
   return m ? [Number(m[1]), Number(m[2]), Number(m[3])] : null;
 }
 
-function below(a, b) {
-  for (let i = 0; i < 3; i++) {
-    if (a[i] !== b[i]) return a[i] < b[i];
-  }
-  return false;
-}
-
 /**
  * Run bd rather than looking for it on PATH. A bd that resolves can still be a
  * broken install shim that exits nonzero on every call, and a PATH check would
  * pass and then fail later, after work had already been created.
+ *
+ * There is deliberately no version floor. Every bd from 0.39.1 to 1.2.1 that
+ * answers these commands runs necklace, and the ones that do not are not ordered
+ * by version number: 0.49.6 works where 0.62.0 does not. A `>=` comparison cannot
+ * express that, so running the commands is the whole test. Measured in
+ * .necklace/2026-08-19-beads-floor/, re-runnable from repl/probe.sh there.
  */
 export function checkBeads({ pathPrefix } = {}) {
   const warnings = [];
@@ -59,14 +56,6 @@ export function checkBeads({ pathPrefix } = {}) {
   }
 
   const version = parseVersion(probe.stdout);
-  if (version && below(version, VERSION_FLOOR)) {
-    return {
-      ok: false,
-      reason: `bd ${version.join('.')} is below the 1.1.0 floor necklace requires.`,
-      remediation: INSTALL_BD,
-      warnings,
-    };
-  }
 
   // necklace never runs bd init. Initializing a repo adds tracked files and
   // commits them, which is the user's call to make, so we check and ask.

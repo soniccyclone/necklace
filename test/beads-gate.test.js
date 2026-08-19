@@ -23,14 +23,48 @@ test('refuses to install when bd is missing', async () => {
   }
 });
 
-test('reports a bd below the version floor', async () => {
+// CUJ-01: the gate tests what bd can do, not what number it reports. Measured in
+// .necklace/2026-08-19-beads-floor/: every bd from 0.39.1 to 1.2.1 that answers
+// these commands runs necklace, and the version bands are not monotonic, so no
+// >= comparison is correct for every real version.
+const WORKING = { whereExit: 0, config: { 'export.auto': 'true', 'export.git-add': 'true' } };
+
+test('accepts a bd that answers every command necklace uses', async () => {
   const { checkBeads } = await import('../src/beads.js');
   const repo = await tempRepo();
   try {
-    const bin = await fakeBd(repo, { version: '1.0.9' });
+    const bin = await fakeBd(repo, { ...WORKING, version: '1.0.2' });
     const result = checkBeads({ pathPrefix: bin });
-    assert.equal(result.ok, false);
-    assert.match(result.reason, /1\.1\.0/, 'must name the floor, not just say too old');
+    assert.equal(result.ok, true, 'bd 1.0.2 runs the whole necklace surface');
+    assert.deepEqual(result.warnings, []);
+  } finally {
+    await cleanup(repo);
+  }
+});
+
+test('accepts a bd from before the 1.x line', async () => {
+  const { checkBeads } = await import('../src/beads.js');
+  const repo = await tempRepo();
+  try {
+    const bin = await fakeBd(repo, { ...WORKING, version: '0.39.1' });
+    const result = checkBeads({ pathPrefix: bin });
+    assert.equal(result.ok, true, '0.39.1 is the oldest bd with a where command');
+  } finally {
+    await cleanup(repo);
+  }
+});
+
+test('does not gate on the version number at all', async () => {
+  const beads = await import('../src/beads.js');
+  const repo = await tempRepo();
+  try {
+    const bin = await fakeBd(repo, { ...WORKING, version: '0.0.1' });
+    assert.equal(beads.checkBeads({ pathPrefix: bin }).ok, true);
+    assert.equal(
+      beads.VERSION_FLOOR,
+      undefined,
+      'no version constant left to drift against future bd releases',
+    );
   } finally {
     await cleanup(repo);
   }
