@@ -92,10 +92,12 @@ exclusions is expected and fine.
 | Probe | Method |
 | --- | --- |
 | installed and working | `bd --version` exits 0. Run it; do not check PATH. |
-| version | at least 1.1.0 |
 | repo initialized | a beads database directory is present |
 | auto-export on | `bd config get export.auto` is true |
 | export staged | `bd config get export.git-add` is true |
+
+There is no version row on purpose. bd versions that necklace cannot use are not ordered by version
+number, so running the commands is the only check that is right in every case.
 
 Both export keys default to false and both are needed. Without them the bead graph lives only in the
 local database, and a bead ID in a CUJ document is a dangling pointer for anyone reading the repo on

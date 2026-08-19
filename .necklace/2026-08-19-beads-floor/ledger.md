@@ -168,3 +168,9 @@ step 3 could not run. Nathan authorised `bd init`. It imported 11 issues from th
 `.codex/`, `.cursor/` and a `.gitignore` change as `2e84f29`, which is exactly the tracked-files
 behaviour necklace refuses to trigger on a user's behalf. Both export keys came up false on a fresh
 init, so they were set per the README before any bead was created.
+
+**CUJ-03.** The floor was stated in exactly two shipped places: `src/beads.js` and the lint skill's
+probe table. The README never claimed one, so the work there was additive — say what was measured and
+point at the probe. New file `test/docs.test.js`; both tests red first. Closed `necklace-uoj`.
+
+Full suite: 27 tests, 27 passing.
