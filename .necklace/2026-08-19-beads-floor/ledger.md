@@ -47,3 +47,30 @@ falsified at the top of the range; the remaining question is how far down it goe
 
 0.63.3's npm install failed. The probe swallowed the reason, which is a probe bug — fixed to capture
 npm's stderr before the full sweep.
+
+## Probe 2 — the full sweep
+
+`repl/probe.sh` against every version npm still serves, 0.39.0 to 1.2.1, raw output in
+`repl/out-sweep.txt` and `repl/out-sweep-boundary.txt`. Four distinct bands came out, and they are
+not ordered the way a floor assumes:
+
+| bd range | what happens |
+| --- | --- |
+| 0.39.0 | every step passes except `bd where` — `unknown command "where" for "bd"` |
+| 0.39.1 – 0.49.6 | all 16 steps exit 0 |
+| 0.50.1 – 0.50.3 | `config set` exits 0 but `config get` returns `export.auto (not set)` |
+| 0.51.0 – 0.62.0 | Dolt era. `bd init` and `bd where` fail: `Dolt server unreachable`, or `dolt: this binary was built without CGO` |
+| 1.0.2 – 1.2.1 | all 16 steps exit 0 |
+
+0.55.4, 0.63.3 and 1.0.5 are not installable at all: `npm i -g @beads/bd@<v>` runs its postinstall,
+prints `Downloading bd binary...`, and exits 1. The GitHub release assets those three postinstalls
+reach for are gone. Nothing necklace can do about that, and nothing it needs to — an uninstallable
+version never reaches the gate.
+
+**The bands are not monotonic in the version number.** 0.49.6 works and 0.62.0 does not. A `>=`
+comparison cannot express that, so whatever number goes in `VERSION_FLOOR`, it is wrong for some real
+version. This is the argument against the floor, independent of where it is set.
+
+The `bd config get` string contract `src/beads.js` depends on — stdout trimming to exactly `true` —
+holds unchanged from 0.39.0 through 1.2.1. The one exception is the 0.50.x band, where the value does
+not round-trip at all.

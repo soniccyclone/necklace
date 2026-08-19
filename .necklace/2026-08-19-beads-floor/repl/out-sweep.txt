@@ -1,0 +1,346 @@
+===== bd 1.1.2 =====
+RESULT	version	0	bd version 1.1.2 (20e493e56)
+RESULT	version-parseable	0	1.1.2
+RESULT	init	0	Thanks for using bd! Quick heads-up: bd shares anonymous usage metrics —
+RESULT	where	0	/work/.beads
+RESULT	cfg-set-auto	0	Set export.auto = true (in config.yaml)
+RESULT	cfg-set-gitadd	0	Set export.git-add = true (in config.yaml)
+RESULT	cfg-get-auto	0	true
+RESULT	cfg-get-auto-is-true	0	true
+RESULT	cfg-get-gitadd	0	true
+RESULT	cfg-get-gitadd-is-true	0	true
+RESULT	prime	0	[bd prime] If this output is truncated by your host, read the full persisted hook output b
+RESULT	create	0	✓ Created issue: work-6dx — CUJ-01 slice
+RESULT	list	0	○ work-6dx ● P1 CUJ-01 slice
+RESULT	ready	0	○ work-6dx ● P1 CUJ-01 slice
+RESULT	export-o	0	Exported 1 issues to .beads/issues.jsonl
+RESULT	export-file	0	328 bytes
+===== bd 1.1.0 =====
+RESULT	version	0	bd version 1.1.0 (8e4e59d39)
+RESULT	version-parseable	0	1.1.0
+RESULT	init	0	  Repository ID: 0c9a453f
+RESULT	where	0	/work/.beads
+RESULT	cfg-set-auto	0	Set export.auto = true (in config.yaml)
+RESULT	cfg-set-gitadd	0	Set export.git-add = true (in config.yaml)
+RESULT	cfg-get-auto	0	true
+RESULT	cfg-get-auto-is-true	0	true
+RESULT	cfg-get-gitadd	0	true
+RESULT	cfg-get-gitadd-is-true	0	true
+RESULT	prime	0	[bd prime] If this output is truncated by your host, read the full persisted hook output b
+RESULT	create	0	✓ Created issue: work-09w — CUJ-01 slice
+RESULT	list	0	○ work-09w ● P1 CUJ-01 slice
+RESULT	ready	0	○ work-09w ● P1 CUJ-01 slice
+RESULT	export-o	0	Exported 1 issues to .beads/issues.jsonl
+RESULT	export-file	0	328 bytes
+===== bd 1.0.5 =====
+RESULT	install	1	npm error code 1
+===== bd 1.0.4 =====
+RESULT	version	0	bd version 1.0.4 (ce242a879)
+RESULT	version-parseable	0	1.0.4
+RESULT	init	0	  Repository ID: 0c9a453f
+RESULT	where	0	/work/.beads
+RESULT	cfg-set-auto	0	Set export.auto = true (in config.yaml)
+RESULT	cfg-set-gitadd	0	Set export.git-add = true (in config.yaml)
+RESULT	cfg-get-auto	0	true
+RESULT	cfg-get-auto-is-true	0	true
+RESULT	cfg-get-gitadd	0	true
+RESULT	cfg-get-gitadd-is-true	0	true
+RESULT	prime	0	[bd prime] If this output is truncated by your host, read the full persisted hook output b
+RESULT	create	0	✓ Created issue: work-qmp — CUJ-01 slice
+RESULT	list	0	○ work-qmp ● P1 CUJ-01 slice
+RESULT	ready	0	○ work-qmp ● P1 CUJ-01 slice
+RESULT	export-o	0	Exported 1 issues to .beads/issues.jsonl
+RESULT	export-file	0	328 bytes
+===== bd 1.0.3 =====
+RESULT	version	0	bd version 1.0.3 (1b2dd2cb)
+RESULT	version-parseable	0	1.0.3
+RESULT	init	0	  Repository ID: 0c9a453f
+RESULT	where	0	/work/.beads
+RESULT	cfg-set-auto	0	Set export.auto = true (in config.yaml)
+RESULT	cfg-set-gitadd	0	Set export.git-add = true (in config.yaml)
+RESULT	cfg-get-auto	0	true
+RESULT	cfg-get-auto-is-true	0	true
+RESULT	cfg-get-gitadd	0	true
+RESULT	cfg-get-gitadd-is-true	0	true
+RESULT	prime	0	# Beads Workflow Context
+RESULT	create	0	✓ Created issue: work-10q — CUJ-01 slice
+RESULT	list	0	○ work-10q ● P1 CUJ-01 slice
+RESULT	ready	0	○ work-10q ● P1 CUJ-01 slice
+RESULT	export-o	0	Exported 1 issues to .beads/issues.jsonl
+RESULT	export-file	0	328 bytes
+===== bd 0.63.3 =====
+RESULT	install	1	npm error code 1
+===== bd 0.62.0 =====
+RESULT	version	0	bd version 0.62.0 (1402021b)
+RESULT	version-parseable	0	0.62.0
+RESULT	init	1	Error: failed to open Dolt store: Dolt server unreachable at 127.0.0.1:0 and auto-start fa
+RESULT	where	1	warning: no beads configuration found in /work/.beads; database name may default incorrect
+RESULT	cfg-set-auto	1	warning: no beads configuration found in /work/.beads; database name may default incorrect
+RESULT	cfg-set-gitadd	1	warning: no beads configuration found in /work/.beads; database name may default incorrect
+RESULT	cfg-get-auto	1	warning: no beads configuration found in /work/.beads; database name may default incorrect
+RESULT	cfg-get-auto-is-true	1	got:[warning: no beads configuration found in /work/.beads; database name may default inco
+RESULT	cfg-get-gitadd	1	warning: no beads configuration found in /work/.beads; database name may default incorrect
+RESULT	cfg-get-gitadd-is-true	1	got:[warning: no beads configuration found in /work/.beads; database name may default inco
+RESULT	prime	0	# Beads Workflow Context
+RESULT	create	1	warning: no beads configuration found in /work/.beads; database name may default incorrect
+RESULT	list	1	warning: no beads configuration found in /work/.beads; database name may default incorrect
+RESULT	ready	1	warning: no beads configuration found in /work/.beads; database name may default incorrect
+RESULT	export-o	1	warning: no beads configuration found in /work/.beads; database name may default incorrect
+RESULT	export-file	1	missing or empty
+===== bd 0.61.0 =====
+RESULT	version	0	bd version 0.61.0 (3ac028bf)
+RESULT	version-parseable	0	0.61.0
+RESULT	init	1	Error: failed to open Dolt store: Dolt server unreachable at 127.0.0.1:0 and auto-start fa
+RESULT	where	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:0 and auto-start fail
+RESULT	cfg-set-auto	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:0 and auto-start fail
+RESULT	cfg-set-gitadd	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:0 and auto-start fail
+RESULT	cfg-get-auto	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:0 and auto-start fail
+RESULT	cfg-get-auto-is-true	1	got:[Error: failed to open database: Dolt server unreachable at 127.0.0.1:0 and auto-start
+RESULT	cfg-get-gitadd	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:0 and auto-start fail
+RESULT	cfg-get-gitadd-is-true	1	got:[Error: failed to open database: Dolt server unreachable at 127.0.0.1:0 and auto-start
+RESULT	prime	0	# Beads Workflow Context
+RESULT	create	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:0 and auto-start fail
+RESULT	list	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:0 and auto-start fail
+RESULT	ready	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:0 and auto-start fail
+RESULT	export-o	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:0 and auto-start fail
+RESULT	export-file	1	missing or empty
+===== bd 0.60.0 =====
+RESULT	version	0	bd version 0.60.0 (91df6ef6)
+RESULT	version-parseable	0	0.60.0
+RESULT	init	1	Error: failed to connect to dolt server: Dolt server unreachable at 127.0.0.1:0 and auto-s
+RESULT	where	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:0 and auto-start fail
+RESULT	cfg-set-auto	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:0 and auto-start fail
+RESULT	cfg-set-gitadd	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:0 and auto-start fail
+RESULT	cfg-get-auto	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:0 and auto-start fail
+RESULT	cfg-get-auto-is-true	1	got:[Error: failed to open database: Dolt server unreachable at 127.0.0.1:0 and auto-start
+RESULT	cfg-get-gitadd	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:0 and auto-start fail
+RESULT	cfg-get-gitadd-is-true	1	got:[Error: failed to open database: Dolt server unreachable at 127.0.0.1:0 and auto-start
+RESULT	prime	0	# Beads Workflow Context
+RESULT	create	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:0 and auto-start fail
+RESULT	list	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:0 and auto-start fail
+RESULT	ready	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:0 and auto-start fail
+RESULT	export-o	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:0 and auto-start fail
+RESULT	export-file	1	missing or empty
+===== bd 0.59.0 =====
+RESULT	version	0	bd version 0.59.0 (018d18e0)
+RESULT	version-parseable	0	0.59.0
+RESULT	init	1	Error: failed to connect to dolt server: Dolt server unreachable at 127.0.0.1:14082 and au
+RESULT	where	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:3307 and auto-start f
+RESULT	cfg-set-auto	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:3307 and auto-start f
+RESULT	cfg-set-gitadd	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:3307 and auto-start f
+RESULT	cfg-get-auto	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:3307 and auto-start f
+RESULT	cfg-get-auto-is-true	1	got:[Error: failed to open database: Dolt server unreachable at 127.0.0.1:3307 and auto-st
+RESULT	cfg-get-gitadd	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:3307 and auto-start f
+RESULT	cfg-get-gitadd-is-true	1	got:[Error: failed to open database: Dolt server unreachable at 127.0.0.1:3307 and auto-st
+RESULT	prime	0	# Beads Workflow Context
+RESULT	create	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:3307 and auto-start f
+RESULT	list	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:3307 and auto-start f
+RESULT	ready	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:3307 and auto-start f
+RESULT	export-o	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:3307 and auto-start f
+RESULT	export-file	1	missing or empty
+===== bd 0.58.0 =====
+RESULT	version	0	bd version 0.58.0 (ae14933d)
+RESULT	version-parseable	0	0.58.0
+RESULT	init	1	Error: failed to connect to dolt server: Dolt server unreachable at 127.0.0.1:3307 and aut
+RESULT	where	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:3307 and auto-start f
+RESULT	cfg-set-auto	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:3307 and auto-start f
+RESULT	cfg-set-gitadd	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:3307 and auto-start f
+RESULT	cfg-get-auto	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:3307 and auto-start f
+RESULT	cfg-get-auto-is-true	1	got:[Error: failed to open database: Dolt server unreachable at 127.0.0.1:3307 and auto-st
+RESULT	cfg-get-gitadd	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:3307 and auto-start f
+RESULT	cfg-get-gitadd-is-true	1	got:[Error: failed to open database: Dolt server unreachable at 127.0.0.1:3307 and auto-st
+RESULT	prime	0	# Beads Workflow Context
+RESULT	create	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:3307 and auto-start f
+RESULT	list	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:3307 and auto-start f
+RESULT	ready	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:3307 and auto-start f
+RESULT	export-o	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:3307 and auto-start f
+RESULT	export-file	1	missing or empty
+===== bd 0.57.0 =====
+RESULT	version	0	bd version 0.57.0 (e6e4682e)
+RESULT	version-parseable	0	0.57.0
+RESULT	init	1	Error: failed to connect to dolt server: Dolt server unreachable at 127.0.0.1:3307 and aut
+RESULT	where	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:3307 and auto-start f
+RESULT	cfg-set-auto	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:3307 and auto-start f
+RESULT	cfg-set-gitadd	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:3307 and auto-start f
+RESULT	cfg-get-auto	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:3307 and auto-start f
+RESULT	cfg-get-auto-is-true	1	got:[Error: failed to open database: Dolt server unreachable at 127.0.0.1:3307 and auto-st
+RESULT	cfg-get-gitadd	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:3307 and auto-start f
+RESULT	cfg-get-gitadd-is-true	1	got:[Error: failed to open database: Dolt server unreachable at 127.0.0.1:3307 and auto-st
+RESULT	prime	0	# Beads Workflow Context
+RESULT	create	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:3307 and auto-start f
+RESULT	list	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:3307 and auto-start f
+RESULT	ready	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:3307 and auto-start f
+RESULT	export-o	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:3307 and auto-start f
+RESULT	export-file	1	missing or empty
+===== bd 0.56.1 =====
+RESULT	version	0	bd version 0.56.1 (48bfaaad)
+RESULT	version-parseable	0	0.56.1
+RESULT	init	1	Error: failed to connect to dolt server: Dolt server unreachable at 127.0.0.1:3307: dial t
+RESULT	where	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:3307: dial tcp 127.0.
+RESULT	cfg-set-auto	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:3307: dial tcp 127.0.
+RESULT	cfg-set-gitadd	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:3307: dial tcp 127.0.
+RESULT	cfg-get-auto	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:3307: dial tcp 127.0.
+RESULT	cfg-get-auto-is-true	1	got:[Error: failed to open database: Dolt server unreachable at 127.0.0.1:3307: dial tcp 1
+RESULT	cfg-get-gitadd	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:3307: dial tcp 127.0.
+RESULT	cfg-get-gitadd-is-true	1	got:[Error: failed to open database: Dolt server unreachable at 127.0.0.1:3307: dial tcp 1
+RESULT	prime	0	# Beads Workflow Context
+RESULT	create	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:3307: dial tcp 127.0.
+RESULT	list	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:3307: dial tcp 127.0.
+RESULT	ready	1	Error: failed to open database: Dolt server unreachable at 127.0.0.1:3307: dial tcp 127.0.
+RESULT	export-o	1	Error: unknown command "export" for "bd"
+RESULT	export-file	1	missing or empty
+===== bd 0.55.4 =====
+RESULT	install	1	npm error code 1
+===== bd 0.52.0 =====
+RESULT	version	0	bd version 0.52.0 (ea22fd59)
+RESULT	version-parseable	0	0.52.0
+RESULT	init	1	Error: failed to create dolt database: dolt: this binary was built without CGO support; re
+RESULT	where	1	Error: no beads database found
+RESULT	cfg-set-auto	1	Error: no beads database found
+RESULT	cfg-set-gitadd	1	Error: no beads database found
+RESULT	cfg-get-auto	1	Error: no beads database found
+RESULT	cfg-get-auto-is-true	1	got:[Error: no beads database found
+RESULT	cfg-get-gitadd	1	Error: no beads database found
+RESULT	cfg-get-gitadd-is-true	1	got:[Error: no beads database found
+RESULT	prime	0	# Beads Workflow Context
+RESULT	create	1	Error: no beads database found
+RESULT	list	1	Error: no beads database found
+RESULT	ready	1	Error: no beads database found
+RESULT	export-o	1	Error: no beads database found
+RESULT	export-file	1	missing or empty
+===== bd 0.51.0 =====
+RESULT	version	0	bd version 0.51.0 (f4f70a37)
+RESULT	version-parseable	0	0.51.0
+RESULT	init	1	Error: failed to create dolt database: dolt: this binary was built without CGO support; re
+RESULT	where	1	Error: no beads database found
+RESULT	cfg-set-auto	1	Error: no beads database found
+RESULT	cfg-set-gitadd	1	Error: no beads database found
+RESULT	cfg-get-auto	1	Error: no beads database found
+RESULT	cfg-get-auto-is-true	1	got:[Error: no beads database found
+RESULT	cfg-get-gitadd	1	Error: no beads database found
+RESULT	cfg-get-gitadd-is-true	1	got:[Error: no beads database found
+RESULT	prime	0	# Beads Workflow Context
+RESULT	create	1	Error: no beads database found
+RESULT	list	1	Error: no beads database found
+RESULT	ready	1	Error: no beads database found
+RESULT	export-o	1	Error: no beads database found
+RESULT	export-file	1	missing or empty
+===== bd 0.50.3 =====
+RESULT	version	0	bd version 0.50.3 (bd25acbc)
+RESULT	version-parseable	0	0.50.3
+RESULT	init	0	Note: dolt backend requires CGO (not available in this build).
+RESULT	where	0	Note: bd v0.50+ defaults to Dolt. Run 'bd migrate --to-dolt' to upgrade your database.
+RESULT	cfg-set-auto	0	Set export.auto = true
+RESULT	cfg-set-gitadd	0	Set export.git-add = true
+RESULT	cfg-get-auto	0	export.auto (not set)
+RESULT	cfg-get-auto-is-true	1	got:[export.auto (not set)]
+RESULT	cfg-get-gitadd	0	export.git-add (not set)
+RESULT	cfg-get-gitadd-is-true	1	got:[export.git-add (not set)]
+RESULT	prime	0	# Beads Workflow Context
+RESULT	create	0	warning: beads.role not configured. Run 'bd init' to set.
+RESULT	list	0	○ work-1 [● P1] [task] [cuj:CUJ-01] - CUJ-01 slice
+RESULT	ready	0	
+RESULT	export-o	0	
+RESULT	export-file	0	271 bytes
+===== bd 0.49.6 =====
+RESULT	version	0	bd version 0.49.6 (c064f2aa)
+RESULT	version-parseable	0	0.49.6
+RESULT	init	0	  Repository ID: 0c9a453f
+RESULT	where	0	/work/.beads
+RESULT	cfg-set-auto	0	Set export.auto = true
+RESULT	cfg-set-gitadd	0	Set export.git-add = true
+RESULT	cfg-get-auto	0	true
+RESULT	cfg-get-auto-is-true	0	true
+RESULT	cfg-get-gitadd	0	true
+RESULT	cfg-get-gitadd-is-true	0	true
+RESULT	prime	0	# Beads Workflow Context
+RESULT	create	0	warning: beads.role not configured. Run 'bd init' to set.
+RESULT	list	0	○ work-6fy [● P1] [task] [cuj:CUJ-01] - CUJ-01 slice
+RESULT	ready	0	
+RESULT	export-o	0	
+RESULT	export-file	0	271 bytes
+===== bd 0.47.1 =====
+RESULT	version	0	bd version 0.47.1 (279192c5)
+RESULT	version-parseable	0	0.47.1
+RESULT	init	0	  Repository ID: 0c9a453f
+RESULT	where	0	/work/.beads
+RESULT	cfg-set-auto	0	Set export.auto = true
+RESULT	cfg-set-gitadd	0	Set export.git-add = true
+RESULT	cfg-get-auto	0	true
+RESULT	cfg-get-auto-is-true	0	true
+RESULT	cfg-get-gitadd	0	true
+RESULT	cfg-get-gitadd-is-true	0	true
+RESULT	prime	0	# Beads Workflow Context
+RESULT	create	0	✓ Created issue: work-8yq
+RESULT	list	0	○ work-8yq [● P1] [task] [cuj:CUJ-01] - CUJ-01 slice
+RESULT	ready	0	
+RESULT	export-o	0	
+RESULT	export-file	0	273 bytes
+===== bd 0.45.0 =====
+RESULT	version	0	bd version 0.45.0 (32873406)
+RESULT	version-parseable	0	0.45.0
+RESULT	init	0	  Repository ID: 0c9a453f
+RESULT	where	0	/work/.beads
+RESULT	cfg-set-auto	0	Set export.auto = true
+RESULT	cfg-set-gitadd	0	Set export.git-add = true
+RESULT	cfg-get-auto	0	true
+RESULT	cfg-get-auto-is-true	0	true
+RESULT	cfg-get-gitadd	0	true
+RESULT	cfg-get-gitadd-is-true	0	true
+RESULT	prime	0	# Beads Workflow Context
+RESULT	create	0	✓ Created issue: work-6tt
+RESULT	list	0	work-6tt [P1] [task] open [cuj:CUJ-01] - CUJ-01 slice
+RESULT	ready	0	
+RESULT	export-o	0	
+RESULT	export-file	0	255 bytes
+===== bd 0.43.0 =====
+RESULT	version	0	bd version 0.43.0 (76359764)
+RESULT	version-parseable	0	0.43.0
+RESULT	init	0	  Repository ID: 0c9a453f
+RESULT	where	0	/work/.beads
+RESULT	cfg-set-auto	0	Set export.auto = true
+RESULT	cfg-set-gitadd	0	Set export.git-add = true
+RESULT	cfg-get-auto	0	true
+RESULT	cfg-get-auto-is-true	0	true
+RESULT	cfg-get-gitadd	0	true
+RESULT	cfg-get-gitadd-is-true	0	true
+RESULT	prime	0	# Beads Workflow Context
+RESULT	create	0	✓ Created issue: work-bkx
+RESULT	list	0	work-bkx [P1] [task] open [cuj:CUJ-01] - CUJ-01 slice
+RESULT	ready	0	
+RESULT	export-o	0	
+RESULT	export-file	0	255 bytes
+===== bd 0.41.0 =====
+RESULT	version	0	bd version 0.41.0 (f19e5c65)
+RESULT	version-parseable	0	0.41.0
+RESULT	init	0	  Sync branch: master
+RESULT	where	0	/work/.beads
+RESULT	cfg-set-auto	0	Set export.auto = true
+RESULT	cfg-set-gitadd	0	Set export.git-add = true
+RESULT	cfg-get-auto	0	true
+RESULT	cfg-get-auto-is-true	0	true
+RESULT	cfg-get-gitadd	0	true
+RESULT	cfg-get-gitadd-is-true	0	true
+RESULT	prime	0	# Beads Workflow Context
+RESULT	create	0	✓ Created issue: work-e1o
+RESULT	list	0	work-e1o [P1] [task] open [cuj:CUJ-01] - CUJ-01 slice
+RESULT	ready	0	
+RESULT	export-o	0	
+RESULT	export-file	0	255 bytes
+===== bd 0.39.0 =====
+RESULT	version	0	bd version 0.39.0 (1db8379b)
+RESULT	version-parseable	0	0.39.0
+RESULT	init	0	  Sync branch: master
+RESULT	where	1	Error: unknown command "where" for "bd"
+RESULT	cfg-set-auto	0	Set export.auto = true
+RESULT	cfg-set-gitadd	0	Set export.git-add = true
+RESULT	cfg-get-auto	0	true
+RESULT	cfg-get-auto-is-true	0	true
+RESULT	cfg-get-gitadd	0	true
+RESULT	cfg-get-gitadd-is-true	0	true
+RESULT	prime	0	# Beads Workflow Context
+RESULT	create	0	✓ Created issue: work-eiz
+RESULT	list	0	work-eiz [P1] [task] open [cuj:CUJ-01] - CUJ-01 slice
+RESULT	ready	0	
+RESULT	export-o	0	
+RESULT	export-file	0	255 bytes
