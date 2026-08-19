@@ -40,3 +40,6 @@ site/org/skill-*.org
 # REPL scratch: the demo installs prompt libraries to compare against.
 .necklace/**/repl/node_modules/
 .necklace/**/repl/package-lock.json
+
+# Beads / Dolt files (added by bd init)
+*.gate.lock*
