@@ -75,8 +75,9 @@ it through rather than mapping every failure onto the one remediation necklace c
 Record the measured range in the repository, with the probe that produced it, so the claim is
 checkable rather than remembered.
 
-## Open questions
+## Decided
 
-| Question | Why it cannot be settled by reading or running |
-| --- | --- |
-| Drop the floor entirely, or lower it to 0.39.1 and keep the mechanism? | Both satisfy the evidence. Dropping it accepts that a future bd could break necklace with no version tripwire; keeping it accepts a number that is already wrong for 0.51.0–0.62.0. This is risk appetite, and it is Nathan's call. |
+The floor goes. Nathan's call, 2026-08-19: capability probes become the whole gate, and there is no
+version constant left to maintain. The trade he accepted is that a future bd could break necklace in
+a way the probes do not exercise, and there would be no version tripwire to catch it. The counter is
+that the floor never was that tripwire — it only ever fired on versions that worked.
