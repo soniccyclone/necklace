@@ -1,0 +1,14 @@
+4:export const VERSION_FLOOR = [0, 0, 0];
+62:  if (version && below(version, VERSION_FLOOR)) {
+1.2.1	GATE	PASS		
+1.1.0	GATE	PASS		
+1.0.4	GATE	PASS		
+1.0.2	GATE	PASS		
+0.62.0	GATE	BLOCK	beads is installed, but this repo has no beads workspace.	
+0.51.0	GATE	BLOCK	beads is installed, but this repo has no beads workspace.	
+0.50.3	GATE	PASS		export.auto is not set. Run: bd config set export.auto true | export.git-add is not set. Run: bd config set export.git-add true
+0.49.6	GATE	PASS		
+0.45.0	GATE	PASS		
+0.41.0	GATE	PASS		
+0.39.1	GATE	PASS		
+0.39.0	GATE	BLOCK	beads is installed, but this repo has no beads workspace.	

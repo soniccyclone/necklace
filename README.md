@@ -39,6 +39,10 @@ necklace init --global                        # install for every repo
   checks and tells you what to run; it never installs or initializes on your behalf, because `bd init`
   writes tracked files and commits them and that is your call.
 
+  There is no minimum bd version. necklace runs the bd commands it depends on and accepts whatever
+  answers them, which every bd from 0.39.1 to 1.2.1 does apart from the Dolt-backed 0.51.0-0.62.0
+  line. The measurement and the script behind it are in `.necklace/2026-08-19-beads-floor/`.
+
 ```
 brew install beads          # or: npm i -g @beads/bd
 bd init                     # in your repo

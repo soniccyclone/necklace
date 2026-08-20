@@ -1,0 +1,13 @@
+ℹ tests 25
+ℹ pass 25
+ℹ fail 0
+1.2.1	GATE	PASS		
+1.0.2	GATE	PASS		
+0.51.0	GATE	BLOCK	beads is installed, but this repo has no beads workspace. bd said: Error: no beads database found	
+0.45.0	GATE	PASS		
+0.39.1	GATE	PASS		
+0.39.0	GATE	BLOCK	this bd has no `where` command, so it is too old for necklace. bd said: Error: unknown command "where" for "bd"	
+--- and a genuinely uninitialized repo on current bd ---
+1.2.1-bare	GATE	BLOCK	beads is installed, but this repo has no beads workspace. bd said: Error: No active beads workspace found.	
+
+[exited with code 0]

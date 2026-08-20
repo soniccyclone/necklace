@@ -22,17 +22,20 @@ export async function cleanup(dir) {
  * script, so this runs on Windows as well. That mirrors reality: beads from npm
  * on Windows is `bd.cmd`.
  */
-export async function fakeBd(dir, { version = '1.1.2', exitCode = 0, whereExit = 0, config = {} } = {}) {
+export async function fakeBd(
+  dir,
+  { version = '1.1.2', exitCode = 0, whereExit = 0, whereStderr = '', config = {} } = {},
+) {
   const bin = path.join(dir, 'fakebin');
   await mkdir(bin, { recursive: true });
 
-  const behaviour = JSON.stringify({ version, exitCode, whereExit, config });
+  const behaviour = JSON.stringify({ version, exitCode, whereExit, whereStderr, config });
   await writeFile(
     path.join(bin, 'fake-bd.js'),
     `const b = ${behaviour};
 const [cmd, ...rest] = process.argv.slice(2);
 if (cmd === '--version') { console.log('bd version ' + b.version + ' (fake)'); process.exit(b.exitCode); }
-if (cmd === 'where') { process.exit(b.whereExit); }
+if (cmd === 'where') { if (b.whereStderr) console.error(b.whereStderr); process.exit(b.whereExit); }
 if (cmd === 'config' && rest[0] === 'get') {
   const v = b.config[rest[1]];
   if (v !== undefined) { console.log(v); process.exit(0); }
