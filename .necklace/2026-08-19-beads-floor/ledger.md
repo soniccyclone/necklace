@@ -174,3 +174,7 @@ probe table. The README never claimed one, so the work there was additive — sa
 point at the probe. New file `test/docs.test.js`; both tests red first. Closed `necklace-uoj`.
 
 Full suite: 27 tests, 27 passing.
+
+Nathan dropped the `.codex/` and `.cursor/` integration files `bd init` committed. The `.gitignore`
+line from that same commit, `*.gate.lock*`, stayed — it ignores beads lock files and has nothing to do
+with the agent integrations.
